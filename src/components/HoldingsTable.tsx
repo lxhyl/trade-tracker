@@ -73,7 +73,7 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
       <CardHeader className="border-b bg-muted/30 px-4 md:px-6">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 md:gap-3 min-w-0">
-            <div className="flex h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
+            <div className="flex h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-md bg-muted text-primary">
               <Wallet className="h-4 w-4 md:h-5 md:w-5" />
             </div>
             <CardTitle className="text-base md:text-lg truncate">{t("holdings.title")}</CardTitle>
@@ -127,12 +127,12 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead>{t("holdings.asset")}</TableHead>
-                <TableHead className="text-right">{t("holdings.quantity")}</TableHead>
-                <TableHead className="text-right">{t("holdings.avgCost")}</TableHead>
-                <TableHead className="text-right">{t("holdings.currentPrice")}</TableHead>
-                <TableHead className="text-right">{t("holdings.value")}</TableHead>
-                <TableHead className="text-right">{t("holdings.pnl")}</TableHead>
+                <TableHead className="label-caps">{t("holdings.asset")}</TableHead>
+                <TableHead className="label-caps text-right">{t("holdings.quantity")}</TableHead>
+                <TableHead className="label-caps text-right">{t("holdings.avgCost")}</TableHead>
+                <TableHead className="label-caps text-right">{t("holdings.currentPrice")}</TableHead>
+                <TableHead className="label-caps text-right">{t("holdings.value")}</TableHead>
+                <TableHead className="label-caps text-right">{t("holdings.pnl")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -164,8 +164,8 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
                     {h.currentValue > 0 ? fc(h.currentValue) : "-"}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium font-num whitespace-nowrap ${
-                      h.unrealizedPnL >= 0 ? c.gainPill : c.lossPill
+                    <div className={`inline-flex items-center justify-end gap-1.5 text-sm font-semibold font-num whitespace-nowrap ${
+                      h.unrealizedPnL >= 0 ? c.gainText : c.lossText
                     }`}>
                       {h.unrealizedPnL >= 0 ? (
                         <TrendingUp className="h-3.5 w-3.5" />

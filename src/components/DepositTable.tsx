@@ -35,7 +35,7 @@ function getStatus(maturityDate: Date | null): {
   className: string;
 } {
   if (!maturityDate) {
-    return { labelKey: "deposit.active", className: "bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300" };
+    return { labelKey: "deposit.active", className: "bg-muted text-emerald-600 dark:text-emerald-400" };
   }
 
   const now = new Date();
@@ -43,12 +43,12 @@ function getStatus(maturityDate: Date | null): {
   const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
   if (diffDays < 0) {
-    return { labelKey: "deposit.matured", className: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400" };
+    return { labelKey: "deposit.matured", className: "bg-muted text-muted-foreground" };
   }
   if (diffDays < 30) {
-    return { labelKey: "deposit.maturingSoon", className: "bg-yellow-50 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-300" };
+    return { labelKey: "deposit.maturingSoon", className: "bg-muted text-amber-600 dark:text-amber-400" };
   }
-  return { labelKey: "deposit.active", className: "bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300" };
+  return { labelKey: "deposit.active", className: "bg-muted text-emerald-600 dark:text-emerald-400" };
 }
 
 export function DepositTable({
@@ -105,7 +105,7 @@ export function DepositTable({
         <CardHeader className="border-b bg-muted/30 px-4 md:px-6">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="flex h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 text-white">
+              <div className="flex h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-md bg-muted text-primary">
                 <PiggyBank className="h-4 w-4 md:h-5 md:w-5" />
               </div>
               <CardTitle className="text-base md:text-lg truncate">
@@ -149,15 +149,15 @@ export function DepositTable({
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead>{t("deposit.asset")}</TableHead>
-                    <TableHead className="text-right">{t("deposit.principalCol")}</TableHead>
-                    <TableHead className="text-right">{t("deposit.rate")}</TableHead>
-                    <TableHead className="text-right">{t("deposit.accruedInterest")}</TableHead>
-                    <TableHead className="text-right">{t("deposit.currentValue")}</TableHead>
-                    <TableHead className="text-right">{t("deposit.startDateCol")}</TableHead>
-                    <TableHead className="text-right">{t("deposit.maturity")}</TableHead>
-                    <TableHead className="text-right">{t("deposit.status")}</TableHead>
-                    {!readOnly && <TableHead className="text-right">{t("deposit.actions")}</TableHead>}
+                    <TableHead className="label-caps">{t("deposit.asset")}</TableHead>
+                    <TableHead className="label-caps text-right">{t("deposit.principalCol")}</TableHead>
+                    <TableHead className="label-caps text-right">{t("deposit.rate")}</TableHead>
+                    <TableHead className="label-caps text-right">{t("deposit.accruedInterest")}</TableHead>
+                    <TableHead className="label-caps text-right">{t("deposit.currentValue")}</TableHead>
+                    <TableHead className="label-caps text-right">{t("deposit.startDateCol")}</TableHead>
+                    <TableHead className="label-caps text-right">{t("deposit.maturity")}</TableHead>
+                    <TableHead className="label-caps text-right">{t("deposit.status")}</TableHead>
+                    {!readOnly && <TableHead className="label-caps text-right">{t("deposit.actions")}</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -167,7 +167,7 @@ export function DepositTable({
                       <TableRow key={h.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl font-bold text-white bg-gradient-to-br from-green-500 to-emerald-500">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-primary">
                               <PiggyBank className="h-5 w-5" />
                             </div>
                             <div>
@@ -195,7 +195,7 @@ export function DepositTable({
                         </TableCell>
                         <TableCell className="text-right">
                           {h.accruedInterest > 0 ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-medium font-num bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300">
+                            <span className="text-sm font-medium font-num text-amber-600 dark:text-amber-400">
                               {fc(h.accruedInterest)}
                             </span>
                           ) : (
@@ -274,7 +274,7 @@ export function DepositTable({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-primary">
                 <PiggyBank className="h-5 w-5" />
               </div>
               <div>
@@ -309,7 +309,7 @@ export function DepositTable({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-amber-600 dark:text-amber-400">
                 <ArrowUpRight className="h-5 w-5" />
               </div>
               <div>
@@ -334,7 +334,6 @@ export function DepositTable({
                 </Button>
                 <Button
                   size="sm"
-                  className="bg-gradient-to-r from-orange-500 to-amber-500 text-white"
                   onClick={confirmWithdraw}
                   disabled={isPending}
                 >

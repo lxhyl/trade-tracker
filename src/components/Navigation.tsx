@@ -49,19 +49,19 @@ export function Navigation() {
   return (
     <>
       {/* Desktop: top nav */}
-      <nav className="sticky top-0 z-50 border-b bg-white/85 dark:bg-gray-950/85 backdrop-blur-xl hidden md:block">
+      <nav className="sticky top-0 z-50 border-b bg-background hidden md:block">
         <div className="container mx-auto px-4">
-          <div className="flex h-14 items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-2.5 group">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-teal-500 text-white shadow-md shadow-blue-600/20 transition-transform group-hover:scale-105">
+          <div className="flex h-12 items-center justify-between">
+            <Link href="/dashboard" className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <TrendingUp className="h-4 w-4" />
               </div>
-              <span className="text-lg font-bold text-gradient">
+              <span className="text-lg font-bold text-foreground">
                 {t("common.appName")}
               </span>
             </Link>
 
-            <div className="flex items-center gap-0.5 rounded-lg bg-secondary/60 p-1">
+            <div className="flex items-center gap-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive =
@@ -73,13 +73,13 @@ export function Navigation() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-2 px-3.5 py-1.5 rounded-md text-sm font-medium transition-all duration-200",
+                      "flex items-center gap-2 px-3.5 py-1.5 text-sm font-medium transition-all duration-200 border-b-2",
                       isActive
-                        ? "bg-white dark:bg-gray-800 text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "text-primary font-semibold border-primary"
+                        : "text-muted-foreground hover:text-foreground border-transparent"
                     )}
                   >
-                    <Icon className={cn("h-4 w-4", isActive && "text-primary")} />
+                    <Icon className="h-4 w-4" />
                     <span>{t(item.labelKey)}</span>
                   </Link>
                 );
@@ -90,13 +90,13 @@ export function Navigation() {
       </nav>
 
       {/* Mobile: compact top header with hamburger */}
-      <nav className="sticky top-0 z-50 border-b bg-white/85 dark:bg-gray-950/85 backdrop-blur-xl md:hidden">
+      <nav className="sticky top-0 z-50 border-b bg-background md:hidden">
         <div className="flex h-12 items-center justify-between px-4" ref={menuRef}>
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-teal-500 text-white">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <TrendingUp className="h-3.5 w-3.5" />
             </div>
-            <span className="text-lg font-bold text-gradient">
+            <span className="text-lg font-bold text-foreground">
               {t("common.appName")}
             </span>
           </Link>
@@ -110,7 +110,7 @@ export function Navigation() {
 
           {/* Mobile dropdown menu */}
           {menuOpen && (
-            <div className="absolute top-full left-0 right-0 border-b bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl shadow-lg animate-fade-in">
+            <div className="absolute top-full left-0 right-0 border-b bg-background shadow-md animate-fade-in">
               <div className="px-3 py-2 space-y-0.5">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -125,11 +125,11 @@ export function Navigation() {
                       className={cn(
                         "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-primary/8 text-primary"
+                          ? "text-primary font-semibold border-l-2 border-primary pl-3"
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                       )}
                     >
-                      <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
+                      <Icon className="h-5 w-5" />
                       <span>{t(item.labelKey)}</span>
                     </Link>
                   );
