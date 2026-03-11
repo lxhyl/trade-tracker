@@ -26,21 +26,25 @@ export default async function EditTransactionPage({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">{t(locale, "form.editTitle")}</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          {t(locale, "form.editTitle")}
+        </h1>
+        <p className="text-muted-foreground mt-1">
           {t(locale, "form.editSubtitle")}
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto">
-        <TransactionForm
-          transaction={transaction}
-          mode="edit"
-          currency={currency}
-          rates={rates}
-        />
+      <div className="max-w-2xl">
+        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+          <TransactionForm
+            transaction={transaction}
+            mode="edit"
+            currency={currency}
+            rates={rates}
+          />
+        </div>
       </div>
     </div>
   );

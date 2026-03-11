@@ -26,15 +26,17 @@ export default async function EditDepositPage({
   if (!deposit) notFound();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">{t(locale, "deposit.editTitle")}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t(locale, "deposit.editTitle")}</h1>
         <p className="text-sm md:text-base text-muted-foreground mt-1">
           {t(locale, "deposit.editSubtitle")}
         </p>
       </div>
-      <div className="max-w-3xl mx-auto">
-        <TransactionForm deposit={deposit} mode="edit" currency={currency} rates={rates} />
+      <div className="max-w-2xl">
+        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+          <TransactionForm deposit={deposit} mode="edit" currency={currency} rates={rates} />
+        </div>
       </div>
     </div>
   );

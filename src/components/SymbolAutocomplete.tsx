@@ -126,7 +126,7 @@ export function SymbolAutocomplete({
         </div>
       )}
       {isOpen && results.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full rounded-xl border-2 border-input bg-background shadow-lg overflow-hidden">
+        <ul className="absolute z-50 mt-1 w-full rounded-lg border bg-background shadow-md overflow-hidden">
           {results.map((item, index) => (
             <li
               key={item.symbol}

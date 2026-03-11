@@ -20,20 +20,24 @@ export default async function NewTransactionPage({
   const initialAssetType = params.type === "deposit" ? "deposit" : undefined;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">{t(locale, "form.addTitle")}</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          {t(locale, "form.addTitle")}
+        </h1>
+        <p className="text-muted-foreground mt-1">
           {t(locale, "form.addSubtitle")}
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto">
-        <TransactionForm
-          currency={currency}
-          rates={rates}
-          initialAssetType={initialAssetType}
-        />
+      <div className="max-w-2xl">
+        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+          <TransactionForm
+            currency={currency}
+            rates={rates}
+            initialAssetType={initialAssetType}
+          />
+        </div>
       </div>
     </div>
   );
