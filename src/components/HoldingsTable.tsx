@@ -70,7 +70,7 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="border-b bg-muted/20 px-4 md:px-6">
+      <CardHeader className="border-b bg-muted/30 px-4 md:px-6">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 md:gap-3 min-w-0">
             <div className="flex h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
@@ -126,57 +126,55 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
           <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent border-b-2">
-                <TableHead className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">{t("holdings.asset")}</TableHead>
-                <TableHead className="text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">{t("holdings.quantity")}</TableHead>
-                <TableHead className="text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">{t("holdings.avgCost")}</TableHead>
-                <TableHead className="text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">{t("holdings.currentPrice")}</TableHead>
-                <TableHead className="text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">{t("holdings.value")}</TableHead>
-                <TableHead className="text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">{t("holdings.pnl")}</TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>{t("holdings.asset")}</TableHead>
+                <TableHead className="text-right">{t("holdings.quantity")}</TableHead>
+                <TableHead className="text-right">{t("holdings.avgCost")}</TableHead>
+                <TableHead className="text-right">{t("holdings.currentPrice")}</TableHead>
+                <TableHead className="text-right">{t("holdings.value")}</TableHead>
+                <TableHead className="text-right">{t("holdings.pnl")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {holdings.map((h, idx) => (
-                <TableRow key={h.symbol} className={`transition-colors hover:bg-muted/40 ${idx % 2 === 1 ? "bg-muted/10" : ""}`}>
+              {holdings.map((h) => (
+                <TableRow key={h.symbol}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <AssetLogo symbol={h.symbol} assetType={h.assetType} />
                       <div>
-                        <div className="font-semibold tracking-tight">{h.symbol}</div>
+                        <div className="font-semibold">{h.symbol}</div>
                         {h.name && (
-                          <div className="text-xs text-muted-foreground max-w-[120px] truncate">
+                          <div className="text-xs text-muted-foreground">
                             {h.name}
                           </div>
                         )}
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-medium font-num text-sm">
-                    {h.quantity > 0 ? formatNumber(h.quantity, 8) : <span className="text-muted-foreground/40">—</span>}
+                  <TableCell className="text-right font-medium font-num">
+                    {h.quantity > 0 ? formatNumber(h.quantity, 8) : "-"}
                   </TableCell>
-                  <TableCell className="text-right font-num text-sm text-muted-foreground">
-                    {h.avgCost > 0 ? fc(h.avgCost) : <span className="text-muted-foreground/40">—</span>}
+                  <TableCell className="text-right font-num">
+                    {h.avgCost > 0 ? fc(h.avgCost) : "-"}
                   </TableCell>
-                  <TableCell className="text-right font-medium font-num text-sm">
-                    {h.currentPrice > 0 ? fc(h.currentPrice) : <span className="text-muted-foreground/40">—</span>}
+                  <TableCell className="text-right font-medium font-num">
+                    {h.currentPrice > 0 ? fc(h.currentPrice) : "-"}
                   </TableCell>
                   <TableCell className="text-right font-semibold font-num">
-                    {h.currentValue > 0 ? fc(h.currentValue) : <span className="text-muted-foreground/40">—</span>}
+                    {h.currentValue > 0 ? fc(h.currentValue) : "-"}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className={`inline-flex flex-col items-end gap-0.5`}>
-                      <div className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold font-num whitespace-nowrap ${
-                        h.unrealizedPnL >= 0 ? c.gainPill : c.lossPill
-                      }`}>
-                        {h.unrealizedPnL >= 0 ? (
-                          <TrendingUp className="h-3 w-3" />
-                        ) : (
-                          <TrendingDown className="h-3 w-3" />
-                        )}
-                        <span>{h.unrealizedPnL >= 0 ? "+" : "-"}{fc(Math.abs(h.unrealizedPnL))}</span>
-                      </div>
-                      <span className={`text-xs font-num opacity-60 ${h.unrealizedPnL >= 0 ? c.gainText : c.lossText}`}>
-                        {h.unrealizedPnLPercent >= 0 ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
+                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium font-num whitespace-nowrap ${
+                      h.unrealizedPnL >= 0 ? c.gainPill : c.lossPill
+                    }`}>
+                      {h.unrealizedPnL >= 0 ? (
+                        <TrendingUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <TrendingDown className="h-3.5 w-3.5" />
+                      )}
+                      <span>{h.unrealizedPnL >= 0 ? "+" : "-"}{fc(Math.abs(h.unrealizedPnL))}</span>
+                      <span className="text-xs opacity-75">
+                        ({h.unrealizedPnLPercent >= 0 ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)})
                       </span>
                     </div>
                   </TableCell>
