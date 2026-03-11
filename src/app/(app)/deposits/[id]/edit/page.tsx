@@ -33,7 +33,7 @@ export default async function EditDepositPage({
           {t(locale, "deposit.editSubtitle")}
         </p>
       </div>
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
           <TransactionForm deposit={deposit} mode="edit" currency={currency} rates={rates} />
         </div>

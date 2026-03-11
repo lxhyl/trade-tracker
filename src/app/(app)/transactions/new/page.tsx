@@ -30,7 +30,7 @@ export default async function NewTransactionPage({
         </p>
       </div>
 
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto">
         <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
           <TransactionForm
             currency={currency}
