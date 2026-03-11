@@ -49,11 +49,11 @@ export function Navigation() {
   return (
     <>
       {/* Desktop: top nav */}
-      <nav className="sticky top-0 z-50 border-b bg-white/85 dark:bg-gray-950/85 backdrop-blur-xl hidden md:block">
+      <nav className="sticky top-0 z-50 border-b bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl hidden md:block">
         <div className="container mx-auto px-4">
           <div className="flex h-14 items-center justify-between">
             <Link href="/dashboard" className="flex items-center gap-2.5 group">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-teal-500 text-white shadow-md shadow-blue-600/20 transition-transform group-hover:scale-105">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-teal-500 text-white shadow-md shadow-blue-500/30 transition-all duration-200 group-hover:scale-105 group-hover:shadow-blue-500/40">
                 <TrendingUp className="h-4 w-4" />
               </div>
               <span className="text-lg font-bold text-gradient">
@@ -61,7 +61,7 @@ export function Navigation() {
               </span>
             </Link>
 
-            <div className="flex items-center gap-0.5 rounded-lg bg-secondary/60 p-1">
+            <div className="flex items-center gap-0.5 rounded-xl bg-secondary/70 dark:bg-secondary/50 p-1 border border-border/40">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive =
@@ -73,14 +73,17 @@ export function Navigation() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-2 px-3.5 py-1.5 rounded-md text-sm font-medium transition-all duration-200",
+                      "relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200",
                       isActive
                         ? "bg-white dark:bg-gray-800 text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-gray-800/50"
                     )}
                   >
-                    <Icon className={cn("h-4 w-4", isActive && "text-primary")} />
+                    <Icon className={cn("h-4 w-4 transition-colors", isActive ? "text-primary" : "")} />
                     <span>{t(item.labelKey)}</span>
+                    {isActive && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3 h-0.5 rounded-full bg-gradient-to-r from-blue-500 to-teal-500" />
+                    )}
                   </Link>
                 );
               })}

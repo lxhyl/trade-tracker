@@ -85,28 +85,32 @@ export function StatsCards({ summary, currency, rates }: StatsCardsProps) {
         return (
           <div
             key={card.title}
-            className="group relative overflow-hidden rounded-xl bg-card p-4 md:p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
+            className="group relative overflow-hidden rounded-xl bg-card border border-border/50 card-premium"
             style={{ animationDelay: `${index * 100}ms` }}
           >
-            {/* Background decoration */}
-            <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full ${card.bgLight} opacity-50 transition-transform group-hover:scale-150`} />
+            {/* Top accent gradient bar */}
+            <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${card.gradient}`} />
 
-            <div className="relative">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-muted-foreground">
-                  {card.title}
-                </span>
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${card.bgLight}`}>
-                  <Icon className={`h-5 w-5 ${card.iconColor}`} />
+            {/* Subtle background glow */}
+            <div className={`absolute -right-6 -bottom-6 h-28 w-28 rounded-full ${card.bgLight} opacity-40 transition-all duration-500 group-hover:opacity-70 group-hover:scale-110`} />
+
+            <div className="relative p-4 md:p-5">
+              <div className="flex items-start justify-between mb-3">
+                <div className={`flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-xl bg-gradient-to-br ${card.gradient} text-white shadow-sm`}>
+                  <Icon className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
               </div>
 
-              <div className={`text-lg md:text-2xl font-bold tracking-tight font-num ${card.valueColor || "text-foreground"}`}>
+              <p className="text-xs md:text-sm font-medium text-muted-foreground mb-1.5">
+                {card.title}
+              </p>
+
+              <div className={`text-xl md:text-2xl font-bold tracking-tight font-num ${card.valueColor || "text-foreground"}`}>
                 {card.value}
               </div>
 
               {card.subtitle && (
-                <p className={`mt-1 text-sm font-medium font-num ${card.valueColor}`}>
+                <p className={`mt-1 text-xs font-semibold font-num ${card.valueColor} opacity-80`}>
                   {card.subtitle}
                 </p>
               )}

@@ -97,6 +97,19 @@
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5;
   }
 
+  .card-premium {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-border;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  }
+
+  .card-premium:hover {
+    box-shadow: 0 10px 30px -5px rgb(0 0 0 / 0.12), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+  }
+
+  .dark .card-premium:hover {
+    box-shadow: 0 10px 30px -5px rgb(0 0 0 / 0.4), 0 4px 6px -2px rgb(0 0 0 / 0.2);
+  }
+
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-500;
   }
@@ -121,16 +134,20 @@ input[type="date"]::-webkit-date-and-time-value {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-muted rounded-full;
+  @apply bg-transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50;
+  @apply bg-border rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/40;
 }
 
 /* Animations */
