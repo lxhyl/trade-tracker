@@ -65,7 +65,7 @@ export function PnLChart({ data, currency, rates }: PnLChartProps) {
       <Card>
         <CardHeader className="border-b bg-muted/30">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-primary">
               <TrendingUp className="h-5 w-5" />
             </div>
             <CardTitle>{t("analysis.pnlOverTime")}</CardTitle>
@@ -73,9 +73,6 @@ export function PnLChart({ data, currency, rates }: PnLChartProps) {
         </CardHeader>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
-              <TrendingUp className="h-8 w-8 text-muted-foreground" />
-            </div>
             <p className="text-muted-foreground">{t("common.noData")}</p>
           </div>
         </CardContent>
@@ -102,7 +99,7 @@ export function PnLChart({ data, currency, rates }: PnLChartProps) {
       const pnl = payload[0].value as number;
       const positive = pnl >= 0;
       return (
-        <div className="bg-popover text-popover-foreground rounded-xl shadow-lg border p-3">
+        <div className="bg-popover text-popover-foreground rounded-lg shadow-lg border p-3">
           <p className="text-sm text-muted-foreground">{formatDateLabel(label)}</p>
           <div className="flex items-center gap-2 mt-1">
             {positive ? (
@@ -131,8 +128,8 @@ export function PnLChart({ data, currency, rates }: PnLChartProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-10 w-10 items-center justify-center rounded-xl text-white ${
-                isPositive ? c.gainHeaderGradient : c.lossHeaderGradient
+              className={`flex h-10 w-10 items-center justify-center rounded-md bg-muted ${
+                isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
               }`}
             >
               {isPositive ? (
@@ -184,11 +181,11 @@ export function PnLChart({ data, currency, rates }: PnLChartProps) {
             >
               <defs>
                 <linearGradient id="colorPnLPos" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={c.gainHex} stopOpacity={0.3} />
+                  <stop offset="5%" stopColor={c.gainHex} stopOpacity={0.15} />
                   <stop offset="95%" stopColor={c.gainHex} stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorPnLNeg" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="5%" stopColor={c.lossHex} stopOpacity={0.3} />
+                  <stop offset="5%" stopColor={c.lossHex} stopOpacity={0.15} />
                   <stop offset="95%" stopColor={c.lossHex} stopOpacity={0} />
                 </linearGradient>
               </defs>

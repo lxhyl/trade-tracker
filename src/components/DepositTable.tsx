@@ -126,18 +126,15 @@ export function DepositTable({
         <CardContent className="p-0">
           {holdings.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
-                <PiggyBank className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <p className="text-lg font-medium text-muted-foreground">
+              <p className="text-base text-muted-foreground mb-1">
                 {t("deposit.empty")}
               </p>
-              <p className="text-sm text-muted-foreground mt-1 mb-4">
+              <p className="text-sm text-muted-foreground/80 mb-6">
                 {t("deposit.emptyHint")}
               </p>
               {!readOnly && (
                 <Link href="/transactions/new?type=deposit">
-                  <Button>
+                  <Button size="sm">
                     <Plus className="h-4 w-4 mr-2" />
                     {t("deposit.addDeposit")}
                   </Button>
@@ -214,9 +211,7 @@ export function DepositTable({
                             : "-"}
                         </TableCell>
                         <TableCell className="text-right">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.className}`}
-                          >
+                          <span className={`text-xs font-medium ${status.className}`}>
                             {t(status.labelKey)}
                           </span>
                         </TableCell>
@@ -270,7 +265,7 @@ export function DepositTable({
       {deleteConfirm && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setDeleteConfirm(null)}>
           <div
-            className="bg-popover text-popover-foreground border rounded-2xl shadow-xl p-6 mx-4 max-w-sm w-full animate-fade-in"
+            className="bg-popover text-popover-foreground border rounded-lg shadow-xl p-6 mx-4 max-w-sm w-full animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-4">
@@ -305,11 +300,11 @@ export function DepositTable({
       {withdrawDialog && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setWithdrawDialog(null)}>
           <div
-            className="bg-popover text-popover-foreground border rounded-2xl shadow-xl p-6 mx-4 max-w-sm w-full animate-fade-in"
+            className="bg-popover text-popover-foreground border rounded-lg shadow-xl p-6 mx-4 max-w-sm w-full animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-amber-600 dark:text-amber-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-primary">
                 <ArrowUpRight className="h-5 w-5" />
               </div>
               <div>

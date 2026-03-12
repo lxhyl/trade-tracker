@@ -112,13 +112,10 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
       <CardContent className="p-0">
         {holdings.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
-              <Wallet className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <p className="text-lg font-medium text-muted-foreground">
+            <p className="text-base text-muted-foreground mb-1">
               {t("holdings.empty")}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground/80">
               {t("holdings.emptyHint")}
             </p>
           </div>

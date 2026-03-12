@@ -25,13 +25,13 @@ export function StatsCards({ summary, currency, rates }: StatsCardsProps) {
     <div>
       {/* Tier 1 — Hero strip */}
       <div className="flex flex-wrap gap-8 pb-6 mb-6 border-b">
-        <div className="animate-fade-in" style={{ animationDelay: "0ms" }}>
+        <div>
           <div className="label-caps mb-1">{t("stats.currentValue")}</div>
           <div className="text-4xl font-bold font-num text-foreground">
             {fc(summary.totalCurrentValue)}
           </div>
         </div>
-        <div className="animate-fade-in" style={{ animationDelay: "40ms" }}>
+        <div>
           <div className="label-caps mb-1">{t("stats.unrealizedPnL")}</div>
           <div className={`text-3xl font-bold font-num ${unrealizedPositive ? c.gainText : c.lossText}`}>
             {unrealizedPositive ? "+" : ""}{fc(summary.totalUnrealizedPnL)}
@@ -42,14 +42,14 @@ export function StatsCards({ summary, currency, rates }: StatsCardsProps) {
 
       {/* Tier 2 — Secondary stats */}
       <div className="flex flex-wrap gap-6 md:gap-8">
-        <div className="animate-fade-in" style={{ animationDelay: "80ms" }}>
+        <div>
           <div className="label-caps mb-1">{t("stats.totalInvested")}</div>
           <div className="text-sm font-semibold font-num text-foreground">
             {fc(summary.totalInvested)}
           </div>
         </div>
 
-        <div className="border-l pl-6 animate-fade-in" style={{ animationDelay: "120ms" }}>
+        <div className="border-l pl-6">
           <div className="label-caps mb-1">{t("stats.realizedPnL")}</div>
           <div className={`text-sm font-semibold font-num ${realizedPositive ? c.gainText : c.lossText}`}>
             {realizedPositive ? "+" : ""}{fc(summary.totalRealizedPnL)}
@@ -57,7 +57,7 @@ export function StatsCards({ summary, currency, rates }: StatsCardsProps) {
         </div>
 
         {summary.totalDepositInterest > 0 && (
-          <div className="border-l pl-6 animate-fade-in" style={{ animationDelay: "160ms" }}>
+          <div className="border-l pl-6">
             <div className="label-caps mb-1">{t("stats.totalIncome")}</div>
             <div className="text-sm font-semibold font-num text-amber-600 dark:text-amber-400">
               +{fc(summary.totalDepositInterest)}

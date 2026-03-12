@@ -66,7 +66,7 @@ export function AllocationPieChart({
       <Card>
         <CardHeader className="border-b bg-muted/30">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-primary">
               <PieIcon className="h-5 w-5" />
             </div>
             <CardTitle>{displayTitle}</CardTitle>
@@ -74,9 +74,6 @@ export function AllocationPieChart({
         </CardHeader>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
-              <PieIcon className="h-8 w-8 text-muted-foreground" />
-            </div>
             <p className="text-muted-foreground">{t("common.noData")}</p>
           </div>
         </CardContent>
@@ -88,7 +85,7 @@ export function AllocationPieChart({
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-popover text-popover-foreground rounded-xl shadow-lg border p-3 min-w-[150px]">
+        <div className="bg-popover text-popover-foreground rounded-lg shadow-lg border p-3 min-w-[150px]">
           <p className="font-semibold text-foreground">{data.name}</p>
           <p className="text-sm text-muted-foreground mt-1">
             {fc(data.value)}
@@ -106,7 +103,7 @@ export function AllocationPieChart({
     <Card>
       <CardHeader className="border-b bg-muted/30">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-primary">
             <PieIcon className="h-5 w-5" />
           </div>
           <CardTitle>{displayTitle}</CardTitle>
@@ -116,21 +113,6 @@ export function AllocationPieChart({
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <RechartsPieChart>
-              <defs>
-                {GRADIENTS.map((gradient, index) => (
-                  <linearGradient
-                    key={index}
-                    id={`gradient-${index}`}
-                    x1="0"
-                    y1="0"
-                    x2="1"
-                    y2="1"
-                  >
-                    <stop offset="0%" stopColor={gradient.start} />
-                    <stop offset="100%" stopColor={gradient.end} />
-                  </linearGradient>
-                ))}
-              </defs>
               <Pie
                 data={data}
                 cx="50%"
@@ -144,7 +126,7 @@ export function AllocationPieChart({
                 {data.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={`url(#gradient-${index % GRADIENTS.length})`}
+                    fill={COLORS[index % COLORS.length]}
                     className="transition-all duration-300 hover:opacity-80"
                   />
                 ))}
@@ -160,7 +142,7 @@ export function AllocationPieChart({
             <div key={item.name} className="flex items-center gap-2">
               <div
                 className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: GRADIENTS[index % GRADIENTS.length].start }}
+                style={{ backgroundColor: COLORS[index % COLORS.length] }}
               />
               <span className="text-sm font-medium">{item.name}</span>
               <span className="text-sm text-muted-foreground">

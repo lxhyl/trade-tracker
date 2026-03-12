@@ -145,7 +145,7 @@ export function LandingDashboard({ onLogin }: LandingDashboardProps) {
         <Card>
           <CardHeader className="border-b bg-muted/30">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-primary">
                 <Sparkles className="h-5 w-5" />
               </div>
               <CardTitle>{t("dashboard.quickStats")}</CardTitle>
@@ -153,8 +153,8 @@ export function LandingDashboard({ onLogin }: LandingDashboardProps) {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-2 gap-3 md:gap-4 md:grid-cols-3">
-              <div className="flex items-center gap-3 p-3 md:p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40">
-                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-white">
+              <div className="flex items-center gap-3 p-3 md:p-4 rounded-lg bg-blue-50 dark:bg-blue-950/40">
+                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-md bg-blue-500 text-white">
                   <BarChart3 className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
                 <div>
@@ -162,8 +162,8 @@ export function LandingDashboard({ onLogin }: LandingDashboardProps) {
                   <p className="text-xs md:text-sm text-blue-600 dark:text-blue-400">{t("dashboard.assets")}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 md:p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/40">
-                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-500 text-white">
+              <div className="flex items-center gap-3 p-3 md:p-4 rounded-lg bg-indigo-50 dark:bg-indigo-950/40">
+                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-md bg-indigo-500 text-white">
                   <TrendingUp className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
                 <div>
@@ -171,8 +171,8 @@ export function LandingDashboard({ onLogin }: LandingDashboardProps) {
                   <p className="text-xs md:text-sm text-indigo-600 dark:text-indigo-400">{t("dashboard.trades")}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 md:p-4 rounded-xl bg-pink-50 dark:bg-pink-950/40">
-                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-lg bg-pink-500 text-white">
+              <div className="flex items-center gap-3 p-3 md:p-4 rounded-lg bg-pink-50 dark:bg-pink-950/40">
+                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-md bg-pink-500 text-white">
                   <Coins className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
                 <div>
@@ -180,8 +180,8 @@ export function LandingDashboard({ onLogin }: LandingDashboardProps) {
                   <p className="text-xs md:text-sm text-pink-600 dark:text-pink-400">{t("dashboard.crypto")}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 md:p-4 rounded-xl bg-cyan-50 dark:bg-cyan-950/40">
-                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-lg bg-cyan-500 text-white">
+              <div className="flex items-center gap-3 p-3 md:p-4 rounded-lg bg-cyan-50 dark:bg-cyan-950/40">
+                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-md bg-cyan-500 text-white">
                   <BarChart3 className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
                 <div>
@@ -189,8 +189,8 @@ export function LandingDashboard({ onLogin }: LandingDashboardProps) {
                   <p className="text-xs md:text-sm text-cyan-600 dark:text-cyan-400">{t("dashboard.stocks")}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 md:p-4 rounded-xl bg-green-50 dark:bg-green-950/40">
-                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-lg bg-green-500 text-white">
+              <div className="flex items-center gap-3 p-3 md:p-4 rounded-lg bg-green-50 dark:bg-green-950/40">
+                <div className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-md bg-green-500 text-white">
                   <PiggyBank className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
                 <div>

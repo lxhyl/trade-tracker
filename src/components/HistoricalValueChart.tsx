@@ -67,7 +67,7 @@ export function HistoricalValueChart({
       <Card>
         <CardHeader className="border-b bg-muted/30">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-primary">
               <TrendingUp className="h-5 w-5" />
             </div>
             <CardTitle>{t("analysis.totalAssets")}</CardTitle>
@@ -75,9 +75,6 @@ export function HistoricalValueChart({
         </CardHeader>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
-              <TrendingUp className="h-8 w-8 text-muted-foreground" />
-            </div>
             <p className="text-muted-foreground">{t("common.noData")}</p>
           </div>
         </CardContent>
@@ -99,7 +96,7 @@ export function HistoricalValueChart({
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-popover text-popover-foreground rounded-xl shadow-lg border p-3">
+        <div className="bg-popover text-popover-foreground rounded-lg shadow-lg border p-3">
           <p className="text-sm text-muted-foreground">{formatDateLabel(label)}</p>
           <p className="text-lg font-semibold text-foreground mt-1">
             {fc(payload[0].value)}
@@ -115,7 +112,7 @@ export function HistoricalValueChart({
       <CardHeader className="border-b bg-muted/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-primary">
               <TrendingUp className="h-5 w-5" />
             </div>
             <CardTitle>{t("analysis.totalAssets")}</CardTitle>
@@ -151,7 +148,7 @@ export function HistoricalValueChart({
             >
               <defs>
                 <linearGradient id="colorTotalAssets" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                 </linearGradient>
               </defs>
