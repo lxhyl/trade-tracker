@@ -8,7 +8,7 @@ import { Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/I18nProvider";
 import { ShareCard, PricePoint, CARD_W } from "@/components/ShareCard";
 import { Button } from "@/components/ui/button";
-import { X, Download, ArrowLeft, Image } from "lucide-react";
+import { X, Download, ArrowLeft, Image, Loader2 } from "lucide-react";
 
 interface ShareDialogProps {
   open: boolean;
@@ -40,6 +40,7 @@ export function ShareDialog({
     () => new Set(initialSymbol ? [initialSymbol] : holdings.map((h) => h.symbol))
   );
   const [capturing, setCapturing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [logoDataUrls, setLogoDataUrls] = useState<Record<string, string>>({});
   const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -53,43 +54,48 @@ export function ShareDialog({
     // Clear stale data from previous asset immediately
     setLogoDataUrls({});
     setPriceHistory([]);
+    setLoading(true);
     const targets = isSingleMode
       ? holdings.filter((h) => h.symbol === initialSymbol)
       : holdings;
     let cancelled = false;
 
     (async () => {
-      // Logos
-      const urls: Record<string, string> = {};
-      await Promise.all(
-        targets.map(async (h) => {
-          try {
-            const res = await fetch(`/api/logo/${encodeURIComponent(h.symbol)}?type=${encodeURIComponent(h.assetType)}&proxy=1`);
-            if (!res.ok) return;
-            const blob = await res.blob();
-            urls[h.symbol] = await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onloadend = () => resolve(reader.result as string);
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
-          } catch { /* fallback to initials */ }
-        })
-      );
-      if (!cancelled) setLogoDataUrls(urls);
+      try {
+        // Logos
+        const urls: Record<string, string> = {};
+        await Promise.all(
+          targets.map(async (h) => {
+            try {
+              const res = await fetch(`/api/logo/${encodeURIComponent(h.symbol)}?type=${encodeURIComponent(h.assetType)}&proxy=1`);
+              if (!res.ok) return;
+              const blob = await res.blob();
+              urls[h.symbol] = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+            } catch { /* fallback to initials */ }
+          })
+        );
+        if (!cancelled) setLogoDataUrls(urls);
 
-      // Price history for single asset only
-      if (isSingleMode && initialSymbol) {
-        const h = holdings.find((h) => h.symbol === initialSymbol);
-        if (h) {
-          try {
-            const res = await fetch(`/api/price-history/${encodeURIComponent(h.symbol)}?type=${encodeURIComponent(h.assetType)}`);
-            if (res.ok) {
-              const data = await res.json();
-              if (!cancelled) setPriceHistory(data.prices ?? []);
-            }
-          } catch { /* no chart */ }
+        // Price history for single asset only
+        if (isSingleMode && initialSymbol) {
+          const h = holdings.find((h) => h.symbol === initialSymbol);
+          if (h) {
+            try {
+              const res = await fetch(`/api/price-history/${encodeURIComponent(h.symbol)}?type=${encodeURIComponent(h.assetType)}`);
+              if (res.ok) {
+                const data = await res.json();
+                if (!cancelled) setPriceHistory(data.prices ?? []);
+              }
+            } catch { /* no chart */ }
+          }
         }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
 
@@ -157,6 +163,7 @@ export function ShareDialog({
     <div ref={previewContainerRef} className="bg-slate-100 rounded-xl p-4">
       {/* Outer div collapses to the visual (scaled) size so no dead space below */}
       <div style={{
+        position: "relative",
         width: CARD_W * cardScale,
         height: cardNaturalH ? cardNaturalH * cardScale : undefined,
         margin: "0 auto",
@@ -176,12 +183,24 @@ export function ShareDialog({
             priceHistory={priceHistory}
           />
         </div>
+        {/* Loading overlay */}
+        {loading && (
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "rgba(255,255,255,0.75)",
+            backdropFilter: "blur(2px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            borderRadius: 8,
+          }}>
+            <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+          </div>
+        )}
       </div>
     </div>
   );
 
   const saveBtn = (
-    <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing}>
+    <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing || loading}>
       <Download className="h-4 w-4" />
       {capturing ? t("share.generating") : t("share.downloadPng")}
     </Button>
