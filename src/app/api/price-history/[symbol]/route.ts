@@ -18,6 +18,15 @@ export async function GET(
   const period1 = new Date();
   period1.setDate(period1.getDate() - 90);
 
+  // Determine native currency for the exchange
+  const upperSymbol = symbol.toUpperCase();
+  let nativeCurrency = "USD";
+  if (upperSymbol.endsWith(".SS") || upperSymbol.endsWith(".SZ")) {
+    nativeCurrency = "CNY";
+  } else if (upperSymbol.endsWith(".HK")) {
+    nativeCurrency = "HKD";
+  }
+
   try {
     const result = await yf.chart(yahooSymbol, {
       period1,
@@ -29,9 +38,9 @@ export async function GET(
       .filter((q) => q.close != null && q.date)
       .map((q) => ({ t: new Date(q.date!).getTime(), p: q.close! }));
 
-    return NextResponse.json({ prices });
+    return NextResponse.json({ prices, nativeCurrency });
   } catch (err) {
     console.error(`[price-history] ${yahooSymbol}:`, err);
-    return NextResponse.json({ prices: [] });
+    return NextResponse.json({ prices: [], nativeCurrency });
   }
 }

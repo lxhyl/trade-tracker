@@ -7,6 +7,7 @@ import { ColorScheme } from "@/actions/settings";
 import { Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/I18nProvider";
 import { ShareCard, PricePoint, CARD_W } from "@/components/ShareCard";
+import { toUsd } from "@/lib/currency";
 import { Button } from "@/components/ui/button";
 import { X, Download, ArrowLeft, Image } from "lucide-react";
 
@@ -89,7 +90,13 @@ export function ShareDialog({
               const res = await fetch(`/api/price-history/${encodeURIComponent(h.symbol)}?type=${encodeURIComponent(h.assetType)}`);
               if (res.ok) {
                 const data = await res.json();
-                if (!cancelled) setPriceHistory(data.prices ?? []);
+                const nativeCurrency: string = data.nativeCurrency ?? "USD";
+                const rawPrices: PricePoint[] = data.prices ?? [];
+                // Convert prices to USD so they match avgCost (which is always in USD)
+                const usdPrices = nativeCurrency === "USD"
+                  ? rawPrices
+                  : rawPrices.map((pt) => ({ t: pt.t, p: toUsd(pt.p, nativeCurrency, rates) }));
+                if (!cancelled) setPriceHistory(usdPrices);
               }
             } catch { /* no chart */ }
           }
