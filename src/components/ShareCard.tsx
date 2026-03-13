@@ -242,26 +242,26 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
 
       {/* Avg cost dashed horizontal line */}
       <line x1="0" y1={buyY.toFixed(1)} x2={width} y2={buyY.toFixed(1)}
-        stroke="#94a3b8" strokeWidth="1" strokeDasharray="5,4" strokeOpacity="0.55" />
+        stroke="#64748b" strokeWidth="1" strokeDasharray="5,4" strokeOpacity="0.7" />
 
       {/* Buy date: dot on curve + vertical drop to avg cost line + avg cost value */}
       {/* Vertical connector from curve point down to avg cost line */}
       <line
         x1={buyX.toFixed(1)} y1={buyDotY.toFixed(1)}
         x2={buyX.toFixed(1)} y2={buyY.toFixed(1)}
-        stroke="#94a3b8" strokeWidth="1" strokeDasharray="3,3" strokeOpacity="0.5"
+        stroke="#64748b" strokeWidth="1" strokeDasharray="3,3" strokeOpacity="0.65"
       />
       {/* Dot on curve at buy date */}
       <circle cx={buyX.toFixed(1)} cy={buyDotY.toFixed(1)} r="3.5"
-        fill="#ffffff" stroke="#94a3b8" strokeWidth="1.5" />
+        fill="#ffffff" stroke="#475569" strokeWidth="1.5" />
       {/* Dot on avg cost line at buy date */}
       <circle cx={buyX.toFixed(1)} cy={buyY.toFixed(1)} r="3"
-        fill="#94a3b8" fillOpacity="0.8" />
+        fill="#475569" fillOpacity="0.9" />
       {/* Avg cost value above the dot on curve */}
       <text
         x={buyLabelX.toFixed(1)} y={(buyDotY - 8).toFixed(1)}
         textAnchor={buyLabelAnchor}
-        fill="#475569" fontSize={fs} fontFamily={FONT_NUM} fontWeight="500"
+        fill="#334155" fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
       >{avgText}</text>
 
       {/* Current price: dot at end of line + value */}
@@ -271,7 +271,7 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
           <text
             x={curLabelX.toFixed(1)} y={(lastY + fs / 3).toFixed(1)}
             textAnchor={curLabelAnchor}
-            fill={color} fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
+            fill={color} fontSize={fs} fontFamily={FONT_NUM} fontWeight="700"
           >{curText}</text>
         </>
       )}
