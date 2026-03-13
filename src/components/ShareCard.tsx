@@ -183,18 +183,18 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
         )}
       </div>
 
-      {/* Detail chips */}
+      {/* Detail row */}
       {showDetails && (
-        <div style={{ padding: "16px 24px", display: "flex", gap: 12 }}>
+        <div style={{ padding: "0 24px 20px", display: "flex", gap: 32 }}>
           {showAvgCost && h.avgCost > 0 && (
-            <div style={{ flex: 1, background: "#f8fafc", borderRadius: 8, padding: "10px 14px" }}>
-              <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 5 }}>{avgLabel}</div>
+            <div>
+              <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 4 }}>{avgLabel}</div>
               <div style={{ color: "#0f172a", fontSize: 15, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.avgCost)}</div>
             </div>
           )}
           {showCurrentPrice && h.currentPrice > 0 && (
-            <div style={{ flex: 1, background: "#f8fafc", borderRadius: 8, padding: "10px 14px" }}>
-              <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 5 }}>{priceLabel}</div>
+            <div>
+              <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 4 }}>{priceLabel}</div>
               <div style={{ color: "#0f172a", fontSize: 15, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.currentPrice)}</div>
             </div>
           )}
