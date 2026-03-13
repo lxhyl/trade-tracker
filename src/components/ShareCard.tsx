@@ -12,6 +12,10 @@ const SITE_URL = "https://trade.ozlab.xyz";
 const SITE_HOST = "trade.ozlab.xyz";
 const SITE_NAME = "TradeTracker";
 
+// Fonts matching the app
+const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
+const FONT_NUM = "'JetBrains Mono', 'Fira Mono', monospace";
+
 interface ShareCardProps {
   holdings: Holding[];
   summary: PortfolioSummary;
@@ -28,12 +32,12 @@ interface ShareCardProps {
 }
 
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function ShareCard(
-  { holdings, summary, currency, rates, colorScheme, showAvgCost, showQuantity, showPnlAmount, showCurrentPrice, date, locale, logoDataUrls = {} },
+  { holdings, summary, currency, rates, colorScheme, showAvgCost, showQuantity, showPnlAmount, showCurrentPrice, locale, logoDataUrls = {} },
   ref
 ) {
   const fc = createCurrencyFormatter(currency, rates);
-  const gainColor = colorScheme === "cn" ? "#dc2626" : "#16a34a";
-  const lossColor = colorScheme === "cn" ? "#16a34a" : "#dc2626";
+  const gainColor = colorScheme === "cn" ? "#dc2626" : "#059669";
+  const lossColor = colorScheme === "cn" ? "#059669" : "#dc2626";
 
   if (holdings.length === 1) {
     return (
@@ -46,7 +50,6 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         showPnlAmount={showPnlAmount}
         showAvgCost={showAvgCost}
         showCurrentPrice={showCurrentPrice}
-        date={date}
         locale={locale}
         logoDataUrl={logoDataUrls[holdings[0].symbol]}
       />
@@ -65,53 +68,59 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
   return (
     <div ref={ref} style={cardWrap}>
       {/* Header */}
-      <div style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)", padding: "24px 28px 20px" }}>
-        <div style={{ color: "#94a3b8", fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8 }}>
+      <div style={{ background: "linear-gradient(160deg, #0f172a 0%, #1e293b 100%)", padding: "22px 24px 18px" }}>
+        <div style={{ color: "#64748b", fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 10 }}>
           {totalReturnLabel}
         </div>
-        <div style={{ color: returnColor, fontSize: 36, fontWeight: 700, lineHeight: 1 }}>
+        <div style={{ color: returnColor, fontSize: 38, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-0.5px" }}>
           {isGain ? "+" : ""}{formatPercent(totalReturnPct)}
         </div>
-        <div style={{ color: returnColor, fontSize: 15, fontWeight: 600, marginTop: 6, opacity: 0.9 }}>
-          {isGain ? "+" : "-"}{fc(Math.abs(totalReturn))}
-        </div>
+        {showPnlAmount && (
+          <div style={{ color: returnColor, fontSize: 14, fontWeight: 500, marginTop: 6, fontFamily: FONT_NUM, opacity: 0.85 }}>
+            {isGain ? "+" : "-"}{fc(Math.abs(totalReturn))}
+          </div>
+        )}
       </div>
 
-      {/* Holdings list */}
-      <div style={{ background: "#ffffff", padding: "8px 0" }}>
-        {holdings.map((h) => {
+      {/* Holdings */}
+      <div style={{ background: "#ffffff" }}>
+        {holdings.map((h, i) => {
           const isHoldingGain = h.unrealizedPnL >= 0;
           const hColor = isHoldingGain ? gainColor : lossColor;
+          const isLast = i === holdings.length - 1;
           return (
-            <div key={h.symbol} style={{ padding: "12px 28px", borderBottom: "1px solid #f1f5f9" }}>
+            <div key={h.symbol} style={{ padding: "13px 24px", borderBottom: isLast ? "none" : "1px solid #f1f5f9" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <LogoCircle symbol={h.symbol} assetType={h.assetType} size={32} fontSize={11} dataUrl={logoDataUrls[h.symbol]} />
+                <LogoCircle symbol={h.symbol} assetType={h.assetType} size={34} fontSize={11} dataUrl={logoDataUrls[h.symbol]} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{h.symbol}</div>
-                  {h.name && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</div>}
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", fontFamily: FONT_SANS }}>{h.symbol}</div>
+                  {h.name && <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: FONT_SANS }}>{h.name}</div>}
                 </div>
                 <div style={{ textAlign: "right", flexShrink: 0 }}>
-                  <div style={{ color: hColor, fontSize: 14, fontWeight: 700 }}>
+                  <div style={{ color: hColor, fontSize: 14, fontWeight: 700, fontFamily: FONT_NUM }}>
                     {isHoldingGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
                   </div>
                   {showPnlAmount && (
-                    <div style={{ color: hColor, fontSize: 12, opacity: 0.85, marginTop: 1 }}>
+                    <div style={{ color: hColor, fontSize: 11, opacity: 0.8, marginTop: 2, fontFamily: FONT_NUM }}>
                       {isHoldingGain ? "+" : "-"}{fc(Math.abs(h.unrealizedPnL))}
                     </div>
                   )}
                 </div>
               </div>
               {(showAvgCost || showQuantity) && (
-                <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
+                <div style={{ display: "flex", gap: 14, marginTop: 7, paddingLeft: 44 }}>
                   {showAvgCost && h.avgCost > 0 && (
-                    <div style={{ fontSize: 11, color: "#64748b" }}>
-                      <span style={{ color: "#94a3b8" }}>{avgCostLabel} </span>{fc(h.avgCost)}
+                    <div style={{ fontSize: 11, color: "#64748b", fontFamily: FONT_SANS }}>
+                      <span style={{ color: "#94a3b8" }}>{avgCostLabel} </span>
+                      <span style={{ fontFamily: FONT_NUM }}>{fc(h.avgCost)}</span>
                     </div>
                   )}
                   {showQuantity && h.quantity > 0 && (
-                    <div style={{ fontSize: 11, color: "#64748b" }}>
+                    <div style={{ fontSize: 11, color: "#64748b", fontFamily: FONT_SANS }}>
                       <span style={{ color: "#94a3b8" }}>{qtyLabel} </span>
-                      {h.quantity % 1 === 0 ? h.quantity.toLocaleString() : h.quantity.toPrecision(6)}
+                      <span style={{ fontFamily: FONT_NUM }}>
+                        {h.quantity % 1 === 0 ? h.quantity.toLocaleString() : h.quantity.toPrecision(6)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -121,7 +130,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         })}
       </div>
 
-      <Footer date={date} />
+      <Footer />
     </div>
   );
 });
@@ -136,13 +145,12 @@ interface SingleAssetCardProps {
   showPnlAmount: boolean;
   showAvgCost: boolean;
   showCurrentPrice: boolean;
-  date: string;
   locale: Locale;
   logoDataUrl?: string;
 }
 
 const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(function SingleAssetCard(
-  { holding: h, fc, gainColor, lossColor, showPnlAmount, showAvgCost, showCurrentPrice, date, locale, logoDataUrl },
+  { holding: h, fc, gainColor, lossColor, showPnlAmount, showAvgCost, showCurrentPrice, locale, logoDataUrl },
   ref
 ) {
   const isGain = h.unrealizedPnL >= 0;
@@ -153,46 +161,51 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 
   return (
     <div ref={ref} style={cardWrap}>
-      {/* Header */}
-      <div style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)", padding: "24px 28px" }}>
+      {/* Header: logo + name on dark bg */}
+      <div style={{ background: "linear-gradient(160deg, #0f172a 0%, #1e293b 100%)", padding: "24px 28px 20px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <LogoCircle symbol={h.symbol} assetType={h.assetType} size={48} fontSize={15} dataUrl={logoDataUrl} />
+          <LogoCircle symbol={h.symbol} assetType={h.assetType} size={44} fontSize={14} dataUrl={logoDataUrl} />
           <div>
-            <div style={{ color: "#ffffff", fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>{h.symbol}</div>
-            {h.name && <div style={{ color: "#94a3b8", fontSize: 13, marginTop: 4 }}>{h.name}</div>}
+            <div style={{ color: "#f8fafc", fontSize: 18, fontWeight: 700, lineHeight: 1.2, fontFamily: FONT_SANS, letterSpacing: "-0.2px" }}>{h.symbol}</div>
+            {h.name && <div style={{ color: "#64748b", fontSize: 12, marginTop: 4, fontFamily: FONT_SANS }}>{h.name}</div>}
           </div>
         </div>
       </div>
 
       {/* Body */}
       <div style={{ background: "#ffffff", padding: "28px 28px 24px" }}>
-        <div style={{ color: color, fontSize: 52, fontWeight: 800, lineHeight: 1, letterSpacing: "-1px" }}>
+        {/* Hero P&L % */}
+        <div style={{ color: color, fontSize: 56, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
           {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
         </div>
+
+        {/* P&L amount */}
         {showPnlAmount && (
-          <div style={{ color: color, fontSize: 18, fontWeight: 600, marginTop: 8, opacity: 0.9 }}>
+          <div style={{ color: color, fontSize: 17, fontWeight: 500, marginTop: 10, fontFamily: FONT_NUM, opacity: 0.9 }}>
             {isGain ? "+" : "-"}{fc(Math.abs(h.unrealizedPnL))}
           </div>
         )}
+
+        {/* Detail row */}
         {showDetails && (
-          <div style={{ display: "flex", gap: 32, marginTop: 20, paddingTop: 20, borderTop: "1px solid #f1f5f9" }}>
+          <div style={{ display: "flex", gap: 28, marginTop: 22, paddingTop: 18, borderTop: "1px solid #f1f5f9" }}>
             {showAvgCost && h.avgCost > 0 && (
               <div>
-                <div style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>{avgLabel}</div>
-                <div style={{ color: "#0f172a", fontSize: 16, fontWeight: 700 }}>{fc(h.avgCost)}</div>
+                <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 5 }}>{avgLabel}</div>
+                <div style={{ color: "#0f172a", fontSize: 15, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.avgCost)}</div>
               </div>
             )}
             {showCurrentPrice && h.currentPrice > 0 && (
               <div>
-                <div style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>{priceLabel}</div>
-                <div style={{ color: "#0f172a", fontSize: 16, fontWeight: 700 }}>{fc(h.currentPrice)}</div>
+                <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 5 }}>{priceLabel}</div>
+                <div style={{ color: "#0f172a", fontSize: 15, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.currentPrice)}</div>
               </div>
             )}
           </div>
         )}
       </div>
 
-      <Footer date={date} />
+      <Footer />
     </div>
   );
 });
@@ -202,50 +215,48 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 function LogoCircle({ symbol, assetType, size, fontSize, dataUrl }: {
   symbol: string; assetType: string; size: number; fontSize: number; dataUrl?: string;
 }) {
-  const radius = Math.round(size * 0.25);
+  const radius = Math.round(size * 0.22);
   const bg = assetType === "crypto"
-    ? "linear-gradient(135deg, #a855f7, #ec4899)"
-    : "linear-gradient(135deg, #3b82f6, #06b6d4)";
+    ? "linear-gradient(135deg, #7c3aed, #db2777)"
+    : "linear-gradient(135deg, #2563eb, #0891b2)";
 
   if (dataUrl) {
     return (
-      <div style={{ width: size, height: size, borderRadius: radius, overflow: "hidden", background: "#f8fafc", flexShrink: 0 }}>
+      <div style={{ width: size, height: size, borderRadius: radius, overflow: "hidden", background: "#f8fafc", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={dataUrl} alt={symbol} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 2 }} />
+        <img src={dataUrl} alt={symbol} style={{ width: "88%", height: "88%", objectFit: "contain" }} />
       </div>
     );
   }
 
   return (
-    <div style={{ width: size, height: size, borderRadius: radius, background: bg, color: "white", fontSize, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-      {symbol.slice(0, 2)}
+    <div style={{ width: size, height: size, borderRadius: radius, background: bg, color: "white", fontSize, fontWeight: 700, fontFamily: FONT_SANS, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, letterSpacing: "0.02em" }}>
+      {symbol.slice(0, 2).toUpperCase()}
     </div>
   );
 }
 
-function Footer({ date }: { date: string }) {
+function Footer() {
   return (
-    <div style={{ background: "#f8fafc", padding: "14px 20px", display: "flex", alignItems: "center", gap: 14, borderTop: "1px solid #e2e8f0" }}>
-      {/* QR code */}
-      <div style={{ flexShrink: 0, background: "#ffffff", padding: 3, borderRadius: 6 }}>
-        <QRCodeSVG value={SITE_URL} size={48} marginSize={0} />
+    <div style={{ background: "#f8fafc", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #e2e8f0" }}>
+      {/* QR code — left */}
+      <div style={{ flexShrink: 0, background: "#ffffff", padding: 4, borderRadius: 6, lineHeight: 0 }}>
+        <QRCodeSVG value={SITE_URL} size={44} marginSize={0} fgColor="#0f172a" />
       </div>
-      {/* Site info */}
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>{SITE_NAME}</div>
-        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{SITE_HOST}</div>
+      {/* Branding — right */}
+      <div style={{ textAlign: "right" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", fontFamily: FONT_SANS, letterSpacing: "-0.2px" }}>{SITE_NAME}</div>
+        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2, fontFamily: FONT_SANS }}>{SITE_HOST}</div>
       </div>
-      {/* Date */}
-      <div style={{ fontSize: 11, color: "#94a3b8", flexShrink: 0 }}>{date}</div>
     </div>
   );
 }
 
 const cardWrap: React.CSSProperties = {
   width: 480,
-  fontFamily: "system-ui, -apple-system, sans-serif",
+  fontFamily: FONT_SANS,
   background: "#ffffff",
   borderRadius: 16,
   overflow: "hidden",
-  boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+  boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)",
 };

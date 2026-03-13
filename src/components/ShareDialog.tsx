@@ -63,7 +63,7 @@ export function ShareDialog({
       await Promise.all(
         targets.map(async (h) => {
           try {
-            const res = await fetch(`/api/logo/${encodeURIComponent(h.symbol)}?type=${encodeURIComponent(h.assetType)}`);
+            const res = await fetch(`/api/logo/${encodeURIComponent(h.symbol)}?type=${encodeURIComponent(h.assetType)}&proxy=1`);
             if (!res.ok) return;
             const blob = await res.blob();
             urls[h.symbol] = await new Promise<string>((resolve, reject) => {

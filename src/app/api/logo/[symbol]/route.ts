@@ -48,12 +48,27 @@ function cacheLogoUrl(symbol: string, url: string) {
     .catch((err) => console.error(`[Logo] Failed to cache URL for ${symbol}:`, err));
 }
 
+async function proxyImage(url: string): Promise<NextResponse> {
+  const res = await fetch(url);
+  if (!res.ok) return NextResponse.json({ error: "Fetch failed" }, { status: 404 });
+  const contentType = res.headers.get("content-type") ?? "image/png";
+  const buffer = await res.arrayBuffer();
+  return new NextResponse(buffer, {
+    headers: {
+      "Content-Type": contentType,
+      "Cache-Control": "public, max-age=604800, immutable",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { symbol: string } }
 ) {
   const symbol = params.symbol.toUpperCase();
   const assetType = request.nextUrl.searchParams.get("type") ?? "stock";
+  const proxy = request.nextUrl.searchParams.get("proxy") === "1";
 
   // Validate symbol: alphanumeric, dots, hyphens, 1-10 chars
   if (!/^[A-Z0-9.\-]{1,10}$/.test(symbol)) {
@@ -68,6 +83,7 @@ export async function GET(
     .limit(1);
 
   if (cached) {
+    if (proxy) return proxyImage(cached.url);
     return NextResponse.redirect(cached.url, {
       status: 302,
       headers: { "Cache-Control": "public, max-age=604800, immutable" },
@@ -78,6 +94,7 @@ export async function GET(
   const freeUrl = getFreeLogoUrl(symbol, assetType);
   if (await urlIsReachable(freeUrl)) {
     cacheLogoUrl(symbol, freeUrl);
+    if (proxy) return proxyImage(freeUrl);
     return NextResponse.redirect(freeUrl, {
       status: 302,
       headers: { "Cache-Control": "public, max-age=604800, immutable" },
@@ -88,6 +105,7 @@ export async function GET(
   const twelveUrl = await fetchFromTwelveData(symbol);
   if (twelveUrl) {
     cacheLogoUrl(symbol, twelveUrl);
+    if (proxy) return proxyImage(twelveUrl);
     return NextResponse.redirect(twelveUrl, {
       status: 302,
       headers: { "Cache-Control": "public, max-age=604800, immutable" },
