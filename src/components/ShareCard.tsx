@@ -132,8 +132,9 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
       {/* Chart + overlay */}
       <div style={{ position: "relative", height: CHART_H, background: "#fafafa", overflow: "hidden" }}>
         <Sparkline
-          prices={priceHistory.map(p => p.p)}
+          priceHistory={priceHistory}
           avgCost={h.avgCost}
+          firstBuyDate={h.firstBuyDate}
           currentPrice={h.currentPrice}
           fc={fc}
           color={color}
@@ -159,11 +160,11 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 
 // ── Sparkline ────────────────────────────────────────────────
 
-function Sparkline({ prices, avgCost, currentPrice, fc, color, width, height, symbol, locale }: {
-  prices: number[]; avgCost: number; currentPrice: number; fc: (v: number) => string;
-  color: string; width: number; height: number; symbol: string; locale: Locale;
+function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, color, width, height, symbol, locale: _locale }: {
+  priceHistory: PricePoint[]; avgCost: number; firstBuyDate: Date; currentPrice: number;
+  fc: (v: number) => string; color: string; width: number; height: number; symbol: string; locale: Locale;
 }) {
-  const clean = prices.filter(p => p > 0 && isFinite(p));
+  const clean = priceHistory.filter(p => p.p > 0 && isFinite(p.p));
   if (clean.length < 3) {
     return (
       <svg width={width} height={height} style={{ position: "absolute", inset: 0 }}>
@@ -172,8 +173,9 @@ function Sparkline({ prices, avgCost, currentPrice, fc, color, width, height, sy
     );
   }
 
-  const dataMin = Math.min(...clean);
-  const dataMax = Math.max(...clean);
+  const prices = clean.map(p => p.p);
+  const dataMin = Math.min(...prices);
+  const dataMax = Math.max(...prices);
   const pad = 0.04;
   let chartMin = dataMin * (1 - pad);
   let chartMax = (avgCost - φ * chartMin) / (1 - φ);
@@ -185,21 +187,45 @@ function Sparkline({ prices, avgCost, currentPrice, fc, color, width, height, sy
   const range = chartMax - chartMin || 1;
   const toX = (i: number) => (i / (clean.length - 1)) * width;
   const toY = (p: number) => ((chartMax - p) / range) * height;
-  const avgY = toY(avgCost);
-  const lastX = toX(clean.length - 1);
-  const lastY = toY(clean[clean.length - 1]);
 
-  const pts = clean.map((p, i) => `${toX(i).toFixed(1)},${toY(p).toFixed(1)}`);
+  // Find x position of buy date — closest data point to firstBuyDate
+  const buyTs = firstBuyDate instanceof Date ? firstBuyDate.getTime() : new Date(firstBuyDate).getTime();
+  const firstTs = clean[0].t;
+  const lastTs = clean[clean.length - 1].t;
+  let buyIdx: number;
+  if (buyTs <= firstTs) {
+    buyIdx = 0;
+  } else if (buyTs >= lastTs) {
+    buyIdx = clean.length - 1;
+  } else {
+    buyIdx = clean.reduce((best, pt, i) =>
+      Math.abs(pt.t - buyTs) < Math.abs(clean[best].t - buyTs) ? i : best, 0
+    );
+  }
+  const buyX = toX(buyIdx);
+  const buyY = toY(avgCost); // avg cost price level
+  const buyDotY = toY(clean[buyIdx].p); // actual price on curve at buy date
+
+  const lastX = toX(clean.length - 1);
+  const lastY = toY(clean[clean.length - 1].p);
+
+  const pts = clean.map((p, i) => `${toX(i).toFixed(1)},${toY(p.p).toFixed(1)}`);
   const linePath = `M ${pts.join(" L ")}`;
   const areaPath = `M ${toX(0).toFixed(1)},${height} L ${pts.join(" L ")} L ${lastX.toFixed(1)},${height} Z`;
   const gradId = `sg_${symbol.replace(/[^a-z0-9]/gi, "")}`;
 
   const avgText = fc(avgCost);
   const curText = currentPrice > 0 ? fc(currentPrice) : null;
+  const fs = 11;
+  const rPad = 10;
 
-  // Label padding from right edge
-  const labelPad = 8;
-  const fontSize = 11;
+  // Decide label anchor for buy point: avoid clipping at edges
+  const buyLabelX = Math.max(rPad, Math.min(buyX, width - rPad));
+  const buyLabelAnchor = buyX < width * 0.15 ? "start" : buyX > width * 0.85 ? "end" : "middle";
+
+  // Current price label: right of dot unless too close to edge
+  const curLabelX = lastX + 8 > width - rPad ? width - rPad : lastX + 8;
+  const curLabelAnchor = lastX + 8 > width - rPad ? "end" : "start";
 
   return (
     <svg width={width} height={height} style={{ position: "absolute", inset: 0, display: "block" }}>
@@ -210,36 +236,42 @@ function Sparkline({ prices, avgCost, currentPrice, fc, color, width, height, sy
         </linearGradient>
       </defs>
 
-      {/* Area fill */}
+      {/* Area + line */}
       <path d={areaPath} fill={`url(#${gradId})`} />
-      {/* Price line */}
       <path d={linePath} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
 
-      {/* Avg cost dashed line */}
-      <line x1="0" y1={avgY.toFixed(1)} x2={width} y2={avgY.toFixed(1)}
-        stroke="#94a3b8" strokeWidth="1" strokeDasharray="5,4" strokeOpacity="0.6" />
-      {/* Avg cost value — right-aligned on the line, above it */}
+      {/* Avg cost dashed horizontal line */}
+      <line x1="0" y1={buyY.toFixed(1)} x2={width} y2={buyY.toFixed(1)}
+        stroke="#94a3b8" strokeWidth="1" strokeDasharray="5,4" strokeOpacity="0.55" />
+
+      {/* Buy date: dot on curve + vertical drop to avg cost line + avg cost value */}
+      {/* Vertical connector from curve point down to avg cost line */}
+      <line
+        x1={buyX.toFixed(1)} y1={buyDotY.toFixed(1)}
+        x2={buyX.toFixed(1)} y2={buyY.toFixed(1)}
+        stroke="#94a3b8" strokeWidth="1" strokeDasharray="3,3" strokeOpacity="0.5"
+      />
+      {/* Dot on curve at buy date */}
+      <circle cx={buyX.toFixed(1)} cy={buyDotY.toFixed(1)} r="3.5"
+        fill="#ffffff" stroke="#94a3b8" strokeWidth="1.5" />
+      {/* Dot on avg cost line at buy date */}
+      <circle cx={buyX.toFixed(1)} cy={buyY.toFixed(1)} r="3"
+        fill="#94a3b8" fillOpacity="0.8" />
+      {/* Avg cost value above the dot on curve */}
       <text
-        x={width - labelPad} y={(avgY - 5).toFixed(1)}
-        textAnchor="end"
-        fill="#64748b"
-        fontSize={fontSize}
-        fontFamily={FONT_NUM}
-        fontWeight="500"
+        x={buyLabelX.toFixed(1)} y={(buyDotY - 8).toFixed(1)}
+        textAnchor={buyLabelAnchor}
+        fill="#475569" fontSize={fs} fontFamily={FONT_NUM} fontWeight="500"
       >{avgText}</text>
 
-      {/* Current price dot at end of line */}
+      {/* Current price: dot at end of line + value */}
       {curText && (
         <>
-          <circle cx={lastX.toFixed(1)} cy={lastY.toFixed(1)} r="3" fill={color} />
-          {/* Current price value — right of dot, avoid edge */}
+          <circle cx={lastX.toFixed(1)} cy={lastY.toFixed(1)} r="3.5" fill={color} />
           <text
-            x={Math.min(lastX + 7, width - labelPad)} y={(lastY + fontSize / 3).toFixed(1)}
-            textAnchor={lastX + 7 + 60 > width ? "end" : "start"}
-            fill={color}
-            fontSize={fontSize}
-            fontFamily={FONT_NUM}
-            fontWeight="600"
+            x={curLabelX.toFixed(1)} y={(lastY + fs / 3).toFixed(1)}
+            textAnchor={curLabelAnchor}
+            fill={color} fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
           >{curText}</text>
         </>
       )}
