@@ -207,7 +207,8 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
     );
   }
   const buyX = toX(buyIdx);
-  const buyY = toY(avgCost); // avg cost price level
+  const buyY = toY(avgCost); // avg cost price level (for horizontal dashed line)
+  const buyYOnCurve = toY(clean[buyIdx].p); // actual curve price at buy date (vertical guide snaps here)
 
   const lastIdx = clean.length - 1;
   const lastX = toX(lastIdx);
@@ -252,14 +253,15 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
         fill="#475569" fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
       >{avgText}</text>
 
-      {/* Buy date: upward triangle at bottom of chart marks the purchase date */}
-      {/* Subtle vertical guide from triangle up to avg cost line */}
+      {/* Buy date: upward triangle at bottom + vertical guide up to the curve */}
       <line
         x1={buyX.toFixed(1)} y1={(height - 14).toFixed(1)}
-        x2={buyX.toFixed(1)} y2={buyY.toFixed(1)}
+        x2={buyX.toFixed(1)} y2={buyYOnCurve.toFixed(1)}
         stroke="#94a3b8" strokeWidth="1" strokeDasharray="2,3" strokeOpacity="0.5"
       />
-      {/* Triangle: tip points up toward the avg cost line */}
+      {/* Dot on the curve at buy date */}
+      <circle cx={buyX.toFixed(1)} cy={buyYOnCurve.toFixed(1)} r="3" fill="#64748b" fillOpacity="0.8" />
+      {/* Triangle: tip points up */}
       <polygon
         points={`${buyX},${height - 20} ${buyX - 5},${height - 12} ${buyX + 5},${height - 12}`}
         fill="#64748b" fillOpacity="0.8"
