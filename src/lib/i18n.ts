@@ -427,6 +427,7 @@ const translations = {
   "share.showQuantity": { en: "Show Quantity", zh: "显示数量" },
   "share.preview": { en: "Preview", zh: "预览" },
   "share.downloadPng": { en: "Save Image", zh: "保存图片" },
+  "share.openToSave": { en: "Open Image → Long-press to Save", zh: "打开图片 → 长按保存" },
   "share.back": { en: "Back", zh: "返回" },
   "share.generating": { en: "Generating...", zh: "生成中..." },
   "share.noSelection": { en: "Select at least one holding", zh: "至少选择一个持仓" },

@@ -93,6 +93,8 @@ export function ShareDialog({
 
   const partialSummary = calculatePortfolioSummary(selectedHoldings, []);
 
+  const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
   const handleDownload = async () => {
     if (!cardRef.current) return;
     setCapturing(true);
@@ -102,10 +104,19 @@ export function ShareDialog({
         pixelRatio: 2,
         backgroundColor: "#ffffff",
       });
-      const a = document.createElement("a");
-      a.download = `portfolio-${today}.png`;
-      a.href = dataUrl;
-      a.click();
+      if (isIOS) {
+        // iOS Safari doesn't support <a download> — open in new tab so user can long-press → Save to Photos
+        const win = window.open();
+        if (win) {
+          win.document.write(`<img src="${dataUrl}" style="max-width:100%;display:block" /><p style="font-family:sans-serif;color:#64748b;font-size:14px;text-align:center;margin-top:12px">长按图片 → 存储到照片<br/>Long-press → Save to Photos</p>`);
+          win.document.close();
+        }
+      } else {
+        const a = document.createElement("a");
+        a.download = `portfolio-${today}.png`;
+        a.href = dataUrl;
+        a.click();
+      }
     } catch {
       // silently ignore
     } finally {
@@ -188,7 +199,7 @@ export function ShareDialog({
             <div className="px-5 py-4 border-t shrink-0">
               <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing}>
                 <Download className="h-4 w-4" />
-                {capturing ? t("share.generating") : t("share.downloadPng")}
+                {capturing ? t("share.generating") : isIOS ? t("share.openToSave") : t("share.downloadPng")}
               </Button>
             </div>
           </>
@@ -265,7 +276,7 @@ export function ShareDialog({
                 </Button>
                 <Button className="flex-1 gap-2" onClick={handleDownload} disabled={capturing}>
                   <Download className="h-4 w-4" />
-                  {capturing ? t("share.generating") : t("share.downloadPng")}
+                  {capturing ? t("share.generating") : isIOS ? t("share.openToSave") : t("share.downloadPng")}
                 </Button>
               </div>
             </>
