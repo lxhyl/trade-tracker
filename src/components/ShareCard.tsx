@@ -117,8 +117,6 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 ) {
   const isGain = h.unrealizedPnL >= 0;
   const color = isGain ? gainColor : lossColor;
-  const avgLabel = locale === "zh" ? "买入价" : "Avg";
-  const curLabel = locale === "zh" ? "现价" : "Price";
 
   return (
     <div ref={ref} style={cardBase}>
@@ -133,38 +131,23 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 
       {/* Chart + overlay */}
       <div style={{ position: "relative", height: CHART_H, background: "#fafafa", overflow: "hidden" }}>
-        {/* Sparkline SVG */}
         <Sparkline
           prices={priceHistory.map(p => p.p)}
           avgCost={h.avgCost}
+          currentPrice={h.currentPrice}
+          fc={fc}
           color={color}
           width={CARD_W}
           height={CHART_H}
           symbol={h.symbol}
+          locale={locale}
         />
 
-        {/* P&L overlay — sits at top-left over the chart */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, padding: "18px 24px", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-          {/* Gradient scrim so text is readable */}
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(250,250,250,0.92) 40%, rgba(250,250,250,0.3) 100%)" }} />
-          <div style={{ position: "relative" }}>
-            <div style={{ color, fontSize: 52, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
-              {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
-            </div>
-            <div style={{ display: "flex", gap: 24, marginTop: 10 }}>
-              {h.avgCost > 0 && (
-                <div>
-                  <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 3 }}>{avgLabel}</div>
-                  <div style={{ color: "#475569", fontSize: 14, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.avgCost)}</div>
-                </div>
-              )}
-              {h.currentPrice > 0 && (
-                <div>
-                  <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 3 }}>{curLabel}</div>
-                  <div style={{ color: "#475569", fontSize: 14, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.currentPrice)}</div>
-                </div>
-              )}
-            </div>
+        {/* P&L % overlay at bottom-left */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(250,250,250,0.88) 30%, transparent 100%)" }} />
+        <div style={{ position: "absolute", bottom: 18, left: 24 }}>
+          <div style={{ color, fontSize: 52, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
+            {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
           </div>
         </div>
       </div>
@@ -176,12 +159,12 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 
 // ── Sparkline ────────────────────────────────────────────────
 
-function Sparkline({ prices, avgCost, color, width, height, symbol }: {
-  prices: number[]; avgCost: number; color: string; width: number; height: number; symbol: string;
+function Sparkline({ prices, avgCost, currentPrice, fc, color, width, height, symbol, locale }: {
+  prices: number[]; avgCost: number; currentPrice: number; fc: (v: number) => string;
+  color: string; width: number; height: number; symbol: string; locale: Locale;
 }) {
   const clean = prices.filter(p => p > 0 && isFinite(p));
   if (clean.length < 3) {
-    // No data: gentle tinted placeholder
     return (
       <svg width={width} height={height} style={{ position: "absolute", inset: 0 }}>
         <rect width={width} height={height} fill={color} fillOpacity="0.04" />
@@ -191,19 +174,11 @@ function Sparkline({ prices, avgCost, color, width, height, symbol }: {
 
   const dataMin = Math.min(...clean);
   const dataMax = Math.max(...clean);
-
-  // Scale Y so avgCost sits at golden ratio (φ = 61.8%) from the top
-  // avgNorm (0=top, 1=bottom) = φ  → means avgCost is 61.8% down
-  // (chartMax - avgCost) / (chartMax - chartMin) = φ
   const pad = 0.04;
   let chartMin = dataMin * (1 - pad);
-  // chartMax from golden ratio: chartMax = avgCost + φ*(avgCost - chartMin)/(1-φ)... rearrange:
-  // chartMax*(1-φ) = avgCost - φ*chartMin  →  chartMax = (avgCost - φ*chartMin)/(1-φ)
   let chartMax = (avgCost - φ * chartMin) / (1 - φ);
-  // Expand if actual data exceeds computed range
   if (chartMax < dataMax * (1 + pad)) {
     chartMax = dataMax * (1 + pad);
-    // Re-anchor min so avgCost stays as close to golden ratio as possible
     chartMin = Math.max(0, avgCost - (1 - φ) * (chartMax - avgCost) / φ);
   }
 
@@ -211,33 +186,63 @@ function Sparkline({ prices, avgCost, color, width, height, symbol }: {
   const toX = (i: number) => (i / (clean.length - 1)) * width;
   const toY = (p: number) => ((chartMax - p) / range) * height;
   const avgY = toY(avgCost);
+  const lastX = toX(clean.length - 1);
+  const lastY = toY(clean[clean.length - 1]);
 
   const pts = clean.map((p, i) => `${toX(i).toFixed(1)},${toY(p).toFixed(1)}`);
   const linePath = `M ${pts.join(" L ")}`;
-  const areaPath = `M ${toX(0).toFixed(1)},${height} L ${pts.join(" L ")} L ${toX(clean.length - 1).toFixed(1)},${height} Z`;
+  const areaPath = `M ${toX(0).toFixed(1)},${height} L ${pts.join(" L ")} L ${lastX.toFixed(1)},${height} Z`;
   const gradId = `sg_${symbol.replace(/[^a-z0-9]/gi, "")}`;
+
+  const avgText = fc(avgCost);
+  const curText = currentPrice > 0 ? fc(currentPrice) : null;
+
+  // Label padding from right edge
+  const labelPad = 8;
+  const fontSize = 11;
 
   return (
     <svg width={width} height={height} style={{ position: "absolute", inset: 0, display: "block" }}>
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+          <stop offset="0%" stopColor={color} stopOpacity="0.20" />
           <stop offset="100%" stopColor={color} stopOpacity="0.02" />
         </linearGradient>
       </defs>
+
       {/* Area fill */}
       <path d={areaPath} fill={`url(#${gradId})`} />
       {/* Price line */}
       <path d={linePath} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
-      {/* Avg cost dashed line at golden ratio */}
-      <line
-        x1="0" y1={avgY.toFixed(1)}
-        x2={width} y2={avgY.toFixed(1)}
-        stroke="#94a3b8"
-        strokeWidth="1"
-        strokeDasharray="5,4"
-        strokeOpacity="0.7"
-      />
+
+      {/* Avg cost dashed line */}
+      <line x1="0" y1={avgY.toFixed(1)} x2={width} y2={avgY.toFixed(1)}
+        stroke="#94a3b8" strokeWidth="1" strokeDasharray="5,4" strokeOpacity="0.6" />
+      {/* Avg cost value — right-aligned on the line, above it */}
+      <text
+        x={width - labelPad} y={(avgY - 5).toFixed(1)}
+        textAnchor="end"
+        fill="#64748b"
+        fontSize={fontSize}
+        fontFamily={FONT_NUM}
+        fontWeight="500"
+      >{avgText}</text>
+
+      {/* Current price dot at end of line */}
+      {curText && (
+        <>
+          <circle cx={lastX.toFixed(1)} cy={lastY.toFixed(1)} r="3" fill={color} />
+          {/* Current price value — right of dot, avoid edge */}
+          <text
+            x={Math.min(lastX + 7, width - labelPad)} y={(lastY + fontSize / 3).toFixed(1)}
+            textAnchor={lastX + 7 + 60 > width ? "end" : "start"}
+            fill={color}
+            fontSize={fontSize}
+            fontFamily={FONT_NUM}
+            fontWeight="600"
+          >{curText}</text>
+        </>
+      )}
     </svg>
   );
 }
