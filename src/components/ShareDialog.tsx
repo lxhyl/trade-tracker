@@ -100,7 +100,6 @@ export function ShareDialog({
     : holdings.filter((h) => selectedSymbols.has(h.symbol));
 
   const partialSummary = calculatePortfolioSummary(selectedHoldings, []);
-  const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -108,19 +107,25 @@ export function ShareDialog({
     try {
       const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: "#ffffff", skipFonts: true });
-      if (isIOS) {
-        const win = window.open();
-        if (win) {
-          win.document.write(`<img src="${dataUrl}" style="max-width:100%;display:block" /><p style="font-family:sans-serif;color:#64748b;font-size:14px;text-align:center;margin-top:12px">长按图片 → 存储到照片<br/>Long-press → Save to Photos</p>`);
-          win.document.close();
-        }
-      } else {
-        const a = document.createElement("a");
-        a.download = `portfolio-${today}.png`;
-        a.href = dataUrl;
-        a.click();
+      const filename = `portfolio-${today}.png`;
+
+      // Web Share API (iOS 15+, Android) — opens native share sheet → Save to Photos
+      const blob = await fetch(dataUrl).then((r) => r.blob());
+      const file = new File([blob], filename, { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        return;
       }
-    } catch { /* ignore */ } finally {
+
+      // Desktop fallback
+      const a = document.createElement("a");
+      a.download = filename;
+      a.href = dataUrl;
+      a.click();
+    } catch (err) {
+      // AbortError = user dismissed share sheet, not a real error
+      if ((err as Error)?.name !== "AbortError") console.error(err);
+    } finally {
       setCapturing(false);
     }
   };
@@ -145,7 +150,7 @@ export function ShareDialog({
   const saveBtn = (
     <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing}>
       <Download className="h-4 w-4" />
-      {capturing ? t("share.generating") : isIOS ? t("share.openToSave") : t("share.downloadPng")}
+      {capturing ? t("share.generating") : t("share.downloadPng")}
     </Button>
   );
 
