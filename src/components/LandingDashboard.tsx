@@ -135,7 +135,7 @@ export function LandingDashboard({ onLogin }: LandingDashboardProps) {
       <StatsCards summary={summary} currency="USD" rates={RATES} />
 
       {/* Holdings Table */}
-      <HoldingsTable holdings={holdings} currency="USD" rates={RATES} readOnly />
+      <HoldingsTable holdings={holdings} summary={summary} currency="USD" rates={RATES} colorScheme="us" readOnly />
 
       {/* Charts Row */}
       <div className="grid gap-4 md:gap-6 lg:grid-cols-2">

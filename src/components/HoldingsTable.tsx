@@ -12,32 +12,38 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Holding } from "@/lib/calculations";
+import { Holding, PortfolioSummary } from "@/lib/calculations";
 import { createCurrencyFormatter, formatNumber, formatPercent } from "@/lib/utils";
 import { SupportedCurrency, ExchangeRates } from "@/lib/currency";
-import { TrendingUp, TrendingDown, Wallet, Zap, Loader2, Check, AlertCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, Zap, Loader2, Check, AlertCircle, Share2 } from "lucide-react";
 import { useI18n } from "@/components/I18nProvider";
 import { usePnLColors } from "@/components/ColorSchemeProvider";
 import { AssetLogo } from "@/components/AssetLogo";
+import { ColorScheme } from "@/actions/settings";
+import { ShareDialog } from "@/components/ShareDialog";
 
 interface HoldingsTableProps {
   holdings: Holding[];
+  summary: PortfolioSummary;
   currency: SupportedCurrency;
   rates: ExchangeRates;
+  colorScheme: ColorScheme;
   readOnly?: boolean;
 }
 
 type RefreshStatus = "idle" | "loading" | "success" | "error";
 
-export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsTableProps) {
+export function HoldingsTable({ holdings, summary, currency, rates, colorScheme, readOnly }: HoldingsTableProps) {
   const fc = createCurrencyFormatter(currency, rates);
   const c = usePnLColors();
   const [refreshStatus, setRefreshStatus] = useState<RefreshStatus>("idle");
   const [refreshInfo, setRefreshInfo] = useState("");
   const router = useRouter();
-  const { t, tInterpolate } = useI18n();
+  const { t, tInterpolate, locale } = useI18n();
 
   const [cooldown, setCooldown] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareInitialSymbol, setShareInitialSymbol] = useState<string | null>(null);
 
   const handleRefreshAllPrices = useCallback(async () => {
     setRefreshStatus("loading");
@@ -69,6 +75,7 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
   }, [router, t, tInterpolate]);
 
   return (
+    <>
     <Card className="overflow-hidden">
       <CardHeader className="border-b bg-muted/30 px-4 md:px-6">
         <div className="flex items-center justify-between gap-2">
@@ -130,6 +137,7 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
                 <TableHead className="label-caps text-right">{t("holdings.currentPrice")}</TableHead>
                 <TableHead className="label-caps text-right">{t("holdings.value")}</TableHead>
                 <TableHead className="label-caps text-right">{t("holdings.pnl")}</TableHead>
+                <TableHead className="w-8" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -175,6 +183,19 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
                       </span>
                     </div>
                   </TableCell>
+                  <TableCell className="w-8 pr-2">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        setShareInitialSymbol(h.symbol);
+                        setShareOpen(true);
+                      }}
+                    >
+                      <Share2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -183,5 +204,18 @@ export function HoldingsTable({ holdings, currency, rates, readOnly }: HoldingsT
         )}
       </CardContent>
     </Card>
+
+    <ShareDialog
+      open={shareOpen}
+      onOpenChange={setShareOpen}
+      holdings={holdings}
+      summary={summary}
+      currency={currency}
+      rates={rates}
+      colorScheme={colorScheme}
+      locale={locale}
+      initialSymbol={shareInitialSymbol}
+    />
+    </>
   );
 }

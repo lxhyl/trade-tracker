@@ -416,6 +416,23 @@ const translations = {
   // ── Error ─────────────────────────────────────────────────
   "error.title": { en: "Something went wrong", zh: "出了点问题" },
   "error.message": { en: "An unexpected error occurred. Please try again or refresh the page.", zh: "发生了意外错误。请重试或刷新页面。" },
+
+  // ── Share ──────────────────────────────────────────────────
+  "holdings.share": { en: "Share", zh: "分享" },
+  "share.title": { en: "Share Portfolio", zh: "分享持仓" },
+  "share.selectHoldings": { en: "Select holdings to share", zh: "选择要分享的持仓" },
+  "share.selectAll": { en: "Select All", zh: "全选" },
+  "share.deselectAll": { en: "Deselect All", zh: "取消全选" },
+  "share.showAvgCost": { en: "Show Avg Cost", zh: "显示均价" },
+  "share.showQuantity": { en: "Show Quantity", zh: "显示数量" },
+  "share.preview": { en: "Preview", zh: "预览" },
+  "share.downloadPng": { en: "Save Image", zh: "保存图片" },
+  "share.back": { en: "Back", zh: "返回" },
+  "share.generating": { en: "Generating...", zh: "生成中..." },
+  "share.noSelection": { en: "Select at least one holding", zh: "至少选择一个持仓" },
+  "share.totalReturn": { en: "Total Return", zh: "总收益" },
+  "share.avgCostLabel": { en: "Avg", zh: "均价" },
+  "share.qtyLabel": { en: "Qty", zh: "持仓" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

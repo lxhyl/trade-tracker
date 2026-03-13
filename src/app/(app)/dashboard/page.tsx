@@ -1,6 +1,6 @@
 import { getTransactions, getLatestPrices } from "@/actions/transactions";
 import { getDeposits } from "@/actions/deposits";
-import { getDisplayCurrency } from "@/actions/settings";
+import { getDisplayCurrency, getColorScheme } from "@/actions/settings";
 import { getExchangeRates } from "@/lib/exchange-rates";
 import {
   calculateHoldings,
@@ -22,13 +22,14 @@ import { t } from "@/lib/i18n";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const [transactions, currentPrices, deposits, currency, rates, locale] = await Promise.all([
+  const [transactions, currentPrices, deposits, currency, rates, locale, colorScheme] = await Promise.all([
     getTransactions(),
     getLatestPrices(),
     getDeposits(),
     getDisplayCurrency(),
     getExchangeRates(),
     getDisplayLanguage(),
+    getColorScheme(),
   ]);
 
   const holdings = calculateHoldings(transactions, currentPrices, rates);
@@ -61,7 +62,7 @@ export default async function DashboardPage() {
       <StatsCards summary={summary} currency={currency} rates={rates} />
 
       {/* Holdings Table */}
-      <HoldingsTable holdings={holdings} currency={currency} rates={rates} />
+      <HoldingsTable holdings={holdings} summary={summary} currency={currency} rates={rates} colorScheme={colorScheme} />
 
       {/* Charts Row */}
       <div className="grid gap-4 md:gap-6 lg:grid-cols-2">
