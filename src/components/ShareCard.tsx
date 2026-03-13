@@ -192,7 +192,7 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   const toX = (i: number) => xPadL + (i / (clean.length - 1)) * (width - xPadL - xPadR);
   const toY = (p: number) => ((chartMax - p) / range) * height;
 
-  // Find x position of buy date — closest data point to firstBuyDate
+  // Find the index closest to the actual buy date (used as search center)
   const buyTs = firstBuyDate instanceof Date ? firstBuyDate.getTime() : new Date(firstBuyDate).getTime();
   const firstTs = clean[0].t;
   const lastTs = clean[clean.length - 1].t;
@@ -206,9 +206,23 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
       Math.abs(pt.t - buyTs) < Math.abs(clean[best].t - buyTs) ? i : best, 0
     );
   }
-  const buyX = toX(buyIdx);
-  const buyY = toY(avgCost); // avg cost price level (for horizontal dashed line)
-  const buyYOnCurve = toY(clean[buyIdx].p); // actual curve price at buy date (vertical guide snaps here)
+
+  const buyY = toY(avgCost); // avg cost price level — horizontal dashed line
+
+  // Find the intersection of the avg-cost horizontal line with the price curve,
+  // choosing the crossing closest to buyIdx. Interpolate for sub-pixel accuracy.
+  let markerX = toX(buyIdx); // fallback: use buyIdx if no crossing found
+  let bestDist = Infinity;
+  for (let i = 0; i < clean.length - 1; i++) {
+    const p1 = clean[i].p;
+    const p2 = clean[i + 1].p;
+    if ((p1 - avgCost) * (p2 - avgCost) <= 0) {
+      const t = p2 === p1 ? 0 : (avgCost - p1) / (p2 - p1);
+      const crossX = toX(i) + t * (toX(i + 1) - toX(i));
+      const dist = Math.abs(i + t - buyIdx);
+      if (dist < bestDist) { bestDist = dist; markerX = crossX; }
+    }
+  }
 
   const lastIdx = clean.length - 1;
   const lastX = toX(lastIdx);
@@ -253,17 +267,17 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
         fill="#475569" fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
       >{avgText}</text>
 
-      {/* Buy date: upward triangle at bottom + vertical guide up to the curve */}
+      {/* Buy marker: vertical guide from triangle up to the avg-cost / curve intersection */}
       <line
-        x1={buyX.toFixed(1)} y1={(height - 14).toFixed(1)}
-        x2={buyX.toFixed(1)} y2={buyYOnCurve.toFixed(1)}
+        x1={markerX.toFixed(1)} y1={(height - 14).toFixed(1)}
+        x2={markerX.toFixed(1)} y2={buyY.toFixed(1)}
         stroke="#94a3b8" strokeWidth="1" strokeDasharray="2,3" strokeOpacity="0.5"
       />
-      {/* Dot on the curve at buy date */}
-      <circle cx={buyX.toFixed(1)} cy={buyYOnCurve.toFixed(1)} r="3" fill="#64748b" fillOpacity="0.8" />
-      {/* Triangle: tip points up */}
+      {/* Dot exactly at intersection of avg-cost dashed line and curve */}
+      <circle cx={markerX.toFixed(1)} cy={buyY.toFixed(1)} r="3" fill="#64748b" fillOpacity="0.85" />
+      {/* Triangle at bottom pointing up */}
       <polygon
-        points={`${buyX},${height - 20} ${buyX - 5},${height - 12} ${buyX + 5},${height - 12}`}
+        points={`${markerX},${height - 20} ${markerX - 5},${height - 12} ${markerX + 5},${height - 12}`}
         fill="#64748b" fillOpacity="0.8"
       />
 
