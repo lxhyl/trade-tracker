@@ -50,6 +50,9 @@ export function ShareDialog({
   // Pre-fetch logos + price history when dialog opens
   useEffect(() => {
     if (!open) return;
+    // Clear stale data from previous asset immediately
+    setLogoDataUrls({});
+    setPriceHistory([]);
     const targets = isSingleMode
       ? holdings.filter((h) => h.symbol === initialSymbol)
       : holdings;
