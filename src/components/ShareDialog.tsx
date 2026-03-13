@@ -33,36 +33,32 @@ export function ShareDialog({
   initialSymbol,
 }: ShareDialogProps) {
   const { t } = useI18n();
+  const isSingleMode = !!initialSymbol;
+
+  // Multi-asset state
   const [step, setStep] = useState<"select" | "preview">("select");
   const [selectedSymbols, setSelectedSymbols] = useState<Set<string>>(
     () => new Set(initialSymbol ? [initialSymbol] : holdings.map((h) => h.symbol))
   );
-  const [showAvgCost, setShowAvgCost] = useState(true);
-  const [showQuantity, setShowQuantity] = useState(true);
+
+  // Shared display options
+  const [showPnlAmount, setShowPnlAmount] = useState(false);
+  const [showAvgCost, setShowAvgCost] = useState(false);
+  const [showCurrentPrice, setShowCurrentPrice] = useState(false);
+  const [showQuantity, setShowQuantity] = useState(false);
+
   const [capturing, setCapturing] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   if (!open) return null;
 
-  const toggleSymbol = (symbol: string) => {
-    setSelectedSymbols((prev) => {
-      const next = new Set(prev);
-      if (next.has(symbol)) {
-        next.delete(symbol);
-      } else {
-        next.add(symbol);
-      }
-      return next;
-    });
-  };
-
-  const selectAll = () => setSelectedSymbols(new Set(holdings.map((h) => h.symbol)));
-  const deselectAll = () => setSelectedSymbols(new Set());
-
-  const selectedHoldings = holdings.filter((h) => selectedSymbols.has(h.symbol));
-  const partialSummary = calculatePortfolioSummary(selectedHoldings, []);
-
   const today = new Date().toISOString().slice(0, 10);
+
+  const selectedHoldings = isSingleMode
+    ? holdings.filter((h) => h.symbol === initialSymbol)
+    : holdings.filter((h) => selectedSymbols.has(h.symbol));
+
+  const partialSummary = calculatePortfolioSummary(selectedHoldings, []);
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
@@ -84,143 +80,161 @@ export function ShareDialog({
     }
   };
 
+  const toggleBtn = (active: boolean, label: string, onClick: () => void) => (
+    <button
+      className={`flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+        active
+          ? "bg-primary text-primary-foreground border-primary"
+          : "bg-background text-muted-foreground hover:bg-muted"
+      }`}
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  );
+
+  const shareCard = (
+    <ShareCard
+      ref={cardRef}
+      holdings={selectedHoldings}
+      summary={partialSummary}
+      currency={currency}
+      rates={rates}
+      colorScheme={colorScheme}
+      showPnlAmount={showPnlAmount}
+      showAvgCost={showAvgCost}
+      showCurrentPrice={showCurrentPrice}
+      showQuantity={showQuantity}
+      date={today}
+      locale={locale}
+    />
+  );
+
   return (
     <div
       style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center" }}
       onClick={(e) => { if (e.target === e.currentTarget) onOpenChange(false); }}
     >
-      {/* Backdrop */}
       <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)" }} />
 
-      {/* Panel */}
       <div
         className="relative bg-background rounded-xl shadow-2xl flex flex-col"
-        style={{ width: "min(480px, 95vw)", maxHeight: "85vh", zIndex: 51 }}
+        style={{ width: "min(520px, 95vw)", maxHeight: "90vh", zIndex: 51 }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b">
+        <div className="flex items-center justify-between px-5 py-4 border-b shrink-0">
           <h2 className="text-base font-semibold">{t("share.title")}</h2>
-          <button
-            className="text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => onOpenChange(false)}
-          >
+          <button className="text-muted-foreground hover:text-foreground transition-colors" onClick={() => onOpenChange(false)}>
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {step === "select" ? (
+        {isSingleMode ? (
+          // ── Single asset: options + live preview in one view ──
           <>
-            {/* Selection step body */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-              {/* Holdings checklist */}
+              {/* Options */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-muted-foreground">{t("share.selectHoldings")}</p>
-                  <div className="flex gap-3 text-xs">
-                    <button className="text-primary hover:underline" onClick={selectAll}>
-                      {t("share.selectAll")}
-                    </button>
-                    <button className="text-primary hover:underline" onClick={deselectAll}>
-                      {t("share.deselectAll")}
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-1 rounded-lg border overflow-hidden">
-                  {holdings.map((h) => (
-                    <label
-                      key={h.symbol}
-                      className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-muted/50 transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 accent-primary"
-                        checked={selectedSymbols.has(h.symbol)}
-                        onChange={() => toggleSymbol(h.symbol)}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <span className="text-sm font-semibold">{h.symbol}</span>
-                        {h.name && (
-                          <span className="text-xs text-muted-foreground ml-2 truncate">{h.name}</span>
-                        )}
-                      </div>
-                    </label>
-                  ))}
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("share.options")}</p>
+                <div className="flex gap-2 flex-wrap">
+                  {toggleBtn(showPnlAmount, t("share.showPnlAmount"), () => setShowPnlAmount(v => !v))}
+                  {toggleBtn(showAvgCost, t("share.showAvgCost"), () => setShowAvgCost(v => !v))}
+                  {toggleBtn(showCurrentPrice, t("share.showCurrentPrice"), () => setShowCurrentPrice(v => !v))}
                 </div>
               </div>
 
-              {/* Toggle options */}
-              <div className="flex gap-2">
-                <button
-                  className={`flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
-                    showAvgCost
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-muted-foreground hover:bg-muted"
-                  }`}
-                  onClick={() => setShowAvgCost((v) => !v)}
-                >
-                  {t("share.showAvgCost")}
-                </button>
-                <button
-                  className={`flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
-                    showQuantity
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-muted-foreground hover:bg-muted"
-                  }`}
-                  onClick={() => setShowQuantity((v) => !v)}
-                >
-                  {t("share.showQuantity")}
-                </button>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="px-5 py-4 border-t">
-              <Button
-                className="w-full gap-2"
-                disabled={selectedSymbols.size === 0}
-                onClick={() => setStep("preview")}
-              >
-                <Image className="h-4 w-4" />
-                {t("share.preview")}
-              </Button>
-              {selectedSymbols.size === 0 && (
-                <p className="text-xs text-muted-foreground text-center mt-2">{t("share.noSelection")}</p>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            {/* Preview step body */}
-            <div className="flex-1 overflow-auto p-4">
+              {/* Live preview */}
               <div className="bg-slate-100 rounded-xl p-4 overflow-x-auto flex justify-center">
-                <ShareCard
-                  ref={cardRef}
-                  holdings={selectedHoldings}
-                  summary={partialSummary}
-                  currency={currency}
-                  rates={rates}
-                  colorScheme={colorScheme}
-                  showAvgCost={showAvgCost}
-                  showQuantity={showQuantity}
-                  date={today}
-                  locale={locale}
-                />
+                {shareCard}
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="px-5 py-4 border-t flex gap-3">
-              <Button variant="outline" onClick={() => setStep("select")} className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                {t("share.back")}
-              </Button>
-              <Button className="flex-1 gap-2" onClick={handleDownload} disabled={capturing}>
+            <div className="px-5 py-4 border-t shrink-0">
+              <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing}>
                 <Download className="h-4 w-4" />
                 {capturing ? t("share.generating") : t("share.downloadPng")}
               </Button>
             </div>
           </>
+        ) : (
+          // ── Multi-asset: select → preview ──
+          step === "select" ? (
+            <>
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-muted-foreground">{t("share.selectHoldings")}</p>
+                    <div className="flex gap-3 text-xs">
+                      <button className="text-primary hover:underline" onClick={() => setSelectedSymbols(new Set(holdings.map(h => h.symbol)))}>
+                        {t("share.selectAll")}
+                      </button>
+                      <button className="text-primary hover:underline" onClick={() => setSelectedSymbols(new Set())}>
+                        {t("share.deselectAll")}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-1 rounded-lg border overflow-hidden">
+                    {holdings.map((h) => (
+                      <label key={h.symbol} className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-muted/50 transition-colors">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-primary"
+                          checked={selectedSymbols.has(h.symbol)}
+                          onChange={() => setSelectedSymbols(prev => {
+                            const next = new Set(prev);
+                            next.has(h.symbol) ? next.delete(h.symbol) : next.add(h.symbol);
+                            return next;
+                          })}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm font-semibold">{h.symbol}</span>
+                          {h.name && <span className="text-xs text-muted-foreground ml-2">{h.name}</span>}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("share.options")}</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {toggleBtn(showPnlAmount, t("share.showPnlAmount"), () => setShowPnlAmount(v => !v))}
+                    {toggleBtn(showAvgCost, t("share.showAvgCost"), () => setShowAvgCost(v => !v))}
+                    {toggleBtn(showQuantity, t("share.showQuantity"), () => setShowQuantity(v => !v))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-5 py-4 border-t shrink-0">
+                <Button className="w-full gap-2" disabled={selectedSymbols.size === 0} onClick={() => setStep("preview")}>
+                  <Image className="h-4 w-4" />
+                  {t("share.preview")}
+                </Button>
+                {selectedSymbols.size === 0 && (
+                  <p className="text-xs text-muted-foreground text-center mt-2">{t("share.noSelection")}</p>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex-1 overflow-auto p-4">
+                <div className="bg-slate-100 rounded-xl p-4 overflow-x-auto flex justify-center">
+                  {shareCard}
+                </div>
+              </div>
+              <div className="px-5 py-4 border-t flex gap-3 shrink-0">
+                <Button variant="outline" onClick={() => setStep("select")} className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  {t("share.back")}
+                </Button>
+                <Button className="flex-1 gap-2" onClick={handleDownload} disabled={capturing}>
+                  <Download className="h-4 w-4" />
+                  {capturing ? t("share.generating") : t("share.downloadPng")}
+                </Button>
+              </div>
+            </>
+          )
         )}
       </div>
     </div>

@@ -433,6 +433,9 @@ const translations = {
   "share.totalReturn": { en: "Total Return", zh: "总收益" },
   "share.avgCostLabel": { en: "Avg", zh: "均价" },
   "share.qtyLabel": { en: "Qty", zh: "持仓" },
+  "share.showPnlAmount": { en: "Show P&L Amount", zh: "显示盈亏额" },
+  "share.showCurrentPrice": { en: "Show Current Price", zh: "显示当前价格" },
+  "share.options": { en: "Display Options", zh: "显示选项" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
