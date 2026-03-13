@@ -127,6 +127,12 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
           <div style={{ color: "#0f172a", fontSize: 17, fontWeight: 700, fontFamily: FONT_SANS, letterSpacing: "-0.2px" }}>{h.symbol}</div>
           {h.name && <div style={{ color: "#94a3b8", fontSize: 12, fontFamily: FONT_SANS, marginTop: 3 }}>{h.name}</div>}
         </div>
+        {h.currentPrice > 0 && (
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <div style={{ color: "#0f172a", fontSize: 15, fontWeight: 700, fontFamily: FONT_NUM, letterSpacing: "-0.5px" }}>{fc(h.currentPrice)}</div>
+            <div style={{ color: color, fontSize: 12, fontWeight: 600, fontFamily: FONT_NUM, marginTop: 2 }}>{isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}</div>
+          </div>
+        )}
       </div>
 
       {/* Chart + overlay */}
@@ -137,7 +143,6 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
           priceHistory={priceHistory}
           avgCost={h.avgCost}
           firstBuyDate={h.firstBuyDate}
-          currentPrice={h.currentPrice}
           fc={fc}
           color={color}
           width={CARD_W}
@@ -146,12 +151,6 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
           locale={locale}
         />
 
-        {/* P&L % overlay at bottom-left */}
-        <div style={{ position: "absolute", bottom: 18, left: 24 }}>
-          <div style={{ color, fontSize: 52, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
-            {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
-          </div>
-        </div>
       </div>
 
       <Footer />
@@ -161,8 +160,8 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 
 // ── Sparkline ────────────────────────────────────────────────
 
-function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, color, width, height, symbol, locale: _locale }: {
-  priceHistory: PricePoint[]; avgCost: number; firstBuyDate: Date; currentPrice: number;
+function Sparkline({ priceHistory, avgCost, firstBuyDate, fc, color, width, height, symbol, locale: _locale }: {
+  priceHistory: PricePoint[]; avgCost: number; firstBuyDate: Date;
   fc: (v: number) => string; color: string; width: number; height: number; symbol: string; locale: Locale;
 }) {
   const clean = priceHistory.filter(p => p.p > 0 && isFinite(p.p));
@@ -186,9 +185,8 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   }
 
   const range = chartMax - chartMin || 1;
-  // Left pad keeps first dot visible; right pad leaves room for the price label
   const xPadL = 12;
-  const xPadR = 72;
+  const xPadR = 12;
   const toX = (i: number) => xPadL + (i / (clean.length - 1)) * (width - xPadL - xPadR);
   const toY = (p: number) => ((chartMax - p) / range) * height;
 
@@ -220,13 +218,7 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   const gradId = `sg_${symbol.replace(/[^a-z0-9]/gi, "")}`;
 
   const avgText = fc(avgCost);
-  // Use last historical price for label — matches where the dot sits on the curve
-  const curText = lastPrice > 0 ? fc(lastPrice) : null;
   const fs = 11;
-
-  // Current price label: right of the last dot, in the reserved right padding zone
-  const curLabelX = lastX + 8;
-  const curLabelAnchor = "start";
 
   return (
     <svg width={width} height={height} style={{ position: "absolute", inset: 0, display: "block" }}>
@@ -265,17 +257,8 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
         fill="#64748b" fillOpacity="0.8"
       />
 
-      {/* Current price: dot at end of line + value in right padding zone */}
-      {curText && (
-        <>
-          <circle cx={lastX.toFixed(1)} cy={lastY.toFixed(1)} r="3.5" fill={color} />
-          <text
-            x={curLabelX.toFixed(1)} y={lastY.toFixed(1)}
-            textAnchor={curLabelAnchor} dominantBaseline="central"
-            fill={color} fontSize={fs} fontFamily={FONT_NUM} fontWeight="700"
-          >{curText}</text>
-        </>
-      )}
+      {/* Dot at end of line */}
+      <circle cx={lastX.toFixed(1)} cy={lastY.toFixed(1)} r="3.5" fill={color} />
     </svg>
   );
 }
