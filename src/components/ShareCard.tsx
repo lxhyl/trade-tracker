@@ -186,7 +186,9 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   }
 
   const range = chartMax - chartMin || 1;
-  const toX = (i: number) => (i / (clean.length - 1)) * width;
+  // Horizontal padding so dots aren't clipped at edges
+  const xPad = 16;
+  const toX = (i: number) => xPad + (i / (clean.length - 1)) * (width - xPad * 2);
   const toY = (p: number) => ((chartMax - p) / range) * height;
 
   // Find x position of buy date — closest data point to firstBuyDate
@@ -207,8 +209,10 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   const buyY = toY(avgCost); // avg cost price level
   const buyDotY = toY(clean[buyIdx].p); // actual price on curve at buy date
 
-  const lastX = toX(clean.length - 1);
-  const lastY = toY(clean[clean.length - 1].p);
+  const lastIdx = clean.length - 1;
+  const lastX = toX(lastIdx);
+  const lastPrice = clean[lastIdx].p;
+  const lastY = toY(lastPrice);
 
   const pts = clean.map((p, i) => `${toX(i).toFixed(1)},${toY(p.p).toFixed(1)}`);
   const linePath = `M ${pts.join(" L ")}`;
@@ -216,17 +220,18 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   const gradId = `sg_${symbol.replace(/[^a-z0-9]/gi, "")}`;
 
   const avgText = fc(avgCost);
-  const curText = currentPrice > 0 ? fc(currentPrice) : null;
+  // Use last historical price for label — matches where the dot sits on the curve
+  const curText = lastPrice > 0 ? fc(lastPrice) : null;
   const fs = 11;
-  const rPad = 10;
+  const rPad = xPad + 4;
 
   // Decide label anchor for buy point: avoid clipping at edges
   const buyLabelX = Math.max(rPad, Math.min(buyX, width - rPad));
-  const buyLabelAnchor = buyX < width * 0.15 ? "start" : buyX > width * 0.85 ? "end" : "middle";
+  const buyLabelAnchor = buyX < width * 0.2 ? "start" : buyX > width * 0.8 ? "end" : "middle";
 
-  // Current price label: right of dot unless too close to edge
-  const curLabelX = lastX + 8 > width - rPad ? width - rPad : lastX + 8;
-  const curLabelAnchor = lastX + 8 > width - rPad ? "end" : "start";
+  // Current price label: left of dot (label fits inside chart since dot has right padding)
+  const curLabelX = lastX - 8;
+  const curLabelAnchor = "end";
 
   return (
     <svg width={width} height={height} style={{ position: "absolute", inset: 0, display: "block" }}>
