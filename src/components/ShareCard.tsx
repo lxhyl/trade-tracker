@@ -64,8 +64,6 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
 
   return (
     <div ref={ref} style={cardBase}>
-      {/* Accent stripe */}
-      <div style={{ height: 4, background: returnColor }} />
 
       {/* Header: summary */}
       <div style={{ padding: "20px 24px 16px" }}>
@@ -163,8 +161,6 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 
   return (
     <div ref={ref} style={{ ...cardBase, background: "#ffffff" }}>
-      {/* Colored top stripe */}
-      <div style={{ height: 4, background: color }} />
 
       {/* Asset identity row */}
       <div style={{ padding: "20px 24px 18px", display: "flex", alignItems: "center", gap: 14 }}>
