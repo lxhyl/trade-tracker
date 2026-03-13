@@ -256,7 +256,7 @@ const cardWrap: React.CSSProperties = {
   width: 480,
   fontFamily: FONT_SANS,
   background: "#ffffff",
-  borderRadius: 16,
+  borderRadius: 0,
   overflow: "hidden",
   boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)",
 };
