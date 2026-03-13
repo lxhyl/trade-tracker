@@ -131,6 +131,8 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 
       {/* Chart + overlay */}
       <div style={{ position: "relative", height: CHART_H, background: "#fafafa", overflow: "hidden" }}>
+        {/* Gradient first — Sparkline renders on top */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(250,250,250,0.88) 30%, transparent 100%)" }} />
         <Sparkline
           priceHistory={priceHistory}
           avgCost={h.avgCost}
@@ -145,7 +147,6 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
         />
 
         {/* P&L % overlay at bottom-left */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(250,250,250,0.88) 30%, transparent 100%)" }} />
         <div style={{ position: "absolute", bottom: 18, left: 24 }}>
           <div style={{ color, fontSize: 52, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
             {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
@@ -259,8 +260,14 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
         fill="#475569" fillOpacity="0.9" />
       {/* Avg cost value above the dot on curve */}
       <text
-        x={buyLabelX.toFixed(1)} y={(buyDotY - 8).toFixed(1)}
-        textAnchor={buyLabelAnchor}
+        x={buyLabelX.toFixed(1)} y={(buyDotY - 10).toFixed(1)}
+        textAnchor={buyLabelAnchor} dominantBaseline="central"
+        fill="#ffffff" stroke="#ffffff" strokeWidth="3" paintOrder="stroke"
+        fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
+      >{avgText}</text>
+      <text
+        x={buyLabelX.toFixed(1)} y={(buyDotY - 10).toFixed(1)}
+        textAnchor={buyLabelAnchor} dominantBaseline="central"
         fill="#334155" fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
       >{avgText}</text>
 
@@ -269,8 +276,14 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
         <>
           <circle cx={lastX.toFixed(1)} cy={lastY.toFixed(1)} r="3.5" fill={color} />
           <text
-            x={curLabelX.toFixed(1)} y={(lastY + fs / 3).toFixed(1)}
-            textAnchor={curLabelAnchor}
+            x={curLabelX.toFixed(1)} y={lastY.toFixed(1)}
+            textAnchor={curLabelAnchor} dominantBaseline="central"
+            fill="#ffffff" stroke="#ffffff" strokeWidth="3" paintOrder="stroke"
+            fontSize={fs} fontFamily={FONT_NUM} fontWeight="700"
+          >{curText}</text>
+          <text
+            x={curLabelX.toFixed(1)} y={lastY.toFixed(1)}
+            textAnchor={curLabelAnchor} dominantBaseline="central"
             fill={color} fontSize={fs} fontFamily={FONT_NUM} fontWeight="700"
           >{curText}</text>
         </>
