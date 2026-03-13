@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Holding, PortfolioSummary, calculatePortfolioSummary } from "@/lib/calculations";
 import { SupportedCurrency, ExchangeRates } from "@/lib/currency";
 import { ColorScheme } from "@/actions/settings";
@@ -48,7 +48,40 @@ export function ShareDialog({
   const [showQuantity, setShowQuantity] = useState(false);
 
   const [capturing, setCapturing] = useState(false);
+  const [logoDataUrls, setLogoDataUrls] = useState<Record<string, string>>({});
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // Pre-fetch logos as data URLs so html-to-image can inline them
+  useEffect(() => {
+    if (!open) return;
+    const targets = isSingleMode
+      ? holdings.filter((h) => h.symbol === initialSymbol)
+      : holdings;
+    let cancelled = false;
+    (async () => {
+      const urls: Record<string, string> = {};
+      await Promise.all(
+        targets.map(async (h) => {
+          try {
+            const res = await fetch(`/api/logo/${encodeURIComponent(h.symbol)}?type=${encodeURIComponent(h.assetType)}`);
+            if (!res.ok) return;
+            const blob = await res.blob();
+            urls[h.symbol] = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+          } catch {
+            // fallback to initials
+          }
+        })
+      );
+      if (!cancelled) setLogoDataUrls(urls);
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialSymbol]);
 
   if (!open) return null;
 
@@ -107,6 +140,7 @@ export function ShareDialog({
       showQuantity={showQuantity}
       date={today}
       locale={locale}
+      logoDataUrls={logoDataUrls}
     />
   );
 
