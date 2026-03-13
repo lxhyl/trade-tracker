@@ -208,7 +208,6 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   }
   const buyX = toX(buyIdx);
   const buyY = toY(avgCost); // avg cost price level
-  const buyDotY = toY(clean[buyIdx].p); // actual price on curve at buy date
 
   const lastIdx = clean.length - 1;
   const lastX = toX(lastIdx);
@@ -224,10 +223,6 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   // Use last historical price for label — matches where the dot sits on the curve
   const curText = lastPrice > 0 ? fc(lastPrice) : null;
   const fs = 11;
-
-  // Decide label anchor for buy point
-  const buyLabelX = Math.max(xPadL + 4, Math.min(buyX, width - xPadR - 4));
-  const buyLabelAnchor = buyX < width * 0.2 ? "start" : buyX > width * 0.75 ? "end" : "middle";
 
   // Current price label: right of the last dot, in the reserved right padding zone
   const curLabelX = lastX + 8;
@@ -246,30 +241,29 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
       <path d={areaPath} fill={`url(#${gradId})`} />
       <path d={linePath} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
 
-      {/* Avg cost dashed horizontal line */}
+      {/* Avg cost dashed horizontal line — spans full width */}
       <line x1="0" y1={buyY.toFixed(1)} x2={width} y2={buyY.toFixed(1)}
-        stroke="#64748b" strokeWidth="1" strokeDasharray="5,4" strokeOpacity="0.7" />
+        stroke="#64748b" strokeWidth="1" strokeDasharray="5,4" strokeOpacity="0.6" />
 
-      {/* Buy date: dot on curve + vertical drop to avg cost line + avg cost value */}
-      {/* Vertical connector from curve point down to avg cost line */}
-      <line
-        x1={buyX.toFixed(1)} y1={buyDotY.toFixed(1)}
-        x2={buyX.toFixed(1)} y2={buyY.toFixed(1)}
-        stroke="#64748b" strokeWidth="1" strokeDasharray="3,3" strokeOpacity="0.65"
-      />
-      {/* Dot on curve at buy date */}
-      <circle cx={buyX.toFixed(1)} cy={buyDotY.toFixed(1)} r="3.5"
-        fill="#ffffff" stroke="#475569" strokeWidth="1.5" />
-      {/* Dot on avg cost line at buy date */}
-      <circle cx={buyX.toFixed(1)} cy={buyY.toFixed(1)} r="3"
-        fill="#475569" fillOpacity="0.9" />
-      {/* Avg cost value above the dot on curve — white bg rect for legibility */}
+      {/* Avg cost label pinned to left of dashed line */}
       <text
-        x={buyLabelX.toFixed(1)} y={(buyDotY - 10).toFixed(1)}
-        textAnchor={buyLabelAnchor} dominantBaseline="central"
-        fill="#334155" fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
-        style={{ filter: "drop-shadow(0 0 3px #fff) drop-shadow(0 0 3px #fff)" }}
+        x={(xPadL).toFixed(1)} y={(buyY - 6).toFixed(1)}
+        textAnchor="start" dominantBaseline="auto"
+        fill="#475569" fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
       >{avgText}</text>
+
+      {/* Buy date: upward triangle at bottom of chart marks the purchase date */}
+      {/* Subtle vertical guide from triangle up to avg cost line */}
+      <line
+        x1={buyX.toFixed(1)} y1={(height - 14).toFixed(1)}
+        x2={buyX.toFixed(1)} y2={buyY.toFixed(1)}
+        stroke="#94a3b8" strokeWidth="1" strokeDasharray="2,3" strokeOpacity="0.5"
+      />
+      {/* Triangle: tip points up toward the avg cost line */}
+      <polygon
+        points={`${buyX},${height - 20} ${buyX - 5},${height - 12} ${buyX + 5},${height - 12}`}
+        fill="#64748b" fillOpacity="0.8"
+      />
 
       {/* Current price: dot at end of line + value in right padding zone */}
       {curText && (
