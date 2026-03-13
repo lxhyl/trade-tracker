@@ -6,7 +6,7 @@ import { SupportedCurrency, ExchangeRates } from "@/lib/currency";
 import { ColorScheme } from "@/actions/settings";
 import { Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/I18nProvider";
-import { ShareCard, PricePoint } from "@/components/ShareCard";
+import { ShareCard, PricePoint, CARD_W } from "@/components/ShareCard";
 import { Button } from "@/components/ui/button";
 import { X, Download, ArrowLeft, Image } from "lucide-react";
 
@@ -43,6 +43,9 @@ export function ShareDialog({
   const [logoDataUrls, setLogoDataUrls] = useState<Record<string, string>>({});
   const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const [cardScale, setCardScale] = useState(1);
+  const [cardNaturalH, setCardNaturalH] = useState(0);
 
   // Pre-fetch logos + price history when dialog opens
   useEffect(() => {
@@ -91,6 +94,23 @@ export function ShareDialog({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialSymbol]);
 
+  // Measure container → compute scale to fit card on small screens
+  useEffect(() => {
+    const container = previewContainerRef.current;
+    if (!container) return;
+    const update = () => {
+      const available = container.clientWidth - 32; // subtract p-4 (16px) on each side
+      setCardScale(Math.min(1, available / CARD_W));
+      if (cardRef.current) setCardNaturalH(cardRef.current.offsetHeight);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(container);
+    return () => ro.disconnect();
+  // re-run when data loads so height is measured after card fully renders
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, logoDataUrls, priceHistory]);
+
   if (!open) return null;
 
   const today = new Date().toISOString().slice(0, 10);
@@ -131,19 +151,29 @@ export function ShareDialog({
   };
 
   const cardPreview = (
-    <div className="bg-slate-100 rounded-xl p-4 overflow-x-auto flex justify-center">
-      <ShareCard
-        ref={cardRef}
-        holdings={selectedHoldings}
-        summary={partialSummary}
-        currency={currency}
-        rates={rates}
-        colorScheme={colorScheme}
-        date={today}
-        locale={locale}
-        logoDataUrls={logoDataUrls}
-        priceHistory={priceHistory}
-      />
+    <div ref={previewContainerRef} className="bg-slate-100 rounded-xl p-4">
+      {/* Outer div collapses to the visual (scaled) size so no dead space below */}
+      <div style={{
+        width: CARD_W * cardScale,
+        height: cardNaturalH ? cardNaturalH * cardScale : undefined,
+        margin: "0 auto",
+        overflow: "hidden",
+      }}>
+        <div style={{ transform: `scale(${cardScale})`, transformOrigin: "top left", width: CARD_W }}>
+          <ShareCard
+            ref={cardRef}
+            holdings={selectedHoldings}
+            summary={partialSummary}
+            currency={currency}
+            rates={rates}
+            colorScheme={colorScheme}
+            date={today}
+            locale={locale}
+            logoDataUrls={logoDataUrls}
+            priceHistory={priceHistory}
+          />
+        </div>
+      </div>
     </div>
   );
 

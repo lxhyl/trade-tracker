@@ -14,7 +14,7 @@ const SITE_NAME = "TradeTracker";
 const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
 const FONT_NUM = "'JetBrains Mono', 'Fira Mono', monospace";
 
-const CARD_W = 480;
+export const CARD_W = 480;
 const CHART_H = 200;
 const φ = 0.618; // golden ratio
 
