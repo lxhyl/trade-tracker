@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import YahooFinance from "yahoo-finance2";
 
-const yf = ((YahooFinance as unknown as { default: unknown }).default ?? YahooFinance) as { historical: (s: string, o: object) => Promise<{ date: Date; close: number }[]> };
+const yf = new YahooFinance({ suppressNotices: ["yahooSurvey"] });
 
 export async function GET(
   request: NextRequest,
@@ -15,16 +15,19 @@ export async function GET(
   // For crypto, yahoo uses BTC-USD style tickers
   const yahooSymbol = assetType === "crypto" ? `${symbol}-USD` : symbol;
 
+  const period1 = new Date();
+  period1.setDate(period1.getDate() - 90);
+
   try {
-    const result: { date: Date; close: number }[] = await yf.historical(yahooSymbol, {
-      period1: (() => { const d = new Date(); d.setDate(d.getDate() - 90); return d; })(),
+    const result = await yf.chart(yahooSymbol, {
+      period1,
       period2: new Date(),
       interval: "1d",
     });
 
-    const prices = result
-      .filter((r) => r.close != null)
-      .map((r) => ({ t: r.date.getTime(), p: r.close }));
+    const prices = (result.quotes ?? [])
+      .filter((q) => q.close != null && q.date)
+      .map((q) => ({ t: new Date(q.date!).getTime(), p: q.close! }));
 
     return NextResponse.json({ prices });
   } catch (err) {
