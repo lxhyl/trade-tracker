@@ -11,9 +11,14 @@ import { createCurrencyFormatter, formatPercent } from "@/lib/utils";
 const SITE_URL = "https://trade.ozlab.xyz";
 const SITE_HOST = "trade.ozlab.xyz";
 const SITE_NAME = "TradeTracker";
-
 const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
 const FONT_NUM = "'JetBrains Mono', 'Fira Mono', monospace";
+
+const CARD_W = 480;
+const CHART_H = 200;
+const φ = 0.618; // golden ratio
+
+export interface PricePoint { t: number; p: number }
 
 interface ShareCardProps {
   holdings: Holding[];
@@ -21,17 +26,19 @@ interface ShareCardProps {
   currency: SupportedCurrency;
   rates: ExchangeRates;
   colorScheme: ColorScheme;
-  showAvgCost: boolean;
-  showQuantity: boolean;
-  showPnlAmount: boolean;
-  showCurrentPrice: boolean;
+  // legacy props kept for multi-asset compat
+  showAvgCost?: boolean;
+  showQuantity?: boolean;
+  showPnlAmount?: boolean;
+  showCurrentPrice?: boolean;
   date: string;
   locale: Locale;
   logoDataUrls?: Record<string, string>;
+  priceHistory?: PricePoint[];  // for single-asset chart
 }
 
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function ShareCard(
-  { holdings, summary, currency, rates, colorScheme, showAvgCost, showQuantity, showPnlAmount, showCurrentPrice, locale, logoDataUrls = {} },
+  { holdings, summary, currency, rates, colorScheme, locale, logoDataUrls = {}, priceHistory = [] },
   ref
 ) {
   const fc = createCurrencyFormatter(currency, rates);
@@ -46,26 +53,20 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         fc={fc}
         gainColor={gainColor}
         lossColor={lossColor}
-        showPnlAmount={showPnlAmount}
-        showAvgCost={showAvgCost}
-        showCurrentPrice={showCurrentPrice}
         locale={locale}
         logoDataUrl={logoDataUrls[holdings[0].symbol]}
+        priceHistory={priceHistory}
       />
     );
   }
 
-  // ── Multi-asset card ─────────────────────────────────────
+  // ── Multi-asset ──────────────────────────────────────────
   const isGain = summary.totalPnL >= 0;
   const returnColor = isGain ? gainColor : lossColor;
   const totalReturnLabel = locale === "zh" ? "总收益" : "Total Return";
-  const avgCostLabel = locale === "zh" ? "均价" : "Avg";
-  const qtyLabel = locale === "zh" ? "持仓" : "Qty";
 
   return (
     <div ref={ref} style={cardBase}>
-
-      {/* Header: summary */}
       <div style={{ padding: "20px 24px 16px" }}>
         <div style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 8 }}>
           {totalReturnLabel}
@@ -73,62 +74,26 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         <div style={{ color: returnColor, fontSize: 40, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-1px" }}>
           {isGain ? "+" : ""}{formatPercent(summary.totalPnLPercent)}
         </div>
-        {showPnlAmount && (
-          <div style={{ color: returnColor, fontSize: 14, fontWeight: 500, marginTop: 6, fontFamily: FONT_NUM, opacity: 0.85 }}>
-            {isGain ? "+" : "-"}{fc(Math.abs(summary.totalPnL))}
-          </div>
-        )}
       </div>
-
       <div style={{ height: 1, background: "#f1f5f9", margin: "0 24px" }} />
-
-      {/* Holdings */}
       <div>
         {holdings.map((h, i) => {
           const hGain = h.unrealizedPnL >= 0;
           const hColor = hGain ? gainColor : lossColor;
           return (
-            <div key={h.symbol} style={{ padding: "12px 24px", borderBottom: i < holdings.length - 1 ? "1px solid #f8fafc" : "none" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <LogoCircle symbol={h.symbol} assetType={h.assetType} size={32} dataUrl={logoDataUrls[h.symbol]} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", fontFamily: FONT_SANS }}>{h.symbol}</div>
-                  {h.name && <div style={{ fontSize: 11, color: "#94a3b8", fontFamily: FONT_SANS, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</div>}
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ color: hColor, fontSize: 14, fontWeight: 700, fontFamily: FONT_NUM }}>
-                    {hGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
-                  </div>
-                  {showPnlAmount && (
-                    <div style={{ color: hColor, fontSize: 11, fontFamily: FONT_NUM, marginTop: 2, opacity: 0.8 }}>
-                      {hGain ? "+" : "-"}{fc(Math.abs(h.unrealizedPnL))}
-                    </div>
-                  )}
-                </div>
+            <div key={h.symbol} style={{ padding: "12px 24px", borderBottom: i < holdings.length - 1 ? "1px solid #f8fafc" : "none", display: "flex", alignItems: "center", gap: 10 }}>
+              <LogoCircle symbol={h.symbol} assetType={h.assetType} size={32} dataUrl={logoDataUrls[h.symbol]} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", fontFamily: FONT_SANS }}>{h.symbol}</div>
+                {h.name && <div style={{ fontSize: 11, color: "#94a3b8", fontFamily: FONT_SANS, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</div>}
               </div>
-              {(showAvgCost || showQuantity) && (
-                <div style={{ display: "flex", gap: 16, marginTop: 7, paddingLeft: 42 }}>
-                  {showAvgCost && h.avgCost > 0 && (
-                    <div style={{ fontSize: 11, fontFamily: FONT_SANS, color: "#64748b" }}>
-                      <span style={{ color: "#94a3b8" }}>{avgCostLabel} </span>
-                      <span style={{ fontFamily: FONT_NUM }}>{fc(h.avgCost)}</span>
-                    </div>
-                  )}
-                  {showQuantity && h.quantity > 0 && (
-                    <div style={{ fontSize: 11, fontFamily: FONT_SANS, color: "#64748b" }}>
-                      <span style={{ color: "#94a3b8" }}>{qtyLabel} </span>
-                      <span style={{ fontFamily: FONT_NUM }}>
-                        {h.quantity % 1 === 0 ? h.quantity.toLocaleString() : h.quantity.toPrecision(6)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
+              <div style={{ textAlign: "right" }}>
+                <div style={{ color: hColor, fontSize: 14, fontWeight: 700, fontFamily: FONT_NUM }}>{hGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}</div>
+              </div>
             </div>
           );
         })}
       </div>
-
       <Footer />
     </div>
   );
@@ -141,29 +106,24 @@ interface SingleAssetCardProps {
   fc: (v: number) => string;
   gainColor: string;
   lossColor: string;
-  showPnlAmount: boolean;
-  showAvgCost: boolean;
-  showCurrentPrice: boolean;
   locale: Locale;
   logoDataUrl?: string;
+  priceHistory: PricePoint[];
 }
 
 const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(function SingleAssetCard(
-  { holding: h, fc, gainColor, lossColor, showPnlAmount, showAvgCost, showCurrentPrice, locale, logoDataUrl },
+  { holding: h, fc, gainColor, lossColor, locale, logoDataUrl, priceHistory },
   ref
 ) {
   const isGain = h.unrealizedPnL >= 0;
   const color = isGain ? gainColor : lossColor;
-  const bgTint = isGain ? "rgba(5,150,105,0.04)" : "rgba(229,62,62,0.04)";
-  const showDetails = showAvgCost || showCurrentPrice;
-  const avgLabel = locale === "zh" ? "买入价" : "Avg Cost";
-  const priceLabel = locale === "zh" ? "当前价" : "Price";
+  const avgLabel = locale === "zh" ? "买入价" : "Avg";
+  const curLabel = locale === "zh" ? "现价" : "Price";
 
   return (
-    <div ref={ref} style={{ ...cardBase, background: "#ffffff" }}>
-
-      {/* Asset identity row */}
-      <div style={{ padding: "20px 24px 18px", display: "flex", alignItems: "center", gap: 14 }}>
+    <div ref={ref} style={cardBase}>
+      {/* Asset identity */}
+      <div style={{ padding: "20px 24px 16px", display: "flex", alignItems: "center", gap: 14, background: "#ffffff" }}>
         <LogoCircle symbol={h.symbol} assetType={h.assetType} size={44} dataUrl={logoDataUrl} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ color: "#0f172a", fontSize: 17, fontWeight: 700, fontFamily: FONT_SANS, letterSpacing: "-0.2px" }}>{h.symbol}</div>
@@ -171,40 +131,116 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
         </div>
       </div>
 
-      {/* P&L area — tinted bg */}
-      <div style={{ background: bgTint, padding: "24px 24px 22px" }}>
-        <div style={{ color: color, fontSize: 58, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
-          {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
-        </div>
-        {showPnlAmount && (
-          <div style={{ color: color, fontSize: 16, fontWeight: 500, marginTop: 10, fontFamily: FONT_NUM, opacity: 0.85 }}>
-            {isGain ? "+" : "-"}{fc(Math.abs(h.unrealizedPnL))}
-          </div>
-        )}
-      </div>
+      {/* Chart + overlay */}
+      <div style={{ position: "relative", height: CHART_H, background: "#fafafa", overflow: "hidden" }}>
+        {/* Sparkline SVG */}
+        <Sparkline
+          prices={priceHistory.map(p => p.p)}
+          avgCost={h.avgCost}
+          color={color}
+          width={CARD_W}
+          height={CHART_H}
+          symbol={h.symbol}
+        />
 
-      {/* Detail row */}
-      {showDetails && (
-        <div style={{ padding: "0 24px 20px", display: "flex", gap: 32 }}>
-          {showAvgCost && h.avgCost > 0 && (
-            <div>
-              <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 4 }}>{avgLabel}</div>
-              <div style={{ color: "#0f172a", fontSize: 15, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.avgCost)}</div>
+        {/* P&L overlay — sits at top-left over the chart */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, padding: "18px 24px", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+          {/* Gradient scrim so text is readable */}
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(250,250,250,0.92) 40%, rgba(250,250,250,0.3) 100%)" }} />
+          <div style={{ position: "relative" }}>
+            <div style={{ color, fontSize: 52, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
+              {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
             </div>
-          )}
-          {showCurrentPrice && h.currentPrice > 0 && (
-            <div>
-              <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 4 }}>{priceLabel}</div>
-              <div style={{ color: "#0f172a", fontSize: 15, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.currentPrice)}</div>
+            <div style={{ display: "flex", gap: 24, marginTop: 10 }}>
+              {h.avgCost > 0 && (
+                <div>
+                  <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 3 }}>{avgLabel}</div>
+                  <div style={{ color: "#475569", fontSize: 14, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.avgCost)}</div>
+                </div>
+              )}
+              {h.currentPrice > 0 && (
+                <div>
+                  <div style={{ color: "#94a3b8", fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 3 }}>{curLabel}</div>
+                  <div style={{ color: "#475569", fontSize: 14, fontWeight: 600, fontFamily: FONT_NUM }}>{fc(h.currentPrice)}</div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
-      )}
+      </div>
 
       <Footer />
     </div>
   );
 });
+
+// ── Sparkline ────────────────────────────────────────────────
+
+function Sparkline({ prices, avgCost, color, width, height, symbol }: {
+  prices: number[]; avgCost: number; color: string; width: number; height: number; symbol: string;
+}) {
+  const clean = prices.filter(p => p > 0 && isFinite(p));
+  if (clean.length < 3) {
+    // No data: gentle tinted placeholder
+    return (
+      <svg width={width} height={height} style={{ position: "absolute", inset: 0 }}>
+        <rect width={width} height={height} fill={color} fillOpacity="0.04" />
+      </svg>
+    );
+  }
+
+  const dataMin = Math.min(...clean);
+  const dataMax = Math.max(...clean);
+
+  // Scale Y so avgCost sits at golden ratio (φ = 61.8%) from the top
+  // avgNorm (0=top, 1=bottom) = φ  → means avgCost is 61.8% down
+  // (chartMax - avgCost) / (chartMax - chartMin) = φ
+  const pad = 0.04;
+  let chartMin = dataMin * (1 - pad);
+  // chartMax from golden ratio: chartMax = avgCost + φ*(avgCost - chartMin)/(1-φ)... rearrange:
+  // chartMax*(1-φ) = avgCost - φ*chartMin  →  chartMax = (avgCost - φ*chartMin)/(1-φ)
+  let chartMax = (avgCost - φ * chartMin) / (1 - φ);
+  // Expand if actual data exceeds computed range
+  if (chartMax < dataMax * (1 + pad)) {
+    chartMax = dataMax * (1 + pad);
+    // Re-anchor min so avgCost stays as close to golden ratio as possible
+    chartMin = Math.max(0, avgCost - (1 - φ) * (chartMax - avgCost) / φ);
+  }
+
+  const range = chartMax - chartMin || 1;
+  const toX = (i: number) => (i / (clean.length - 1)) * width;
+  const toY = (p: number) => ((chartMax - p) / range) * height;
+  const avgY = toY(avgCost);
+
+  const pts = clean.map((p, i) => `${toX(i).toFixed(1)},${toY(p).toFixed(1)}`);
+  const linePath = `M ${pts.join(" L ")}`;
+  const areaPath = `M ${toX(0).toFixed(1)},${height} L ${pts.join(" L ")} L ${toX(clean.length - 1).toFixed(1)},${height} Z`;
+  const gradId = `sg_${symbol.replace(/[^a-z0-9]/gi, "")}`;
+
+  return (
+    <svg width={width} height={height} style={{ position: "absolute", inset: 0, display: "block" }}>
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      {/* Area fill */}
+      <path d={areaPath} fill={`url(#${gradId})`} />
+      {/* Price line */}
+      <path d={linePath} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+      {/* Avg cost dashed line at golden ratio */}
+      <line
+        x1="0" y1={avgY.toFixed(1)}
+        x2={width} y2={avgY.toFixed(1)}
+        stroke="#94a3b8"
+        strokeWidth="1"
+        strokeDasharray="5,4"
+        strokeOpacity="0.7"
+      />
+    </svg>
+  );
+}
 
 // ── Shared ────────────────────────────────────────────────────
 
@@ -233,7 +269,7 @@ function LogoCircle({ symbol, assetType, size, dataUrl }: {
 
 function Footer() {
   return (
-    <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #f1f5f9" }}>
+    <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #f1f5f9", background: "#ffffff" }}>
       <div style={{ background: "#ffffff", padding: 3, borderRadius: 4, border: "1px solid #e2e8f0", lineHeight: 0, flexShrink: 0 }}>
         <QRCodeSVG value={SITE_URL} size={40} marginSize={0} fgColor="#0f172a" />
       </div>
@@ -246,7 +282,7 @@ function Footer() {
 }
 
 const cardBase: React.CSSProperties = {
-  width: 480,
+  width: CARD_W,
   fontFamily: FONT_SANS,
   background: "#ffffff",
   overflow: "hidden",
