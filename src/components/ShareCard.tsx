@@ -229,9 +229,9 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   const buyLabelX = Math.max(rPad, Math.min(buyX, width - rPad));
   const buyLabelAnchor = buyX < width * 0.2 ? "start" : buyX > width * 0.8 ? "end" : "middle";
 
-  // Current price label: left of dot (label fits inside chart since dot has right padding)
-  const curLabelX = lastX - 8;
-  const curLabelAnchor = "end";
+  // Current price label: right of the last dot, inside the right padding zone
+  const curLabelX = lastX + 6;
+  const curLabelAnchor = "start";
 
   return (
     <svg width={width} height={height} style={{ position: "absolute", inset: 0, display: "block" }}>
