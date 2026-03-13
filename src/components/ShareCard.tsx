@@ -275,21 +275,32 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
       <line x1="0" y1={buyY.toFixed(1)} x2={width} y2={buyY.toFixed(1)}
         stroke="#64748b" strokeWidth="1" strokeDasharray="5,4" strokeOpacity="0.6" />
 
-      {/* Avg cost label pinned to left of dashed line */}
-      <text
-        x={(xPadL).toFixed(1)} y={(buyY - 6).toFixed(1)}
-        textAnchor="start" dominantBaseline="auto"
-        fill="#475569" fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
-      >{avgText}</text>
-
       {/* Buy marker: vertical guide from triangle up to the avg-cost / curve intersection */}
       <line
         x1={markerX.toFixed(1)} y1={(height - 14).toFixed(1)}
         x2={markerX.toFixed(1)} y2={buyY.toFixed(1)}
         stroke="#94a3b8" strokeWidth="1" strokeDasharray="2,3" strokeOpacity="0.5"
       />
-      {/* Dot exactly at intersection of avg-cost dashed line and curve */}
+      {/* Dot at intersection + avg cost label above it */}
       <circle cx={markerX.toFixed(1)} cy={buyY.toFixed(1)} r="3" fill="#64748b" fillOpacity="0.85" />
+      {(() => {
+        // Pill background sized to text; clamp so it never overflows card edges
+        const labelW = avgText.length * 7 + 10;
+        const rawLx = markerX - labelW / 2;
+        const lx = Math.max(2, Math.min(rawLx, width - labelW - 2));
+        const ly = buyY - 20;
+        return (
+          <>
+            <rect x={lx.toFixed(1)} y={ly.toFixed(1)} width={labelW} height={15}
+              rx="3" fill="white" fillOpacity="0.88" />
+            <text
+              x={(lx + labelW / 2).toFixed(1)} y={(ly + 11).toFixed(1)}
+              textAnchor="middle" dominantBaseline="auto"
+              fill="#475569" fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
+            >{avgText}</text>
+          </>
+        );
+      })()}
       {/* Triangle at bottom pointing up */}
       <polygon
         points={`${markerX},${height - 20} ${markerX - 5},${height - 12} ${markerX + 5},${height - 12}`}
