@@ -8,7 +8,7 @@ import { Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/I18nProvider";
 import { ShareCard, PricePoint, CARD_W } from "@/components/ShareCard";
 import { Button } from "@/components/ui/button";
-import { X, Download, ArrowLeft, Image, Loader2 } from "lucide-react";
+import { X, Download, ArrowLeft, Image } from "lucide-react";
 
 interface ShareDialogProps {
   open: boolean;
@@ -163,7 +163,6 @@ export function ShareDialog({
     <div ref={previewContainerRef} className="bg-slate-100 rounded-xl p-4">
       {/* Outer div collapses to the visual (scaled) size so no dead space below */}
       <div style={{
-        position: "relative",
         width: CARD_W * cardScale,
         height: cardNaturalH ? cardNaturalH * cardScale : undefined,
         margin: "0 auto",
@@ -181,20 +180,9 @@ export function ShareDialog({
             locale={locale}
             logoDataUrls={logoDataUrls}
             priceHistory={priceHistory}
+            loading={loading}
           />
         </div>
-        {/* Loading overlay */}
-        {loading && (
-          <div style={{
-            position: "absolute", inset: 0,
-            background: "rgba(255,255,255,0.75)",
-            backdropFilter: "blur(2px)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            borderRadius: 8,
-          }}>
-            <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
-          </div>
-        )}
       </div>
     </div>
   );

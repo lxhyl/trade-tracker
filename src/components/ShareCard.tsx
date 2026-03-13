@@ -35,10 +35,11 @@ interface ShareCardProps {
   locale: Locale;
   logoDataUrls?: Record<string, string>;
   priceHistory?: PricePoint[];  // for single-asset chart
+  loading?: boolean;
 }
 
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function ShareCard(
-  { holdings, summary, currency, rates, colorScheme, locale, logoDataUrls = {}, priceHistory = [] },
+  { holdings, summary, currency, rates, colorScheme, locale, logoDataUrls = {}, priceHistory = [], loading = false },
   ref
 ) {
   const fc = createCurrencyFormatter(currency, rates);
@@ -56,6 +57,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         locale={locale}
         logoDataUrl={logoDataUrls[holdings[0].symbol]}
         priceHistory={priceHistory}
+        loading={loading}
       />
     );
   }
@@ -109,10 +111,11 @@ interface SingleAssetCardProps {
   locale: Locale;
   logoDataUrl?: string;
   priceHistory: PricePoint[];
+  loading?: boolean;
 }
 
 const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(function SingleAssetCard(
-  { holding: h, fc, gainColor, lossColor, locale, logoDataUrl, priceHistory },
+  { holding: h, fc, gainColor, lossColor, locale, logoDataUrl, priceHistory, loading = false },
   ref
 ) {
   const isGain = h.unrealizedPnL >= 0;
@@ -129,10 +132,10 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
         </div>
       </div>
 
-      {/* Chart + overlay */}
+      {/* Chart area — loading overlay sits here, P&L text floats above it */}
       <div style={{ position: "relative", height: CHART_H, background: "#fafafa", overflow: "hidden" }}>
-        {/* Gradient first — Sparkline renders on top */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(250,250,250,0.88) 30%, transparent 100%)" }} />
+        {/* Gradient + sparkline — behind everything else */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to top, rgba(250,250,250,0.88) 30%, transparent 100%)" }} />
         <Sparkline
           priceHistory={priceHistory}
           avgCost={h.avgCost}
@@ -146,8 +149,20 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
           locale={locale}
         />
 
-        {/* P&L % overlay at bottom-left */}
-        <div style={{ position: "absolute", bottom: 18, left: 24 }}>
+        {/* Loading overlay — covers only the chart, below P&L text */}
+        {loading && (
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 2,
+            background: "rgba(250,250,250,0.82)",
+            backdropFilter: "blur(3px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <SpinnerIcon />
+          </div>
+        )}
+
+        {/* P&L % — always visible, above any overlay */}
+        <div style={{ position: "absolute", bottom: 18, left: 24, zIndex: 3 }}>
           <div style={{ color, fontSize: 52, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
             {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
           </div>
@@ -342,3 +357,19 @@ const cardBase: React.CSSProperties = {
   overflow: "hidden",
   boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
 };
+
+// Inline spinner — avoids Tailwind animate-spin which doesn't apply in inline styles
+function SpinnerIcon() {
+  return (
+    <>
+      <style>{`@keyframes _tt_spin{to{transform:rotate(360deg)}}`}</style>
+      <svg
+        width="22" height="22" viewBox="0 0 24 24" fill="none"
+        stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        style={{ animation: "_tt_spin 1s linear infinite" }}
+      >
+        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+      </svg>
+    </>
+  );
+}
