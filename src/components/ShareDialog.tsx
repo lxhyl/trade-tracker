@@ -115,13 +115,14 @@ export function ShareDialog({
 
   const toggleBtn = (active: boolean, label: string, onClick: () => void) => (
     <button
-      className={`flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors border ${
         active
-          ? "bg-primary text-primary-foreground border-primary"
-          : "bg-background text-muted-foreground hover:bg-muted"
+          ? "bg-primary/10 text-primary border-primary/30"
+          : "bg-transparent text-muted-foreground border-border hover:bg-muted"
       }`}
       onClick={onClick}
     >
+      <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-primary" : "bg-muted-foreground/30"}`} />
       {label}
     </button>
   );
@@ -171,7 +172,7 @@ export function ShareDialog({
               {/* Options */}
               <div>
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("share.options")}</p>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-1.5 flex-wrap">
                   {toggleBtn(showPnlAmount, t("share.showPnlAmount"), () => setShowPnlAmount(v => !v))}
                   {toggleBtn(showAvgCost, t("share.showAvgCost"), () => setShowAvgCost(v => !v))}
                   {toggleBtn(showCurrentPrice, t("share.showCurrentPrice"), () => setShowCurrentPrice(v => !v))}
@@ -232,7 +233,7 @@ export function ShareDialog({
 
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t("share.options")}</p>
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-1.5 flex-wrap">
                     {toggleBtn(showPnlAmount, t("share.showPnlAmount"), () => setShowPnlAmount(v => !v))}
                     {toggleBtn(showAvgCost, t("share.showAvgCost"), () => setShowAvgCost(v => !v))}
                     {toggleBtn(showQuantity, t("share.showQuantity"), () => setShowQuantity(v => !v))}
