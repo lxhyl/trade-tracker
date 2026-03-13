@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import YahooFinance from "yahoo-finance2";
 
-const yf = new YahooFinance({ suppressNotices: ["yahooSurvey"] });
+const yf = ((YahooFinance as unknown as { default: unknown }).default ?? YahooFinance) as { historical: (s: string, o: object) => Promise<{ date: Date; close: number }[]> };
 
 export async function GET(
   request: NextRequest,
@@ -16,9 +16,7 @@ export async function GET(
   const yahooSymbol = assetType === "crypto" ? `${symbol}-USD` : symbol;
 
   try {
-    const result = await (yf as unknown as {
-      historical: (symbol: string, opts: object) => Promise<{ date: Date; close: number }[]>;
-    }).historical(yahooSymbol, {
+    const result: { date: Date; close: number }[] = await yf.historical(yahooSymbol, {
       period1: (() => { const d = new Date(); d.setDate(d.getDate() - 90); return d; })(),
       period2: new Date(),
       interval: "1d",
@@ -29,7 +27,8 @@ export async function GET(
       .map((r) => ({ t: r.date.getTime(), p: r.close }));
 
     return NextResponse.json({ prices });
-  } catch {
+  } catch (err) {
+    console.error(`[price-history] ${yahooSymbol}:`, err);
     return NextResponse.json({ prices: [] });
   }
 }

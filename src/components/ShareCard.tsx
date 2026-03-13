@@ -186,9 +186,10 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   }
 
   const range = chartMax - chartMin || 1;
-  // Horizontal padding so dots aren't clipped at edges
-  const xPad = 16;
-  const toX = (i: number) => xPad + (i / (clean.length - 1)) * (width - xPad * 2);
+  // Left pad keeps first dot visible; right pad leaves room for the price label
+  const xPadL = 12;
+  const xPadR = 72;
+  const toX = (i: number) => xPadL + (i / (clean.length - 1)) * (width - xPadL - xPadR);
   const toY = (p: number) => ((chartMax - p) / range) * height;
 
   // Find x position of buy date — closest data point to firstBuyDate
@@ -223,14 +224,13 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   // Use last historical price for label — matches where the dot sits on the curve
   const curText = lastPrice > 0 ? fc(lastPrice) : null;
   const fs = 11;
-  const rPad = xPad + 4;
 
-  // Decide label anchor for buy point: avoid clipping at edges
-  const buyLabelX = Math.max(rPad, Math.min(buyX, width - rPad));
-  const buyLabelAnchor = buyX < width * 0.2 ? "start" : buyX > width * 0.8 ? "end" : "middle";
+  // Decide label anchor for buy point
+  const buyLabelX = Math.max(xPadL + 4, Math.min(buyX, width - xPadR - 4));
+  const buyLabelAnchor = buyX < width * 0.2 ? "start" : buyX > width * 0.75 ? "end" : "middle";
 
-  // Current price label: right of the last dot, inside the right padding zone
-  const curLabelX = lastX + 6;
+  // Current price label: right of the last dot, in the reserved right padding zone
+  const curLabelX = lastX + 8;
   const curLabelAnchor = "start";
 
   return (
@@ -263,29 +263,18 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
       {/* Dot on avg cost line at buy date */}
       <circle cx={buyX.toFixed(1)} cy={buyY.toFixed(1)} r="3"
         fill="#475569" fillOpacity="0.9" />
-      {/* Avg cost value above the dot on curve */}
-      <text
-        x={buyLabelX.toFixed(1)} y={(buyDotY - 10).toFixed(1)}
-        textAnchor={buyLabelAnchor} dominantBaseline="central"
-        fill="#ffffff" stroke="#ffffff" strokeWidth="3" paintOrder="stroke"
-        fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
-      >{avgText}</text>
+      {/* Avg cost value above the dot on curve — white bg rect for legibility */}
       <text
         x={buyLabelX.toFixed(1)} y={(buyDotY - 10).toFixed(1)}
         textAnchor={buyLabelAnchor} dominantBaseline="central"
         fill="#334155" fontSize={fs} fontFamily={FONT_NUM} fontWeight="600"
+        style={{ filter: "drop-shadow(0 0 3px #fff) drop-shadow(0 0 3px #fff)" }}
       >{avgText}</text>
 
-      {/* Current price: dot at end of line + value */}
+      {/* Current price: dot at end of line + value in right padding zone */}
       {curText && (
         <>
           <circle cx={lastX.toFixed(1)} cy={lastY.toFixed(1)} r="3.5" fill={color} />
-          <text
-            x={curLabelX.toFixed(1)} y={lastY.toFixed(1)}
-            textAnchor={curLabelAnchor} dominantBaseline="central"
-            fill="#ffffff" stroke="#ffffff" strokeWidth="3" paintOrder="stroke"
-            fontSize={fs} fontFamily={FONT_NUM} fontWeight="700"
-          >{curText}</text>
           <text
             x={curLabelX.toFixed(1)} y={lastY.toFixed(1)}
             textAnchor={curLabelAnchor} dominantBaseline="central"

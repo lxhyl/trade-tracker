@@ -107,7 +107,7 @@ export function ShareDialog({
     setCapturing(true);
     try {
       const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: "#ffffff" });
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: "#ffffff", skipFonts: true });
       if (isIOS) {
         const win = window.open();
         if (win) {
