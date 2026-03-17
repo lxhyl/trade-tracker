@@ -18,18 +18,21 @@ interface BaseHolding {
   name: string;
   assetType: "crypto" | "stock";
   qty: number;
-  avgCost: number;
-  totalCost: number;
+  // avgCostRatio: avgCost = currentPrice * ratio (so chart always looks good)
+  avgCostRatio: number;
+  // buyDaysAgo: firstBuyDate = now - N days (within 90-day chart window)
+  buyDaysAgo: number;
+  fallbackPrice: number; // used before API responds
   realizedPnL: number;
 }
 
 const BASE_HOLDINGS: BaseHolding[] = [
-  { symbol: "BTC",  name: "Bitcoin",         assetType: "crypto", qty: 2.5,  avgCost: 42100, totalCost: 105250, realizedPnL: 3200  },
-  { symbol: "ETH",  name: "Ethereum",         assetType: "crypto", qty: 15,   avgCost: 2200,  totalCost: 33000,  realizedPnL: 0     },
-  { symbol: "AAPL", name: "Apple Inc.",       assetType: "stock",  qty: 150,  avgCost: 172.5, totalCost: 25875,  realizedPnL: 520   },
-  { symbol: "NVDA", name: "NVIDIA Corp.",     assetType: "stock",  qty: 80,   avgCost: 480.0, totalCost: 38400,  realizedPnL: 0     },
-  { symbol: "MSFT", name: "Microsoft Corp.",  assetType: "stock",  qty: 60,   avgCost: 310.0, totalCost: 18600,  realizedPnL: 1100  },
-  { symbol: "TSLA", name: "Tesla Inc.",       assetType: "stock",  qty: 45,   avgCost: 295.0, totalCost: 13275,  realizedPnL: -800  },
+  { symbol: "BTC",  name: "Bitcoin",         assetType: "crypto", qty: 2.5,  avgCostRatio: 0.80, buyDaysAgo: 68, fallbackPrice: 85000, realizedPnL: 3200  },
+  { symbol: "ETH",  name: "Ethereum",         assetType: "crypto", qty: 15,   avgCostRatio: 0.88, buyDaysAgo: 52, fallbackPrice: 2000,  realizedPnL: 0     },
+  { symbol: "AAPL", name: "Apple Inc.",       assetType: "stock",  qty: 150,  avgCostRatio: 0.83, buyDaysAgo: 75, fallbackPrice: 210,   realizedPnL: 520   },
+  { symbol: "NVDA", name: "NVIDIA Corp.",     assetType: "stock",  qty: 80,   avgCostRatio: 0.77, buyDaysAgo: 44, fallbackPrice: 900,   realizedPnL: 0     },
+  { symbol: "MSFT", name: "Microsoft Corp.",  assetType: "stock",  qty: 60,   avgCostRatio: 0.87, buyDaysAgo: 60, fallbackPrice: 420,   realizedPnL: 1100  },
+  { symbol: "TSLA", name: "Tesla Inc.",       assetType: "stock",  qty: 45,   avgCostRatio: 1.12, buyDaysAgo: 35, fallbackPrice: 250,   realizedPnL: -800  },
 ];
 
 // Compute deposit accrued interest on the fly so days are always current
@@ -85,23 +88,26 @@ export function LandingDashboard({ onLogin }: LandingDashboardProps) {
   }, []);
 
   const holdings: Holding[] = BASE_HOLDINGS.map((h) => {
-    const currentPrice = prices[h.symbol] ?? h.avgCost;
+    const currentPrice = prices[h.symbol] ?? h.fallbackPrice;
+    const avgCost = currentPrice * h.avgCostRatio;
+    const totalCost = h.qty * avgCost;
     const currentValue = h.qty * currentPrice;
-    const unrealizedPnL = currentValue - h.totalCost;
-    const unrealizedPnLPercent = h.totalCost > 0 ? (unrealizedPnL / h.totalCost) * 100 : 0;
+    const unrealizedPnL = currentValue - totalCost;
+    const unrealizedPnLPercent = totalCost > 0 ? (unrealizedPnL / totalCost) * 100 : 0;
+    const firstBuyDate = new Date(Date.now() - h.buyDaysAgo * 24 * 60 * 60 * 1000);
     return {
       symbol: h.symbol,
       name: h.name,
       assetType: h.assetType,
       quantity: h.qty,
-      avgCost: h.avgCost,
-      totalCost: h.totalCost,
+      avgCost,
+      totalCost,
       currentPrice,
       currentValue,
       unrealizedPnL,
       unrealizedPnLPercent,
       realizedPnL: h.realizedPnL,
-      firstBuyDate: new Date("2023-01-01"),
+      firstBuyDate,
     };
   }).sort((a, b) => b.currentValue - a.currentValue);
 
