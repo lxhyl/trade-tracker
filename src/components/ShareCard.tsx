@@ -73,7 +73,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         <div style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 8 }}>
           {totalReturnLabel}
         </div>
-        <div style={{ color: returnColor, fontSize: 40, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-1px" }}>
+        <div style={{ color: returnColor, fontSize: 48, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-1px" }}>
           {isGain ? "+" : ""}{formatPercent(summary.totalPnLPercent)}
         </div>
       </div>
@@ -90,7 +90,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
                 {h.name && <div style={{ fontSize: 11, color: "#94a3b8", fontFamily: FONT_SANS, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</div>}
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ color: hColor, fontSize: 14, fontWeight: 700, fontFamily: FONT_NUM }}>{hGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}</div>
+                <div style={{ color: hColor, fontSize: 17, fontWeight: 700, fontFamily: FONT_NUM }}>{hGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}</div>
               </div>
             </div>
           );
@@ -135,7 +135,7 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
       {/* Chart area — loading overlay sits here, P&L text floats above it */}
       <div style={{ position: "relative", height: CHART_H, background: "#fafafa", overflow: "hidden" }}>
         {/* Gradient + sparkline — behind everything else */}
-        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to top, rgba(250,250,250,0.88) 30%, transparent 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to top, rgba(250,250,250,0.72) 20%, transparent 100%)" }} />
         <Sparkline
           priceHistory={priceHistory}
           avgCost={h.avgCost}
@@ -163,7 +163,7 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 
         {/* P&L % — always visible, above any overlay */}
         <div style={{ position: "absolute", bottom: 18, left: 24, zIndex: 3 }}>
-          <div style={{ color, fontSize: 52, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
+          <div style={{ color, fontSize: 64, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
             {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
           </div>
         </div>
@@ -262,8 +262,8 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
     <svg width={width} height={height} style={{ position: "absolute", inset: 0, display: "block" }}>
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.20" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+          <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.18" />
         </linearGradient>
       </defs>
 
