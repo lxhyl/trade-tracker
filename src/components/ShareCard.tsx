@@ -8,11 +8,11 @@ import { ColorScheme } from "@/actions/settings";
 import { Locale } from "@/lib/i18n";
 import { createCurrencyFormatter, formatPercent } from "@/lib/utils";
 
-const SITE_URL = "https://trade.ozlab.xyz";
-const SITE_HOST = "trade.ozlab.xyz";
-const SITE_NAME = "TradeTracker";
-const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
-const FONT_NUM = "'JetBrains Mono', 'Fira Mono', monospace";
+export const SITE_URL = "https://trade.ozlab.xyz";
+export const SITE_HOST = "trade.ozlab.xyz";
+export const SITE_NAME = "TradeTracker";
+export const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
+export const FONT_NUM = "'JetBrains Mono', 'Fira Mono', monospace";
 
 export const CARD_W = 480;
 const CHART_H = 200;
@@ -324,7 +324,7 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
 
 // ── Shared ────────────────────────────────────────────────────
 
-function LogoCircle({ symbol, assetType, size, dataUrl }: {
+export function LogoCircle({ symbol, assetType, size, dataUrl }: {
   symbol: string; assetType: string; size: number; dataUrl?: string;
 }) {
   const bg = assetType === "crypto"
@@ -347,7 +347,7 @@ function LogoCircle({ symbol, assetType, size, dataUrl }: {
   );
 }
 
-function Footer() {
+export function Footer() {
   return (
     <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #f1f5f9", background: "#ffffff" }}>
       <div style={{ background: "#ffffff", padding: 3, borderRadius: 4, border: "1px solid #e2e8f0", lineHeight: 0, flexShrink: 0 }}>
@@ -361,7 +361,7 @@ function Footer() {
   );
 }
 
-const cardBase: React.CSSProperties = {
+export const cardBase: React.CSSProperties = {
   width: CARD_W,
   fontFamily: FONT_SANS,
   background: "#ffffff",

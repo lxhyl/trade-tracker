@@ -33,9 +33,13 @@ import {
   ChevronLeft,
   ChevronRight,
   PiggyBank,
+  Share2,
 } from "lucide-react";
 import { usePnLColors } from "@/components/ColorSchemeProvider";
 import { AssetLogo } from "@/components/AssetLogo";
+import { TransactionShareDialog } from "@/components/TransactionShareDialog";
+import { ColorScheme } from "@/actions/settings";
+import { Locale } from "@/lib/i18n";
 
 type SortField = "date" | "symbol" | "total";
 type SortDir = "asc" | "desc";
@@ -75,6 +79,8 @@ interface TransactionListProps {
   deposits?: Deposit[];
   currency: SupportedCurrency;
   rates: ExchangeRates;
+  colorScheme: ColorScheme;
+  locale: Locale;
 }
 
 const PAGE_SIZE = 10;
@@ -128,12 +134,13 @@ function useSortedPaginated<T extends { date: Date; symbol: string; totalAmount:
   return { filtered, paginated, totalPages, safePage, sortField, sortDir, toggleSort };
 }
 
-export function TransactionList({ transactions, deposits = [], currency, rates }: TransactionListProps) {
+export function TransactionList({ transactions, deposits = [], currency, rates, colorScheme, locale }: TransactionListProps) {
   const fc = createCurrencyFormatter(currency, rates);
   const { toast } = useToast();
   const { t, tInterpolate } = useI18n();
   const pnlColors = usePnLColors();
   const [isPending, startTransition] = useTransition();
+  const [shareTx, setShareTx] = useState<TxRow | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; symbol: string; assetType: string; kind: "transaction" | "deposit" } | null>(null);
   const [withdrawDialog, setWithdrawDialog] = useState<{ id: number; symbol: string; remaining: number; currency: string } | null>(null);
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -441,6 +448,15 @@ export function TransactionList({ transactions, deposits = [], currency, rates }
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            onClick={() => setShareTx(row)}
+                            aria-label={t("holdings.share")}
+                          >
+                            <Share2 className="h-4 w-4" />
+                          </Button>
                           <Link href={row.editUrl}>
                             <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={t("common.edit")}>
                               <Pencil className="h-4 w-4" />
@@ -710,6 +726,17 @@ export function TransactionList({ transactions, deposits = [], currency, rates }
           </div>
         </div>
       )}
+
+      {/* Transaction Share Dialog */}
+      <TransactionShareDialog
+        open={shareTx !== null}
+        onOpenChange={(o) => { if (!o) setShareTx(null); }}
+        tx={shareTx}
+        currency={currency}
+        rates={rates}
+        colorScheme={colorScheme}
+        locale={locale}
+      />
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirm && (

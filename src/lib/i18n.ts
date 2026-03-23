@@ -437,6 +437,14 @@ const translations = {
   "share.showPnlAmount": { en: "Show P&L Amount", zh: "显示盈亏额" },
   "share.showCurrentPrice": { en: "Show Current Price", zh: "显示当前价格" },
   "share.options": { en: "Display Options", zh: "显示选项" },
+  "share.transactionTitle": { en: "Share Transaction", zh: "分享交易" },
+  "share.tradeAction.buy": { en: "BUY", zh: "买入" },
+  "share.tradeAction.sell": { en: "SELL", zh: "卖出" },
+  "share.priceLabel": { en: "Price", zh: "价格" },
+  "share.totalLabel": { en: "Total", zh: "总额" },
+  "share.quantityLabel": { en: "Quantity", zh: "数量" },
+  "share.dateLabel": { en: "Date", zh: "日期" },
+  "share.realizedPnl": { en: "Realized P&L", zh: "已实现盈亏" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;
