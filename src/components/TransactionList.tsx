@@ -38,6 +38,7 @@ import {
 import { usePnLColors } from "@/components/ColorSchemeProvider";
 import { AssetLogo } from "@/components/AssetLogo";
 import { TransactionShareDialog } from "@/components/TransactionShareDialog";
+import { TxShareData } from "@/components/TransactionShareCard";
 import { ColorScheme } from "@/actions/settings";
 import { Locale } from "@/lib/i18n";
 
@@ -81,6 +82,7 @@ interface TransactionListProps {
   rates: ExchangeRates;
   colorScheme: ColorScheme;
   locale: Locale;
+  holdingsMap?: Record<string, { avgCost: number; currentPrice: number }>;
 }
 
 const PAGE_SIZE = 10;
@@ -134,13 +136,13 @@ function useSortedPaginated<T extends { date: Date; symbol: string; totalAmount:
   return { filtered, paginated, totalPages, safePage, sortField, sortDir, toggleSort };
 }
 
-export function TransactionList({ transactions, deposits = [], currency, rates, colorScheme, locale }: TransactionListProps) {
+export function TransactionList({ transactions, deposits = [], currency, rates, colorScheme, locale, holdingsMap = {} }: TransactionListProps) {
   const fc = createCurrencyFormatter(currency, rates);
   const { toast } = useToast();
   const { t, tInterpolate } = useI18n();
   const pnlColors = usePnLColors();
   const [isPending, startTransition] = useTransition();
-  const [shareTx, setShareTx] = useState<TxRow | null>(null);
+  const [shareTx, setShareTx] = useState<TxShareData | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; symbol: string; assetType: string; kind: "transaction" | "deposit" } | null>(null);
   const [withdrawDialog, setWithdrawDialog] = useState<{ id: number; symbol: string; remaining: number; currency: string } | null>(null);
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -452,7 +454,14 @@ export function TransactionList({ transactions, deposits = [], currency, rates, 
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                            onClick={() => setShareTx(row)}
+                            onClick={() => {
+                              const h = holdingsMap[row.symbol];
+                              setShareTx({
+                                ...row,
+                                currentPrice: h?.currentPrice,
+                                avgCost: h?.avgCost,
+                              });
+                            }}
                             aria-label={t("holdings.share")}
                           >
                             <Share2 className="h-4 w-4" />
