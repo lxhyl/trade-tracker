@@ -187,13 +187,11 @@ export function HoldingsTable({ holdings, summary, currency, rates, colorScheme,
                     <div className="flex items-center justify-end gap-0.5">
                       {!readOnly && (
                         <Button
-                          size="icon"
                           variant="ghost"
-                          className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
                           onClick={() => router.push(`/transactions/new?symbol=${encodeURIComponent(h.symbol)}&tradeType=sell`)}
-                          title={t("form.sell")}
                         >
-                          <TrendingDown className="h-3.5 w-3.5" />
+                          {t("form.sell")}
                         </Button>
                       )}
                       <Button
