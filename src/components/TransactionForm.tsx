@@ -22,6 +22,8 @@ interface TransactionFormProps {
   deposit?: Deposit;
   mode?: "create" | "edit";
   initialAssetType?: string;
+  initialTradeType?: "buy" | "sell";
+  initialSymbol?: string;
   currency: SupportedCurrency;
   rates: ExchangeRates;
 }
@@ -44,6 +46,8 @@ export function TransactionForm({
   deposit,
   mode = "create",
   initialAssetType: initialAssetTypeProp,
+  initialTradeType,
+  initialSymbol,
   currency,
   rates,
 }: TransactionFormProps) {
@@ -66,9 +70,9 @@ export function TransactionForm({
     (transaction?.assetType as "crypto" | "stock") || "unknown"
   );
 
-  const [tradeType, setTradeType] = useState(transaction?.tradeType || "buy");
+  const [tradeType, setTradeType] = useState(initialTradeType || transaction?.tradeType || "buy");
   const [autoName, setAutoName] = useState(transaction?.name || deposit?.name || "");
-  const [liveSymbol, setLiveSymbol] = useState(transaction?.symbol || deposit?.symbol || "");
+  const [liveSymbol, setLiveSymbol] = useState(transaction?.symbol || deposit?.symbol || initialSymbol || "");
   const [liveQuantity, setLiveQuantity] = useState(transaction?.quantity || "");
   const [livePrice, setLivePrice] = useState(transaction?.price || "");
   const [liveCurrency, setLiveCurrency] = useState(transaction?.currency || deposit?.currency || currency);
@@ -282,8 +286,8 @@ export function TransactionForm({
         </div>
       </div>
 
-      {/* ── Section 2: Trade Type (investments only) ──── */}
-      {!isDeposit && (
+      {/* ── Section 2: Trade Type (investments only, edit mode only) ──── */}
+      {!isDeposit && mode === "edit" && (
         <div className="p-6 space-y-3 border-b animate-section-reveal">
           <div className="label-caps">{t("form.tradeType")}</div>
           <div className="grid grid-cols-2 rounded-md border overflow-hidden">
@@ -327,7 +331,7 @@ export function TransactionForm({
             <Label htmlFor="symbol">{t("form.symbol")}</Label>
             {isInvestment ? (
               <SymbolAutocomplete
-                defaultValue={transaction?.symbol || ""}
+                defaultValue={transaction?.symbol || initialSymbol || ""}
                 placeholder={symbolPlaceholder}
                 onChange={(val) => setLiveSymbol(val)}
                 onSelect={(symbol, name, exchange) => {

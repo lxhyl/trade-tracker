@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function NewTransactionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<{ type?: string; tradeType?: string; symbol?: string }>;
 }) {
   const [currency, rates, locale, params] = await Promise.all([
     getDisplayCurrency(),
@@ -18,6 +18,8 @@ export default async function NewTransactionPage({
   ]);
 
   const initialAssetType = params.type === "deposit" ? "deposit" : undefined;
+  const initialTradeType = params.tradeType === "sell" ? "sell" : undefined;
+  const initialSymbol = params.symbol || undefined;
 
   return (
     <div className="space-y-6">
@@ -36,6 +38,8 @@ export default async function NewTransactionPage({
             currency={currency}
             rates={rates}
             initialAssetType={initialAssetType}
+            initialTradeType={initialTradeType}
+            initialSymbol={initialSymbol}
           />
         </div>
       </div>

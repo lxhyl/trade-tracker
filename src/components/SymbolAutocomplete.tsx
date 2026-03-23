@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Input } from "@/components/ui/input";
 
 interface SearchResult {
@@ -28,8 +29,10 @@ export function SymbolAutocomplete({
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLUListElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const fetchResults = useCallback(async (query: string) => {
@@ -88,10 +91,30 @@ export function SymbolAutocomplete({
     }
   };
 
-  // Close dropdown when clicking outside
+  // Update dropdown position whenever it opens or results change
+  const updatePosition = useCallback(() => {
+    if (!inputRef.current) return;
+    const rect = inputRef.current.getBoundingClientRect();
+    setDropdownStyle({
+      position: "fixed",
+      top: rect.bottom + 4,
+      left: rect.left,
+      width: rect.width,
+      zIndex: 9999,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) updatePosition();
+  }, [isOpen, results, updatePosition]);
+
+  // Close dropdown when clicking outside (both the input container and the portal dropdown)
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const insideContainer = containerRef.current?.contains(target);
+      const insideDropdown = dropdownRef.current?.contains(target);
+      if (!insideContainer && !insideDropdown) {
         setIsOpen(false);
       }
     };
@@ -125,8 +148,12 @@ export function SymbolAutocomplete({
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
         </div>
       )}
-      {isOpen && results.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full rounded-lg border bg-background shadow-md overflow-hidden">
+      {isOpen && results.length > 0 && createPortal(
+        <ul
+          ref={dropdownRef}
+          style={dropdownStyle}
+          className="rounded-lg border bg-background shadow-md overflow-hidden"
+        >
           {results.map((item, index) => (
             <li
               key={item.symbol}
@@ -152,7 +179,8 @@ export function SymbolAutocomplete({
               </span>
             </li>
           ))}
-        </ul>
+        </ul>,
+        document.body
       )}
     </div>
   );
