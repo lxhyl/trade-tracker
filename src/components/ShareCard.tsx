@@ -8,8 +8,8 @@ import { ColorScheme } from "@/actions/settings";
 import { Locale } from "@/lib/i18n";
 import { createCurrencyFormatter, formatPercent } from "@/lib/utils";
 
-export const SITE_URL = "https://trade.ozlab.xyz";
-export const SITE_HOST = "trade.ozlab.xyz";
+export const SITE_URL = "https://tt.ozlab.xyz";
+export const SITE_HOST = "tt.ozlab.xyz";
 export const SITE_NAME = "TradeTracker";
 export const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
 export const FONT_NUM = "'JetBrains Mono', 'Fira Mono', monospace";
