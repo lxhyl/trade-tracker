@@ -92,33 +92,33 @@
    — like a kid doodling in a notebook
    ══════════════════════════════════════════════════════════ */
 
-/* ─ Paper palette ─ */
+/* ─ Paper palette: warm cream notebook ─ */
 .sketchy {
-  --background: 43 40% 95%;
-  --card: 43 40% 95%;
+  --background: 45 55% 93%;
+  --card: 45 55% 93%;
   --card-foreground: 25 30% 18%;
-  --border: 25 15% 75%;
-  --input: 25 15% 75%;
-  --muted: 40 25% 89%;
+  --border: 35 20% 70%;
+  --input: 35 20% 70%;
+  --muted: 42 35% 87%;
   --muted-foreground: 25 12% 48%;
-  --secondary: 40 25% 89%;
+  --secondary: 42 35% 87%;
   --secondary-foreground: 25 18% 35%;
-  --popover: 43 40% 95%;
+  --popover: 45 55% 93%;
   --popover-foreground: 25 30% 18%;
 }
 
 .sketchy.dark {
-  --background: 30 15% 10%;
-  --card: 30 15% 10%;
-  --card-foreground: 35 20% 85%;
-  --border: 30 10% 28%;
-  --input: 30 10% 28%;
-  --muted: 30 10% 16%;
-  --muted-foreground: 30 8% 55%;
-  --secondary: 30 10% 16%;
-  --secondary-foreground: 30 12% 70%;
-  --popover: 30 15% 10%;
-  --popover-foreground: 35 20% 85%;
+  --background: 35 18% 11%;
+  --card: 35 18% 11%;
+  --card-foreground: 40 15% 85%;
+  --border: 35 10% 28%;
+  --input: 35 10% 28%;
+  --muted: 35 12% 17%;
+  --muted-foreground: 35 8% 55%;
+  --secondary: 35 12% 17%;
+  --secondary-foreground: 35 10% 70%;
+  --popover: 35 18% 11%;
+  --popover-foreground: 40 15% 85%;
 }
 
 /* ─ Every single element: hand-drawn font ─ */
@@ -131,9 +131,12 @@
 }
 
 .sketchy {
-  font-size: 107%;
+  font-size: 104%;
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
+}
+@media (min-width: 640px) {
+  .sketchy { font-size: 107%; }
 }
 
 /* Headings — big, bouncy Caveat */
@@ -142,9 +145,15 @@
   letter-spacing: 0.02em;
   font-weight: 700;
 }
-.sketchy h1 { font-size: 2.4rem !important; }
-.sketchy h2 { font-size: 1.7rem !important; }
-.sketchy h3 { font-size: 1.35rem !important; }
+/* Mobile-first sizes */
+.sketchy h1 { font-size: 1.9rem !important; }
+.sketchy h2 { font-size: 1.45rem !important; }
+.sketchy h3 { font-size: 1.2rem !important; }
+@media (min-width: 640px) {
+  .sketchy h1 { font-size: 2.4rem !important; }
+  .sketchy h2 { font-size: 1.7rem !important; }
+  .sketchy h3 { font-size: 1.35rem !important; }
+}
 
 /* Numbers — hand-drawn too */
 .sketchy .font-num {
@@ -161,7 +170,7 @@
   font-weight: 600 !important;
 }
 
-/* ─ Notebook paper ─ */
+/* ─ Notebook paper lines (no margin line) ─ */
 .sketchy body {
   background-image:
     repeating-linear-gradient(
@@ -172,21 +181,7 @@
       hsl(var(--primary) / 0.07) 28px
     );
   background-size: 100% 28px;
-}
-
-/* Left red margin line */
-.sketchy body::before {
-  content: "";
-  position: fixed;
-  top: 0; bottom: 0;
-  left: 56px;
-  width: 2px;
-  background: hsl(0 55% 60% / 0.18);
-  z-index: 50;
-  pointer-events: none;
-}
-@media (max-width: 768px) {
-  .sketchy body::before { left: 12px; }
+  background-attachment: local;
 }
 
 /* ─ SVG turbulence filter for hand-drawn chart lines ─ */
@@ -194,16 +189,18 @@
   filter: url(#sketchy-filter);
 }
 
-/* ─ Wobbly shapes ─ */
-.sketchy .rounded-lg,
-.sketchy .rounded-xl,
-.sketchy [class*="rounded-lg"],
-.sketchy [class*="rounded-xl"] {
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
-}
-.sketchy .rounded-md,
-.sketchy [class*="rounded-md"] {
-  border-radius: 15px 255px 15px 225px / 225px 15px 255px 15px !important;
+/* ─ Wobbly shapes (desktop only — mobile keeps normal radius for usability) ─ */
+@media (min-width: 640px) {
+  .sketchy .rounded-lg,
+  .sketchy .rounded-xl,
+  .sketchy [class*="rounded-lg"],
+  .sketchy [class*="rounded-xl"] {
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
+  }
+  .sketchy .rounded-md,
+  .sketchy [class*="rounded-md"] {
+    border-radius: 15px 255px 15px 225px / 225px 15px 255px 15px !important;
+  }
 }
 .sketchy .rounded-full,
 .sketchy [class*="rounded-full"] {
@@ -214,10 +211,15 @@
 .sketchy .bg-card,
 .sketchy [class*="bg-card"] {
   box-shadow: 4px 4px 0 hsl(var(--foreground) / 0.05) !important;
+  /* Prevent tilt from causing horizontal overflow on mobile */
+  overflow: hidden;
 }
 
-.sketchy [class*="bg-card"]:nth-child(odd)  { transform: rotate(-0.5deg); }
-.sketchy [class*="bg-card"]:nth-child(even) { transform: rotate(0.4deg); }
+/* Card tilts only on wider screens to avoid mobile overflow */
+@media (min-width: 640px) {
+  .sketchy [class*="bg-card"]:nth-child(odd)  { transform: rotate(-0.5deg); }
+  .sketchy [class*="bg-card"]:nth-child(even) { transform: rotate(0.4deg); }
+}
 
 /* ─ NUKE all borders globally ─ */
 .sketchy *,
@@ -315,13 +317,23 @@
   border-bottom-color: hsl(var(--primary) / 0.6) !important;
 }
 
-/* ─ Nav: wavy doodle underlines ─ */
-.sketchy nav a {
-  text-decoration: underline;
-  text-decoration-style: wavy;
-  text-underline-offset: 4px;
-  text-decoration-thickness: 1.5px;
-  text-decoration-color: hsl(var(--primary) / 0.3);
+/* ─ Nav: wavy doodle underlines (desktop only) ─ */
+@media (min-width: 768px) {
+  .sketchy nav a {
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: hsl(var(--primary) / 0.3);
+  }
+}
+
+/* Restore active nav indicator color (nuked by global border rule) */
+.sketchy nav a[class*="border-primary"] {
+  border-left-color: hsl(var(--primary)) !important;
+}
+.sketchy nav a[class*="border-b-2"][class*="border-primary"] {
+  border-bottom-color: hsl(var(--primary)) !important;
 }
 
 /* ─ Chart card headers: no background tint ─ */
