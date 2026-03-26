@@ -345,6 +345,12 @@
   cursor: text !important;
 }
 
+.sketchy.sketchy-drawing-active,
+.sketchy.sketchy-drawing-active * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
 /* ─ Scrollbar ─ */
 .sketchy ::-webkit-scrollbar-thumb {
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;

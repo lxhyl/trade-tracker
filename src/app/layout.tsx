@@ -8,6 +8,7 @@ import { StyleThemeProvider } from "@/components/StyleThemeProvider";
 import { ToastProvider } from "@/components/Toast";
 import { I18nProvider } from "@/components/I18nProvider";
 import { ColorSchemeProvider } from "@/components/ColorSchemeProvider";
+import { SketchyDrawingLayer } from "@/components/SketchyDrawingLayer";
 import { getLocaleFromCookie } from "@/actions/settings";
 import { getColorScheme } from "@/actions/settings";
 
@@ -146,6 +147,7 @@ export default async function RootLayout({
               <div className="min-h-screen bg-background">
                 {children}
               </div>
+              <SketchyDrawingLayer />
               {/* SVG filter for hand-drawn chart lines in sketchy theme */}
               <svg width="0" height="0" style={{ position: 'absolute' }}>
                 <defs>
