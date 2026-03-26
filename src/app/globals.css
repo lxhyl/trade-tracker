@@ -170,17 +170,24 @@
   font-weight: 600 !important;
 }
 
-/* ─ Notebook paper lines (no margin line) ─ */
+/* ─ Dot grid canvas background ─ */
 .sketchy body {
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 27px,
-      hsl(var(--primary) / 0.07) 27px,
-      hsl(var(--primary) / 0.07) 28px
-    );
-  background-size: 100% 28px;
+  background-image: radial-gradient(
+    circle,
+    hsl(var(--foreground) / 0.18) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  background-attachment: local;
+}
+
+.sketchy.dark body {
+  background-image: radial-gradient(
+    circle,
+    hsl(var(--foreground) / 0.25) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
   background-attachment: local;
 }
 
