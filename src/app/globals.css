@@ -190,10 +190,18 @@
   background-size: 22px 22px;
 }
 
-/* Make all bg-background elements transparent so dot grid shows through */
+/* ─ Make ALL backgrounds transparent so dot grid always shows through ─ */
 .sketchy body,
 .sketchy .bg-background,
-.sketchy [class*="bg-background"] {
+.sketchy .bg-card,
+.sketchy .bg-popover,
+.sketchy .bg-muted,
+.sketchy .bg-secondary,
+.sketchy [class*="bg-background"],
+.sketchy [class*="bg-card"],
+.sketchy [class*="bg-popover"],
+.sketchy [class*="bg-muted"],
+.sketchy [class*="bg-secondary"] {
   background-color: transparent !important;
   background-image: none !important;
 }
