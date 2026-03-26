@@ -108,17 +108,33 @@
   --muted: 25 12% 15%;
 }
 
-/* Font overrides */
+/* Font overrides — override the CSS variable that Tailwind's font-sans uses */
 .sketchy {
-  font-family: var(--font-sketchy-body), "Patrick Hand", cursive;
+  --font-sans: var(--font-sketchy-body), "Patrick Hand", cursive;
+  font-size: 105%;
 }
 
 .sketchy h1,
 .sketchy h2,
 .sketchy h3,
 .sketchy h4 {
-  font-family: var(--font-sketchy-heading), "Caveat", cursive;
+  font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
   letter-spacing: 0.01em;
+  font-size: 115%;
+}
+
+/* Buttons, labels, and small text also need the sketchy font */
+.sketchy p,
+.sketchy span,
+.sketchy a,
+.sketchy label,
+.sketchy button,
+.sketchy input,
+.sketchy textarea,
+.sketchy select,
+.sketchy td,
+.sketchy th {
+  font-family: var(--font-sketchy-body), "Patrick Hand", cursive;
 }
 
 /* Lined paper texture */
