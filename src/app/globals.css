@@ -363,6 +363,23 @@
   background: transparent !important;
 }
 
+/* ─ Pencil cursor ─ */
+.sketchy,
+.sketchy * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M22 2 L30 10 L10 30 L6 28 L2 24 Z' fill='%23F6E050' stroke='%23333' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M22 2 L30 10 L26 14 L18 6 Z' fill='%23FFB3B3' stroke='%23333' stroke-width='1.5' stroke-linejoin='round'/%3E%3Cpath d='M6 28 L2 24 L4 27 Z' fill='%23C8975A' stroke='%23555' stroke-width='0.8'/%3E%3Ccircle cx='2.5' cy='29.5' r='1.5' fill='%23333'/%3E%3Cline x1='20' y1='8' x2='8' y2='26' stroke='%23D4B020' stroke-width='0.8' opacity='0.6'/%3E%3C/svg%3E") 2 30, crosshair;
+}
+
+/* Restore text cursor for typing fields */
+.sketchy input[type="text"],
+.sketchy input[type="number"],
+.sketchy input[type="email"],
+.sketchy input[type="password"],
+.sketchy input[type="search"],
+.sketchy input:not([type]),
+.sketchy textarea {
+  cursor: text !important;
+}
+
 /* ─ Scrollbar ─ */
 .sketchy ::-webkit-scrollbar-thumb {
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
