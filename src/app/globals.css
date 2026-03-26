@@ -170,25 +170,32 @@
   font-weight: 600 !important;
 }
 
-/* ─ Dot grid canvas background ─ */
-.sketchy body {
+/* ─ Dot grid canvas background — on html so it shows through bg-background divs ─ */
+.sketchy {
+  background-color: hsl(var(--background));
   background-image: radial-gradient(
     circle,
     hsl(var(--foreground) / 0.18) 1px,
     transparent 1px
   );
   background-size: 22px 22px;
-  background-attachment: local;
 }
 
-.sketchy.dark body {
+.sketchy.dark {
   background-image: radial-gradient(
     circle,
-    hsl(var(--foreground) / 0.25) 1px,
+    hsl(var(--foreground) / 0.28) 1px,
     transparent 1px
   );
   background-size: 22px 22px;
-  background-attachment: local;
+}
+
+/* Make all bg-background elements transparent so dot grid shows through */
+.sketchy body,
+.sketchy .bg-background,
+.sketchy [class*="bg-background"] {
+  background-color: transparent !important;
+  background-image: none !important;
 }
 
 /* ─ SVG turbulence filter for hand-drawn chart lines ─ */
