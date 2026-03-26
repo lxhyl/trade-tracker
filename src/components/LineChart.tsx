@@ -17,6 +17,7 @@ import {
 } from "@/lib/currency";
 import { TrendingUp } from "lucide-react";
 import { useI18n } from "@/components/I18nProvider";
+import { useStyleTheme } from "@/components/StyleThemeProvider";
 
 interface DataPoint {
   date: string;
@@ -38,6 +39,8 @@ export function PortfolioLineChart({
 }: LineChartProps) {
   const fc = createCurrencyFormatter(currency, rates);
   const { t } = useI18n();
+  const { styleTheme } = useStyleTheme();
+  const sketchy = styleTheme === "sketchy";
   const displayTitle = title || t("analysis.portfolioValue");
   if (data.length === 0) {
     return (
@@ -97,7 +100,7 @@ export function PortfolioLineChart({
             >
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={sketchy ? 0.25 : 0.15} />
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -128,10 +131,11 @@ export function PortfolioLineChart({
               />
               <Tooltip content={<CustomTooltip />} />
               <Area
-                type="monotone"
+                type={sketchy ? "natural" : "monotone"}
                 dataKey="value"
                 stroke="#3b82f6"
-                strokeWidth={2}
+                strokeWidth={sketchy ? 3 : 2}
+                strokeLinecap="round"
                 fill="url(#colorValue)"
               />
             </AreaChart>

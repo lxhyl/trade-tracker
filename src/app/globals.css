@@ -87,30 +87,41 @@
   }
 }
 
-/* ── Sketchy / Hand-Drawn Theme ──────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   Sketchy / Hand-Drawn Notebook Theme
+   — like a kid doodling in a notebook
+   ══════════════════════════════════════════════════════════ */
 
-/* Warm paper colors for sketchy light mode */
+/* ─ Paper palette ─ */
 .sketchy {
-  --background: 42 33% 96%;
-  --card: 44 40% 97%;
-  --border: 30 25% 72%;
-  --input: 30 25% 72%;
-  --muted: 40 22% 90%;
-  --muted-foreground: 25 15% 45%;
-  --radius: 0.75rem;
+  --background: 43 40% 95%;
+  --card: 43 40% 95%;
+  --card-foreground: 25 30% 18%;
+  --border: 25 15% 75%;
+  --input: 25 15% 75%;
+  --muted: 40 25% 89%;
+  --muted-foreground: 25 12% 48%;
+  --secondary: 40 25% 89%;
+  --secondary-foreground: 25 18% 35%;
+  --popover: 43 40% 95%;
+  --popover-foreground: 25 30% 18%;
 }
 
-/* Warm dark colors for sketchy dark mode */
 .sketchy.dark {
-  --background: 30 18% 9%;
-  --card: 30 14% 12%;
-  --border: 30 14% 26%;
-  --input: 30 14% 26%;
-  --muted: 30 12% 16%;
-  --muted-foreground: 30 10% 55%;
+  --background: 30 15% 10%;
+  --card: 30 15% 10%;
+  --card-foreground: 35 20% 85%;
+  --border: 30 10% 28%;
+  --input: 30 10% 28%;
+  --muted: 30 10% 16%;
+  --muted-foreground: 30 8% 55%;
+  --secondary: 30 10% 16%;
+  --secondary-foreground: 30 12% 70%;
+  --popover: 30 15% 10%;
+  --popover-foreground: 35 20% 85%;
 }
 
-/* ─ Global font override: ALL text becomes hand-drawn ─ */
+/* ─ Every single element: hand-drawn font ─ */
 .sketchy,
 .sketchy *,
 .sketchy *::before,
@@ -120,121 +131,122 @@
 }
 
 .sketchy {
-  font-size: 106%;
+  font-size: 107%;
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
 }
 
-/* Headings use Caveat — bigger, bouncier */
-.sketchy h1,
-.sketchy h2,
-.sketchy h3,
-.sketchy h4 {
+/* Headings — big, bouncy Caveat */
+.sketchy h1, .sketchy h2, .sketchy h3, .sketchy h4 {
   font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
   letter-spacing: 0.02em;
   font-weight: 700;
 }
+.sketchy h1 { font-size: 2.4rem !important; }
+.sketchy h2 { font-size: 1.7rem !important; }
+.sketchy h3 { font-size: 1.35rem !important; }
 
-.sketchy h1 { font-size: 2.2rem !important; }
-.sketchy h2 { font-size: 1.6rem !important; }
-.sketchy h3 { font-size: 1.3rem !important; }
-
-/* Numbers too — hand-drawn digits, no monospace override */
+/* Numbers — hand-drawn too */
 .sketchy .font-num {
   font-family: var(--font-sketchy-body), "Patrick Hand", cursive !important;
   font-variant-numeric: normal !important;
 }
 
-/* Lined notebook paper texture */
+/* label-caps → Caveat, not uppercase */
+.sketchy .label-caps {
+  text-transform: none !important;
+  font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.01em !important;
+  font-weight: 600 !important;
+}
+
+/* ─ Notebook paper ─ */
 .sketchy body {
   background-image:
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 27px,
-      hsl(var(--primary) / 0.08) 27px,
-      hsl(var(--primary) / 0.08) 28px
+      hsl(var(--primary) / 0.07) 27px,
+      hsl(var(--primary) / 0.07) 28px
     );
   background-size: 100% 28px;
 }
 
-/* Left margin red line — like a real notebook */
+/* Left red margin line */
 .sketchy body::before {
   content: "";
   position: fixed;
-  top: 0;
-  bottom: 0;
+  top: 0; bottom: 0;
   left: 56px;
   width: 2px;
-  background: hsl(0 60% 65% / 0.2);
+  background: hsl(0 55% 60% / 0.18);
   z-index: 50;
   pointer-events: none;
 }
-
 @media (max-width: 768px) {
-  .sketchy body::before { left: 16px; }
+  .sketchy body::before { left: 12px; }
 }
 
-/* ─ Wobbly border-radius — core hand-drawn effect ─ */
+/* ─ SVG turbulence filter for hand-drawn chart lines ─ */
+.sketchy svg.recharts-surface {
+  filter: url(#sketchy-filter);
+}
+
+/* ─ Wobbly shapes ─ */
 .sketchy .rounded-lg,
 .sketchy .rounded-xl,
 .sketchy [class*="rounded-lg"],
 .sketchy [class*="rounded-xl"] {
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
 }
-
 .sketchy .rounded-md,
 .sketchy [class*="rounded-md"] {
   border-radius: 15px 255px 15px 225px / 225px 15px 255px 15px !important;
 }
-
 .sketchy .rounded-full,
 .sketchy [class*="rounded-full"] {
-  border-radius: 50% 45% 55% 48% / 52% 50% 50% 53% !important;
+  border-radius: 50% 42% 55% 48% / 48% 54% 46% 52% !important;
 }
 
-/* ─ Shadows: flat, hand-drawn offset ─ */
+/* ─ Cards: NO borders, just tilt + soft shadow ─ */
+.sketchy .bg-card,
+.sketchy [class*="bg-card"] {
+  border: none !important;
+  box-shadow: 4px 4px 0 hsl(var(--foreground) / 0.06) !important;
+}
+
+.sketchy [class*="bg-card"]:nth-child(odd)  { transform: rotate(-0.5deg); }
+.sketchy [class*="bg-card"]:nth-child(even) { transform: rotate(0.4deg); }
+
+/* ─ Kill most borders — elements breathe freely ─ */
+.sketchy .border,
+.sketchy .border-b,
+.sketchy .border-t,
+.sketchy .border-l,
+.sketchy .border-r {
+  border-color: transparent !important;
+}
+
+/* Dividers: subtle pencil line */
+.sketchy .divide-y > * + * {
+  border-top: 1px dashed hsl(var(--foreground) / 0.1) !important;
+}
+
+/* Shadows: hand-drawn offset */
 .sketchy .shadow-sm {
-  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.1) !important;
+  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.07) !important;
 }
 .sketchy .shadow,
 .sketchy .shadow-md {
-  box-shadow: 5px 5px 0 hsl(var(--foreground) / 0.12) !important;
+  box-shadow: 5px 5px 0 hsl(var(--foreground) / 0.09) !important;
 }
 
-/* ─ Cards ─ */
-.sketchy .bg-card,
-.sketchy [class*="bg-card"] {
-  border: 2.5px solid hsl(var(--foreground) / 0.25) !important;
-  box-shadow: 4px 4px 0 hsl(var(--foreground) / 0.08);
-}
-
-/* Slight random tilts on cards */
-.sketchy [class*="bg-card"]:nth-child(odd) {
-  transform: rotate(-0.4deg);
-}
-.sketchy [class*="bg-card"]:nth-child(even) {
-  transform: rotate(0.3deg);
-}
-
-/* ─ Borders: thicker, rougher ─ */
-.sketchy .border,
-.sketchy .border-b,
-.sketchy .border-t {
-  border-width: 2px !important;
-  border-style: solid !important;
-}
-
-.sketchy .divide-y > * + * {
-  border-top-width: 2px !important;
-  border-style: dashed !important;
-  border-color: hsl(var(--foreground) / 0.15) !important;
-}
-
-/* ─ Tables: notebook-style ─ */
+/* ─ Tables: loose notebook scribbles ─ */
 .sketchy table {
   border-collapse: separate !important;
-  border-spacing: 0 !important;
+  border-spacing: 0 2px !important;
 }
 
 .sketchy thead {
@@ -243,108 +255,110 @@
 
 .sketchy th {
   font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
-  font-size: 1.05rem !important;
+  font-size: 1.1rem !important;
   font-weight: 700 !important;
   text-transform: none !important;
   letter-spacing: 0.02em !important;
-  border-bottom: 2.5px solid hsl(var(--foreground) / 0.3) !important;
-  padding: 8px 12px !important;
+  border-bottom: 2px solid hsl(var(--foreground) / 0.18) !important;
+  border-top: none !important;
+  padding: 6px 12px !important;
 }
 
 .sketchy tbody tr {
-  border-bottom: 1.5px dashed hsl(var(--foreground) / 0.12) !important;
+  border: none !important;
 }
 
 .sketchy tbody tr:hover {
-  background: hsl(var(--primary) / 0.06) !important;
-}
-
-.sketchy tbody tr:last-child {
-  border-bottom: none !important;
+  background: hsl(var(--accent) / 0.08) !important;
 }
 
 .sketchy td {
+  border: none !important;
   padding: 10px 12px !important;
 }
 
-/* Table footer / totals row — underline style */
+/* Totals: wavy underline */
 .sketchy tfoot td,
 .sketchy tfoot th {
-  border-top: 2.5px double hsl(var(--foreground) / 0.3) !important;
+  border-top: 2px dashed hsl(var(--foreground) / 0.2) !important;
+  border-bottom: none !important;
   font-weight: 700 !important;
 }
 
-/* ─ Buttons ─ */
+/* ─ Buttons: playful, minimal border ─ */
+.sketchy button {
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+
 .sketchy button:not([class*="ghost"]):not([class*="link"]) {
-  border: 2.5px solid hsl(var(--foreground) / 0.3) !important;
-  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.1);
-  transition: transform 0.1s, box-shadow 0.1s !important;
+  border: 2px solid hsl(var(--foreground) / 0.18) !important;
+  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.07);
 }
 
 .sketchy button:not([class*="ghost"]):not([class*="link"]):hover:not(:disabled) {
-  transform: translate(-1px, -1px) rotate(-0.5deg);
-  box-shadow: 5px 5px 0 hsl(var(--foreground) / 0.13) !important;
+  transform: translate(-1px, -1px) rotate(-1deg);
+  box-shadow: 5px 5px 0 hsl(var(--foreground) / 0.1) !important;
 }
 
 .sketchy button:not([class*="ghost"]):not([class*="link"]):active:not(:disabled) {
-  transform: translate(1px, 1px) rotate(0.3deg);
-  box-shadow: 1px 1px 0 hsl(var(--foreground) / 0.08) !important;
+  transform: translate(1px, 1px) rotate(0.5deg);
+  box-shadow: 1px 1px 0 hsl(var(--foreground) / 0.06) !important;
 }
 
-/* ─ Inputs ─ */
+/* ─ Inputs: soft pencil outline ─ */
 .sketchy input,
 .sketchy textarea,
 .sketchy select {
-  border: 2.5px solid hsl(var(--foreground) / 0.2) !important;
-  box-shadow: 2px 2px 0 hsl(var(--foreground) / 0.06);
-  background: hsl(var(--card)) !important;
+  border: 2px solid hsl(var(--foreground) / 0.15) !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
 .sketchy input:focus,
 .sketchy textarea:focus,
 .sketchy select:focus {
   border-color: hsl(var(--primary) / 0.5) !important;
-  box-shadow: 3px 3px 0 hsl(var(--primary) / 0.1) !important;
 }
 
-/* ─ Nav: wavy underlines ─ */
+/* ─ Nav: wavy doodle underlines ─ */
 .sketchy nav a {
   text-decoration: underline;
   text-decoration-style: wavy;
   text-underline-offset: 4px;
   text-decoration-thickness: 1.5px;
-  text-decoration-color: hsl(var(--primary) / 0.35);
+  text-decoration-color: hsl(var(--primary) / 0.3);
 }
 
-/* ─ label-caps in sketchy mode: no uppercase, use Caveat instead ─ */
-.sketchy .label-caps {
-  text-transform: none !important;
-  font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
-  font-size: 0.95rem !important;
-  letter-spacing: 0.01em !important;
-  font-weight: 600 !important;
-}
-
-/* ─ Badges / pills ─ */
+/* ─ Badges / pills — no extra border ─ */
 .sketchy [class*="rounded-full"][class*="bg-"] {
-  border: 1.5px solid hsl(var(--foreground) / 0.2) !important;
+  border: none !important;
 }
 
-/* ─ Scrollbar sketchy ─ */
+/* ─ Chart containers: remove card header borders ─ */
+.sketchy [class*="border-b"][class*="bg-muted"] {
+  border-bottom-color: transparent !important;
+  background: transparent !important;
+}
+
+/* ─ Scrollbar ─ */
 .sketchy ::-webkit-scrollbar-thumb {
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
 }
 
-/* ─ Subtle hand-drawn wiggle animation on hover for interactive elements ─ */
+/* ─ Wiggle on hover ─ */
 @keyframes sketchy-wiggle {
   0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-0.5deg); }
-  75% { transform: rotate(0.5deg); }
+  25% { transform: rotate(-0.8deg); }
+  75% { transform: rotate(0.8deg); }
 }
 
-.sketchy a:hover,
-.sketchy button:hover {
-  animation: sketchy-wiggle 0.3s ease-in-out;
+.sketchy a:hover {
+  animation: sketchy-wiggle 0.25s ease-in-out;
+}
+
+/* ─ Heatmap cells: wobbly fun shapes ─ */
+.sketchy .grid-cols-7 > div {
+  border-radius: 12px 4px 16px 6px / 6px 14px 4px 12px !important;
 }
 
 /* Force date inputs to respect container width on mobile */

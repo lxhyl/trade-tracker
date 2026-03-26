@@ -12,6 +12,7 @@ import { createCurrencyFormatter, formatPercent } from "@/lib/utils";
 import { SupportedCurrency, ExchangeRates } from "@/lib/currency";
 import { PieChart as PieIcon } from "lucide-react";
 import { useI18n } from "@/components/I18nProvider";
+import { useStyleTheme } from "@/components/StyleThemeProvider";
 
 interface AllocationData {
   name: string;
@@ -60,6 +61,8 @@ export function AllocationPieChart({
 }: PieChartProps) {
   const fc = createCurrencyFormatter(currency, rates);
   const { t } = useI18n();
+  const { styleTheme } = useStyleTheme();
+  const sketchy = styleTheme === "sketchy";
   const displayTitle = title || t("holdings.portfolioAllocation");
   if (data.length === 0) {
     return (
@@ -117,11 +120,13 @@ export function AllocationPieChart({
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-                paddingAngle={3}
+                innerRadius={sketchy ? 50 : 60}
+                outerRadius={sketchy ? 105 : 100}
+                paddingAngle={sketchy ? 4 : 3}
                 dataKey="value"
-                stroke="none"
+                stroke={sketchy ? "hsl(25 30% 18%)" : "none"}
+                strokeWidth={sketchy ? 2 : 0}
+                strokeLinejoin="round"
               >
                 {data.map((entry, index) => (
                   <Cell

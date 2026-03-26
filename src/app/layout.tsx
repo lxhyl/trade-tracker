@@ -146,6 +146,15 @@ export default async function RootLayout({
               <div className="min-h-screen bg-background">
                 {children}
               </div>
+              {/* SVG filter for hand-drawn chart lines in sketchy theme */}
+              <svg width="0" height="0" style={{ position: 'absolute' }}>
+                <defs>
+                  <filter id="sketchy-filter">
+                    <feTurbulence type="turbulence" baseFrequency="0.02 0.06" numOctaves="3" seed="2" result="turbulence" />
+                    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="2.5" xChannelSelector="R" yChannelSelector="G" />
+                  </filter>
+                </defs>
+              </svg>
               <ServiceWorkerRegister />
             </ToastProvider>
             </ColorSchemeProvider>

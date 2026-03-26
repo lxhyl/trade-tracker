@@ -20,6 +20,7 @@ import {
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { useI18n } from "@/components/I18nProvider";
 import { usePnLColors } from "@/components/ColorSchemeProvider";
+import { useStyleTheme } from "@/components/StyleThemeProvider";
 import { lttb } from "@/lib/chart-utils";
 
 type TimeRange = "7d" | "1m" | "all";
@@ -40,6 +41,8 @@ export function PnLChart({ data, currency, rates }: PnLChartProps) {
   const fc = createCurrencyFormatter(currency, rates);
   const { t } = useI18n();
   const c = usePnLColors();
+  const { styleTheme } = useStyleTheme();
+  const sketchy = styleTheme === "sketchy";
 
   const chartData = useMemo(() => {
     if (data.length === 0) return [];
@@ -181,11 +184,11 @@ export function PnLChart({ data, currency, rates }: PnLChartProps) {
             >
               <defs>
                 <linearGradient id="colorPnLPos" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={c.gainHex} stopOpacity={0.15} />
+                  <stop offset="5%" stopColor={c.gainHex} stopOpacity={sketchy ? 0.3 : 0.15} />
                   <stop offset="95%" stopColor={c.gainHex} stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorPnLNeg" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="5%" stopColor={c.lossHex} stopOpacity={0.15} />
+                  <stop offset="5%" stopColor={c.lossHex} stopOpacity={sketchy ? 0.3 : 0.15} />
                   <stop offset="95%" stopColor={c.lossHex} stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -223,10 +226,11 @@ export function PnLChart({ data, currency, rates }: PnLChartProps) {
               <ReferenceLine y={0} stroke="#6b7280" strokeDasharray="3 3" />
               <Tooltip content={<CustomTooltip />} />
               <Area
-                type="monotone"
+                type={sketchy ? "natural" : "monotone"}
                 dataKey="pnl"
                 stroke={isPositive ? c.gainHex : c.lossHex}
-                strokeWidth={2}
+                strokeWidth={sketchy ? 3 : 2}
+                strokeLinecap="round"
                 fill={isPositive ? "url(#colorPnLPos)" : "url(#colorPnLNeg)"}
               />
             </AreaChart>

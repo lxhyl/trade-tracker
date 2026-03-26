@@ -18,6 +18,7 @@ import {
 } from "@/lib/currency";
 import { TrendingUp } from "lucide-react";
 import { useI18n } from "@/components/I18nProvider";
+import { useStyleTheme } from "@/components/StyleThemeProvider";
 import { lttb } from "@/lib/chart-utils";
 
 type TimeRange = "7d" | "1m" | "all";
@@ -42,6 +43,8 @@ export function HistoricalValueChart({
   const [range, setRange] = useState<TimeRange>("all");
   const fc = createCurrencyFormatter(currency, rates);
   const { t } = useI18n();
+  const { styleTheme } = useStyleTheme();
+  const sketchy = styleTheme === "sketchy";
 
   const chartData = useMemo(() => {
     if (data.length === 0) return [];
@@ -148,7 +151,7 @@ export function HistoricalValueChart({
             >
               <defs>
                 <linearGradient id="colorTotalAssets" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={sketchy ? 0.3 : 0.15} />
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -185,10 +188,11 @@ export function HistoricalValueChart({
               />
               <Tooltip content={<CustomTooltip />} />
               <Area
-                type="monotone"
+                type={sketchy ? "natural" : "monotone"}
                 dataKey="value"
                 stroke="#10b981"
-                strokeWidth={2}
+                strokeWidth={sketchy ? 3 : 2}
+                strokeLinecap="round"
                 fill="url(#colorTotalAssets)"
               />
             </AreaChart>
