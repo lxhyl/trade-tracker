@@ -210,37 +210,34 @@
   border-radius: 50% 42% 55% 48% / 48% 54% 46% 52% !important;
 }
 
-/* ─ Cards: NO borders, just tilt + soft shadow ─ */
+/* ─ Cards: just tilt + soft shadow, no outline ─ */
 .sketchy .bg-card,
 .sketchy [class*="bg-card"] {
-  border: none !important;
-  box-shadow: 4px 4px 0 hsl(var(--foreground) / 0.06) !important;
+  box-shadow: 4px 4px 0 hsl(var(--foreground) / 0.05) !important;
 }
 
 .sketchy [class*="bg-card"]:nth-child(odd)  { transform: rotate(-0.5deg); }
 .sketchy [class*="bg-card"]:nth-child(even) { transform: rotate(0.4deg); }
 
-/* ─ Kill most borders — elements breathe freely ─ */
-.sketchy .border,
-.sketchy .border-b,
-.sketchy .border-t,
-.sketchy .border-l,
-.sketchy .border-r {
+/* ─ NUKE all borders globally ─ */
+.sketchy *,
+.sketchy *::before,
+.sketchy *::after {
   border-color: transparent !important;
 }
 
-/* Dividers: subtle pencil line */
+/* Dividers: barely visible pencil scratch */
 .sketchy .divide-y > * + * {
-  border-top: 1px dashed hsl(var(--foreground) / 0.1) !important;
+  border-top: 1px dashed hsl(var(--foreground) / 0.08) !important;
 }
 
 /* Shadows: hand-drawn offset */
 .sketchy .shadow-sm {
-  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.07) !important;
+  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.06) !important;
 }
 .sketchy .shadow,
 .sketchy .shadow-md {
-  box-shadow: 5px 5px 0 hsl(var(--foreground) / 0.09) !important;
+  box-shadow: 5px 5px 0 hsl(var(--foreground) / 0.08) !important;
 }
 
 /* ─ Tables: loose notebook scribbles ─ */
@@ -259,8 +256,7 @@
   font-weight: 700 !important;
   text-transform: none !important;
   letter-spacing: 0.02em !important;
-  border-bottom: 2px solid hsl(var(--foreground) / 0.18) !important;
-  border-top: none !important;
+  border-bottom-color: hsl(var(--foreground) / 0.15) !important;
   padding: 6px 12px !important;
 }
 
@@ -277,11 +273,9 @@
   padding: 10px 12px !important;
 }
 
-/* Totals: wavy underline */
+/* Totals row */
 .sketchy tfoot td,
 .sketchy tfoot th {
-  border-top: 2px dashed hsl(var(--foreground) / 0.2) !important;
-  border-bottom: none !important;
   font-weight: 700 !important;
 }
 
@@ -291,7 +285,6 @@
 }
 
 .sketchy button:not([class*="ghost"]):not([class*="link"]) {
-  border: 2px solid hsl(var(--foreground) / 0.18) !important;
   box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.07);
 }
 
@@ -305,11 +298,13 @@
   box-shadow: 1px 1px 0 hsl(var(--foreground) / 0.06) !important;
 }
 
-/* ─ Inputs: soft pencil outline ─ */
+/* ─ Inputs: just a bottom underline, like writing on a line ─ */
 .sketchy input,
 .sketchy textarea,
 .sketchy select {
-  border: 2px solid hsl(var(--foreground) / 0.15) !important;
+  border: none !important;
+  border-bottom: 2px solid hsl(var(--foreground) / 0.2) !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
   background: transparent !important;
 }
@@ -317,7 +312,7 @@
 .sketchy input:focus,
 .sketchy textarea:focus,
 .sketchy select:focus {
-  border-color: hsl(var(--primary) / 0.5) !important;
+  border-bottom-color: hsl(var(--primary) / 0.6) !important;
 }
 
 /* ─ Nav: wavy doodle underlines ─ */
@@ -329,14 +324,8 @@
   text-decoration-color: hsl(var(--primary) / 0.3);
 }
 
-/* ─ Badges / pills — no extra border ─ */
-.sketchy [class*="rounded-full"][class*="bg-"] {
-  border: none !important;
-}
-
-/* ─ Chart containers: remove card header borders ─ */
-.sketchy [class*="border-b"][class*="bg-muted"] {
-  border-bottom-color: transparent !important;
+/* ─ Chart card headers: no background tint ─ */
+.sketchy [class*="bg-muted"] {
   background: transparent !important;
 }
 
