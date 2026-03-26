@@ -87,6 +87,133 @@
   }
 }
 
+/* ── Sketchy / Hand-Drawn Theme ──────────────────────────── */
+
+/* Warm paper colors for sketchy light mode */
+.sketchy {
+  --background: 40 30% 97%;
+  --card: 42 35% 98%;
+  --border: 35 20% 78%;
+  --input: 35 20% 78%;
+  --muted: 38 18% 92%;
+  --radius: 0.75rem;
+}
+
+/* Warm dark colors for sketchy dark mode */
+.sketchy.dark {
+  --background: 25 20% 8%;
+  --card: 25 15% 11%;
+  --border: 25 15% 22%;
+  --input: 25 15% 22%;
+  --muted: 25 12% 15%;
+}
+
+/* Font overrides */
+.sketchy {
+  font-family: var(--font-sketchy-body), "Patrick Hand", cursive;
+}
+
+.sketchy h1,
+.sketchy h2,
+.sketchy h3,
+.sketchy h4 {
+  font-family: var(--font-sketchy-heading), "Caveat", cursive;
+  letter-spacing: 0.01em;
+}
+
+/* Lined paper texture */
+.sketchy body {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 23px,
+      hsl(var(--border) / 0.35) 23px,
+      hsl(var(--border) / 0.35) 24px
+    );
+}
+
+/* Wobbly border-radius — the core hand-drawn effect */
+.sketchy .rounded-lg,
+.sketchy .rounded-xl,
+.sketchy [class*="rounded-lg"],
+.sketchy [class*="rounded-xl"] {
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
+}
+
+.sketchy .rounded-md,
+.sketchy [class*="rounded-md"] {
+  border-radius: 15px 255px 15px 225px / 225px 15px 255px 15px !important;
+}
+
+.sketchy .rounded-full,
+.sketchy [class*="rounded-full"] {
+  border-radius: 50% 45% 55% 48% / 52% 50% 50% 53% !important;
+}
+
+/* Flat offset shadows */
+.sketchy .shadow-sm {
+  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.08) !important;
+}
+
+.sketchy .shadow,
+.sketchy .shadow-md {
+  box-shadow: 4px 4px 0 hsl(var(--foreground) / 0.1) !important;
+}
+
+/* Card wobbly effect */
+.sketchy .bg-card,
+.sketchy [class*="bg-card"] {
+  border: 2px solid hsl(var(--border));
+}
+
+/* Slightly thicker borders */
+.sketchy .border {
+  border-width: 2px !important;
+}
+
+.sketchy .border-2 {
+  border-width: 2px !important;
+}
+
+/* Button hand-drawn style */
+.sketchy button:not([class*="ghost"]):not([class*="link"]) {
+  border: 2px solid hsl(var(--foreground) / 0.25) !important;
+  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.08);
+  transition: transform 0.1s, box-shadow 0.1s !important;
+}
+
+.sketchy button:not([class*="ghost"]):not([class*="link"]):hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 hsl(var(--foreground) / 0.12) !important;
+}
+
+.sketchy button:not([class*="ghost"]):not([class*="link"]):active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 hsl(var(--foreground) / 0.08) !important;
+}
+
+/* Input hand-drawn style */
+.sketchy input,
+.sketchy textarea,
+.sketchy select {
+  border: 2px solid hsl(var(--border)) !important;
+  box-shadow: 2px 2px 0 hsl(var(--foreground) / 0.06);
+}
+
+/* Wavy underlines on nav links */
+.sketchy nav a {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-underline-offset: 3px;
+  text-decoration-color: hsl(var(--primary) / 0.3);
+}
+
+/* Keep numeric font unchanged for financial data */
+.sketchy .font-num {
+  font-family: var(--font-mono), monospace !important;
+}
+
 /* Force date inputs to respect container width on mobile */
 input[type="date"] {
   min-width: 0;

@@ -146,6 +146,57 @@ export async function setColorScheme(scheme: ColorScheme) {
   revalidatePath("/settings");
 }
 
+// ── Style Theme ───────────────────────────────────────────
+
+export type StyleTheme = "sketchy" | "classic";
+
+export async function getStyleTheme(): Promise<StyleTheme> {
+  try {
+    const userId = await getUserId();
+
+    const result = await db
+      .select()
+      .from(appSettings)
+      .where(
+        and(
+          eq(appSettings.userId, userId),
+          eq(appSettings.key, "styleTheme")
+        )
+      );
+
+    const value = result[0]?.value;
+    if (value === "sketchy" || value === "classic") {
+      return value;
+    }
+    return "sketchy";
+  } catch {
+    return "sketchy";
+  }
+}
+
+export async function setStyleTheme(theme: StyleTheme) {
+  const userId = await getUserId();
+
+  await db
+    .insert(appSettings)
+    .values({
+      userId,
+      key: "styleTheme",
+      value: theme,
+      updatedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: [appSettings.userId, appSettings.key],
+      set: { value: theme, updatedAt: new Date() },
+    });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/holdings");
+  revalidatePath("/transactions");
+  revalidatePath("/analysis");
+  revalidatePath("/settings");
+}
+
 export async function setDisplayLanguage(locale: Locale) {
   // Always set cookie for immediate effect
   const cookieStore = cookies();

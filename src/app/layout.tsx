@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, JetBrains_Mono, Caveat, Patrick_Hand } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { SplashScreen } from "@/components/SplashScreen";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { StyleThemeProvider } from "@/components/StyleThemeProvider";
 import { ToastProvider } from "@/components/Toast";
 import { I18nProvider } from "@/components/I18nProvider";
 import { ColorSchemeProvider } from "@/components/ColorSchemeProvider";
@@ -18,6 +19,17 @@ const dmSans = DM_Sans({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  variable: "--font-sketchy-heading",
+});
+
+const patrickHand = Patrick_Hand({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-sketchy-body",
 });
 
 export const metadata: Metadata = {
@@ -57,6 +69,8 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        {/* Apply sketchy class before paint to prevent FOUC - default is sketchy */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var st=localStorage.getItem('styleTheme');if(st!=='classic')document.documentElement.classList.add('sketchy');}catch(e){}` }} />
         {/* Inline critical CSS for instant splash screen - prevents black screen on PWA cold start */}
         <style
           dangerouslySetInnerHTML={{
@@ -122,8 +136,9 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={`${dmSans.variable} ${jetbrainsMono.variable} font-sans`}>
+      <body className={`${dmSans.variable} ${jetbrainsMono.variable} ${caveat.variable} ${patrickHand.variable} font-sans`}>
         <ThemeProvider>
+          <StyleThemeProvider>
           <I18nProvider locale={locale}>
             <ColorSchemeProvider scheme={colorScheme}>
             <ToastProvider>
@@ -135,6 +150,7 @@ export default async function RootLayout({
             </ToastProvider>
             </ColorSchemeProvider>
           </I18nProvider>
+          </StyleThemeProvider>
         </ThemeProvider>
       </body>
     </html>

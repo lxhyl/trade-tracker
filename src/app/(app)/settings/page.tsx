@@ -3,6 +3,7 @@ import { getExchangeRates } from "@/lib/exchange-rates";
 import { CurrencySettings } from "@/components/CurrencySettings";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ColorSchemeSettings } from "@/components/ColorSchemeSettings";
+import { StyleThemeToggle } from "@/components/StyleThemeToggle";
 import { AccountSection } from "@/components/AccountSection";
 import { LanguageSettings } from "@/components/LanguageSettings";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,6 +43,9 @@ export default async function SettingsPage() {
             </div>
             <div className="pt-6">
               <ColorSchemeSettings />
+            </div>
+            <div className="pt-6">
+              <StyleThemeToggle />
             </div>
             <div className="pt-6">
               <ThemeToggle />

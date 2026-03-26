@@ -397,6 +397,12 @@ const translations = {
   "settings.colorSchemeUSDesc": { en: "Green up, red down", zh: "绿涨红跌" },
   "settings.colorSchemeCN": { en: "CN Style", zh: "A股风格" },
   "settings.colorSchemeCNDesc": { en: "Red up, green down", zh: "红涨绿跌" },
+  "settings.styleTheme": { en: "Style", zh: "界面风格" },
+  "settings.styleThemeDesc": { en: "Choose the visual style of the interface", zh: "选择界面的视觉风格" },
+  "settings.styleSketchy": { en: "Sketchy", zh: "手绘风" },
+  "settings.styleSketchyDesc": { en: "Hand-drawn, playful look", zh: "手绘风格，活泼有趣" },
+  "settings.styleClassic": { en: "Classic", zh: "经典" },
+  "settings.styleClassicDesc": { en: "Clean, professional design", zh: "简洁专业设计" },
 
   // ── Currency ─────────────────────────────────────────────
   "currency.usdName": { en: "US Dollar", zh: "美元" },
