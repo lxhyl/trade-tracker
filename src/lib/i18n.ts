@@ -70,6 +70,8 @@ const translations = {
   "landing.ctaTitle": { en: "Ready to take control of your portfolio?", zh: "准备好掌控您的投资组合了吗？" },
   "landing.ctaDesc": { en: "Join for free. Sign in with your Google account and start tracking in seconds.", zh: "免费加入。使用 Google 账号登录，即刻开始追踪。" },
   "landing.footer": { en: "Personal portfolio tracking. Free and open source.", zh: "个人投资组合追踪。免费且开源。" },
+  "landing.customizeTitle": { en: "Make it yours", zh: "先试试，再登录" },
+  "landing.customizeDesc": { en: "Adjust appearance, language, and color preferences — settings apply instantly and persist across visits.", zh: "调整外观、语言和颜色偏好——设置即时生效并在下次访问时保留。" },
   // Mock dashboard preview strings
   "landing.portfolioValue": { en: "Portfolio Value", zh: "投资组合价值" },
   "landing.allocation": { en: "Allocation", zh: "资产配置" },

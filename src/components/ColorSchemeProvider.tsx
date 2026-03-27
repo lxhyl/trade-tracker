@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import type { ColorScheme } from "@/actions/settings";
 
 const ColorSchemeContext = createContext<ColorScheme>("us");
+const ColorSchemeSetterContext = createContext<((s: ColorScheme) => void) | null>(null);
 
 export function ColorSchemeProvider({
   scheme,
@@ -12,15 +13,30 @@ export function ColorSchemeProvider({
   scheme: ColorScheme;
   children: React.ReactNode;
 }) {
+  const [current, setCurrent] = useState<ColorScheme>(scheme);
+
+  // Keep in sync if server value changes (e.g. after router.refresh)
+  useEffect(() => {
+    setCurrent(scheme);
+  }, [scheme]);
+
   return (
-    <ColorSchemeContext.Provider value={scheme}>
-      {children}
+    <ColorSchemeContext.Provider value={current}>
+      <ColorSchemeSetterContext.Provider value={setCurrent}>
+        {children}
+      </ColorSchemeSetterContext.Provider>
     </ColorSchemeContext.Provider>
   );
 }
 
 export function useColorScheme() {
   return useContext(ColorSchemeContext);
+}
+
+/** Returns a setter that updates color scheme locally (client-side only).
+ *  For persistence, also call the setColorScheme server action. */
+export function useSetColorScheme() {
+  return useContext(ColorSchemeSetterContext);
 }
 
 /**

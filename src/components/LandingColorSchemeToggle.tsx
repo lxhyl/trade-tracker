@@ -1,13 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { setColorScheme, ColorScheme } from "@/actions/settings";
-import { useColorScheme, useSetColorScheme } from "@/components/ColorSchemeProvider";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/I18nProvider";
+import { useColorScheme, useSetColorScheme } from "@/components/ColorSchemeProvider";
+import { ColorScheme } from "@/actions/settings";
 import { TranslationKey } from "@/lib/i18n";
-import { TrendingUp, TrendingDown } from "lucide-react";
 
 const SCHEMES: {
   key: ColorScheme;
@@ -16,37 +14,15 @@ const SCHEMES: {
   gainColor: string;
   lossColor: string;
 }[] = [
-  {
-    key: "us",
-    labelKey: "settings.colorSchemeUS",
-    descKey: "settings.colorSchemeUSDesc",
-    gainColor: "text-green-500",
-    lossColor: "text-red-500",
-  },
-  {
-    key: "cn",
-    labelKey: "settings.colorSchemeCN",
-    descKey: "settings.colorSchemeCNDesc",
-    gainColor: "text-red-500",
-    lossColor: "text-green-500",
-  },
+  { key: "us", labelKey: "settings.colorSchemeUS", descKey: "settings.colorSchemeUSDesc", gainColor: "text-green-500", lossColor: "text-red-500" },
+  { key: "cn", labelKey: "settings.colorSchemeCN", descKey: "settings.colorSchemeCNDesc", gainColor: "text-red-500", lossColor: "text-green-500" },
 ];
 
-export function ColorSchemeSettings() {
+/** Client-only color scheme toggle — no server action, for use on the landing page. */
+export function LandingColorSchemeToggle() {
   const current = useColorScheme();
-  const setLocal = useSetColorScheme();
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const setScheme = useSetColorScheme();
   const { t } = useI18n();
-
-  function handleChange(scheme: ColorScheme) {
-    if (scheme === current) return;
-    setLocal?.(scheme);
-    startTransition(async () => {
-      await setColorScheme(scheme);
-      router.refresh();
-    });
-  }
 
   return (
     <div className="space-y-3">
@@ -54,13 +30,13 @@ export function ColorSchemeSettings() {
         <p className="text-sm font-medium">{t("settings.colorScheme")}</p>
         <p className="text-xs text-muted-foreground">{t("settings.colorSchemeDesc")}</p>
       </div>
-      <div className={`grid gap-2 sm:grid-cols-2 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+      <div className="grid gap-2 sm:grid-cols-2">
         {SCHEMES.map(({ key, labelKey, descKey, gainColor, lossColor }) => {
           const isActive = current === key;
           return (
             <button
               key={key}
-              onClick={() => handleChange(key)}
+              onClick={() => setScheme?.(key)}
               className={cn(
                 "flex items-center gap-3 rounded-lg border p-3 text-left transition-all cursor-pointer",
                 isActive
@@ -68,12 +44,10 @@ export function ColorSchemeSettings() {
                   : "border-transparent hover:bg-muted/50"
               )}
             >
-              <div
-                className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-md gap-0",
-                  isActive ? "bg-primary/10" : "bg-muted"
-                )}
-              >
+              <div className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-md gap-0",
+                isActive ? "bg-primary/10" : "bg-muted"
+              )}>
                 <TrendingUp className={`h-3.5 w-3.5 ${gainColor}`} />
                 <TrendingDown className={`h-3.5 w-3.5 ${lossColor}`} />
               </div>
