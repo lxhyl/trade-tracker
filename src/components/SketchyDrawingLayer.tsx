@@ -67,23 +67,33 @@ export function SketchyDrawingLayer() {
       const scrollX = window.scrollX;
       const scrollY = window.scrollY;
 
+      // Quadratic bezier smoothing for natural pen feel
       const traceStroke = () => {
         ctx.beginPath();
         ctx.moveTo(stroke[0].x - scrollX, stroke[0].y - scrollY);
 
-        for (let i = 1; i < stroke.length; i += 1) {
-          ctx.lineTo(stroke[i].x - scrollX, stroke[i].y - scrollY);
+        if (stroke.length === 1) {
+          ctx.lineTo(stroke[0].x - scrollX + 0.5, stroke[0].y - scrollY + 0.5);
+          return;
         }
+
+        for (let i = 1; i < stroke.length - 1; i += 1) {
+          const mx = (stroke[i].x + stroke[i + 1].x) / 2 - scrollX;
+          const my = (stroke[i].y + stroke[i + 1].y) / 2 - scrollY;
+          ctx.quadraticCurveTo(stroke[i].x - scrollX, stroke[i].y - scrollY, mx, my);
+        }
+        const last = stroke[stroke.length - 1];
+        ctx.lineTo(last.x - scrollX, last.y - scrollY);
       };
 
       traceStroke();
-      ctx.strokeStyle = "rgba(143, 120, 86, 0.18)";
-      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(143, 120, 86, 0.28)";
+      ctx.lineWidth = 5.5;
       ctx.stroke();
 
       traceStroke();
-      ctx.strokeStyle = "rgba(68, 56, 39, 0.72)";
-      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = "rgba(58, 44, 28, 0.88)";
+      ctx.lineWidth = 3;
       ctx.stroke();
     }
 

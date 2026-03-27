@@ -139,6 +139,16 @@
   .sketchy { font-size: 107%; }
 }
 
+/* ─ Notebook ruled lines (like ledger paper) ─ */
+.sketchy .bg-background {
+  background-image: repeating-linear-gradient(
+    transparent 0px,
+    transparent 27px,
+    hsl(var(--border) / 0.22) 27px,
+    hsl(var(--border) / 0.22) 28px
+  ) !important;
+}
+
 /* Headings — big, bouncy Caveat */
 .sketchy h1, .sketchy h2, .sketchy h3, .sketchy h4 {
   font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
@@ -146,13 +156,13 @@
   font-weight: 700;
 }
 /* Mobile-first sizes */
-.sketchy h1 { font-size: 1.9rem !important; }
-.sketchy h2 { font-size: 1.45rem !important; }
-.sketchy h3 { font-size: 1.2rem !important; }
+.sketchy h1 { font-size: 2.1rem !important; }
+.sketchy h2 { font-size: 1.6rem !important; }
+.sketchy h3 { font-size: 1.3rem !important; }
 @media (min-width: 640px) {
-  .sketchy h1 { font-size: 2.4rem !important; }
-  .sketchy h2 { font-size: 1.7rem !important; }
-  .sketchy h3 { font-size: 1.35rem !important; }
+  .sketchy h1 { font-size: 2.8rem !important; }
+  .sketchy h2 { font-size: 2.0rem !important; }
+  .sketchy h3 { font-size: 1.5rem !important; }
 }
 
 /* Numbers — hand-drawn too */
@@ -194,18 +204,19 @@
   border-radius: 50% 42% 55% 48% / 48% 54% 46% 52% !important;
 }
 
-/* ─ Cards: just tilt + soft shadow, no outline ─ */
+/* ─ Cards: tilt + pencil border + shadow ─ */
 .sketchy .bg-card,
 .sketchy [class*="bg-card"] {
-  box-shadow: 4px 4px 0 hsl(var(--foreground) / 0.05) !important;
+  box-shadow: 6px 6px 0 hsl(var(--foreground) / 0.10) !important;
+  border: 1.5px solid hsl(var(--foreground) / 0.13) !important;
   /* Prevent tilt from causing horizontal overflow on mobile */
   overflow: hidden;
 }
 
 /* Card tilts only on wider screens to avoid mobile overflow */
 @media (min-width: 640px) {
-  .sketchy [class*="bg-card"]:nth-child(odd)  { transform: rotate(-0.5deg); }
-  .sketchy [class*="bg-card"]:nth-child(even) { transform: rotate(0.4deg); }
+  .sketchy [class*="bg-card"]:nth-child(odd)  { transform: rotate(-1.2deg); }
+  .sketchy [class*="bg-card"]:nth-child(even) { transform: rotate(0.9deg); }
 }
 
 /* ─ NUKE all borders globally ─ */
@@ -215,18 +226,18 @@
   border-color: transparent !important;
 }
 
-/* Dividers: barely visible pencil scratch */
+/* Dividers: visible pencil scratch */
 .sketchy .divide-y > * + * {
-  border-top: 1px dashed hsl(var(--foreground) / 0.08) !important;
+  border-top: 1px solid hsl(var(--foreground) / 0.18) !important;
 }
 
 /* Shadows: hand-drawn offset */
 .sketchy .shadow-sm {
-  box-shadow: 3px 3px 0 hsl(var(--foreground) / 0.06) !important;
+  box-shadow: 4px 4px 0 hsl(var(--foreground) / 0.09) !important;
 }
 .sketchy .shadow,
 .sketchy .shadow-md {
-  box-shadow: 5px 5px 0 hsl(var(--foreground) / 0.08) !important;
+  box-shadow: 7px 7px 0 hsl(var(--foreground) / 0.12) !important;
 }
 
 /* ─ Tables: loose notebook scribbles ─ */
@@ -241,11 +252,13 @@
 
 .sketchy th {
   font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
-  font-size: 1.1rem !important;
+  font-size: 1.2rem !important;
   font-weight: 700 !important;
   text-transform: none !important;
   letter-spacing: 0.02em !important;
-  border-bottom-color: hsl(var(--foreground) / 0.15) !important;
+  border-bottom-color: hsl(var(--foreground) / 0.35) !important;
+  border-bottom-width: 2px !important;
+  border-bottom-style: solid !important;
   padding: 6px 12px !important;
 }
 
@@ -254,11 +267,15 @@
 }
 
 .sketchy tbody tr:hover {
-  background: hsl(var(--accent) / 0.08) !important;
+  background: hsl(var(--accent) / 0.12) !important;
 }
 
+/* Ruled ledger lines between rows */
 .sketchy td {
   border: none !important;
+  border-bottom-color: hsl(var(--foreground) / 0.10) !important;
+  border-bottom-width: 1px !important;
+  border-bottom-style: solid !important;
   padding: 10px 12px !important;
 }
 
@@ -292,7 +309,7 @@
 .sketchy textarea,
 .sketchy select {
   border: none !important;
-  border-bottom: 2px solid hsl(var(--foreground) / 0.2) !important;
+  border-bottom: 3px solid hsl(var(--foreground) / 0.25) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   background: transparent !important;
@@ -301,7 +318,8 @@
 .sketchy input:focus,
 .sketchy textarea:focus,
 .sketchy select:focus {
-  border-bottom-color: hsl(var(--primary) / 0.6) !important;
+  border-bottom-color: hsl(var(--primary) / 0.75) !important;
+  border-bottom-width: 3px !important;
 }
 
 /* ─ Nav: wavy doodle underlines (desktop only) ─ */
