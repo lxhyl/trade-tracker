@@ -67,16 +67,25 @@ export const NoteCardWrapper = forwardRef<HTMLDivElement, { children: React.Reac
           {/* Tape strips */}
           <TapeStrip side="left" />
           <TapeStrip side="right" />
-          {/* Sticky note */}
+          {/* Sticky note with torn top edge */}
           <div style={{
-            background: SKETCH_NOTE_BG,
-            borderRadius: "1px 2px 3px 1px",
-            boxShadow: "0 2px 8px rgba(50,35,10,0.1), 0 6px 20px rgba(50,35,10,0.06)",
+            position: "relative",
             transform: "rotate(-0.7deg)",
-            overflow: "hidden",
-            border: `1px solid ${SKETCH_NOTE_BORDER}`,
           }}>
-            {children}
+            {/* Torn edge mask — sits above the note, fills gaps with notebook bg */}
+            <TornEdge />
+            {/* Note body */}
+            <div style={{
+              background: SKETCH_NOTE_BG,
+              borderRadius: "0 0 2px 2px",
+              boxShadow: "0 2px 8px rgba(50,35,10,0.1), 0 6px 20px rgba(50,35,10,0.06)",
+              overflow: "hidden",
+              borderLeft: `1px solid ${SKETCH_NOTE_BORDER}`,
+              borderRight: `1px solid ${SKETCH_NOTE_BORDER}`,
+              borderBottom: `1px solid ${SKETCH_NOTE_BORDER}`,
+            }}>
+              {children}
+            </div>
           </div>
         </div>
       </div>
@@ -99,6 +108,28 @@ function TapeStrip({ side }: { side: "left" | "right" }) {
       boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
       zIndex: 10,
     }} />
+  );
+}
+
+function TornEdge() {
+  // Jagged torn-paper edge — note color fills below the tear, transparent above
+  const w = SKETCH_NOTE_W;
+  const h = 10;
+  // Build jagged top line with pseudo-random peaks
+  let d = "";
+  const step = 5;
+  for (let x = 0; x <= w; x += step) {
+    const seed = Math.sin(x * 0.47 + 1.3) * 10000;
+    const jitter = (seed - Math.floor(seed)) * (h - 3);
+    const y = 1.5 + jitter;
+    d += `${d ? " L" : "M"} ${x} ${y.toFixed(1)}`;
+  }
+  // Close path: go down to bottom-right, across bottom, back up
+  d += ` L ${w} ${h} L 0 ${h} Z`;
+  return (
+    <svg width={w} height={h} style={{ display: "block" }}>
+      <path d={d} fill={SKETCH_NOTE_BG} />
+    </svg>
   );
 }
 
@@ -235,8 +266,8 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
       </div>
 
       {/* Chart area */}
-      <div style={{ position: "relative", height: CHART_H, background: sk ? SKETCH_CHART_BG : "#fafafa", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: `linear-gradient(to top, rgba(${overlayRgba},0.72) 20%, transparent 100%)` }} />
+      <div style={{ position: "relative", height: CHART_H, background: sk ? "transparent" : "#fafafa", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: sk ? "none" : `linear-gradient(to top, rgba(${overlayRgba},0.72) 20%, transparent 100%)` }} />
         <Sparkline
           priceHistory={priceHistory}
           avgCost={h.avgCost}
