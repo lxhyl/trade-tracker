@@ -392,6 +392,30 @@
   animation: sketchy-wiggle 0.25s ease-in-out;
 }
 
+/* ─ Skeleton loading: hand-drawn pencil-sketch style ─ */
+.sketchy .animate-pulse {
+  animation: sketchy-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes sketchy-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* Diagonal pencil-hatching on all skeleton blocks */
+.sketchy .animate-pulse .rounded-lg,
+.sketchy .animate-pulse .rounded-xl,
+.sketchy .animate-pulse .rounded-2xl,
+.sketchy .animate-pulse [class*="rounded"] {
+  background-image: repeating-linear-gradient(
+    -52deg,
+    transparent,
+    transparent 5px,
+    hsl(var(--foreground) / 0.04) 5px,
+    hsl(var(--foreground) / 0.04) 6px
+  ) !important;
+}
+
 /* ─ Heatmap cells: wobbly fun shapes ─ */
 .sketchy .grid-cols-7 > div {
   border-radius: 12px 4px 16px 6px / 6px 14px 4px 12px !important;
