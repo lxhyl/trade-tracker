@@ -31,6 +31,7 @@ import { TrendingUp, TrendingDown, Receipt, PiggyBank } from "lucide-react";
 import { getDisplayLanguage, getColorScheme } from "@/actions/settings";
 import { t } from "@/lib/i18n";
 import { AssetLogo } from "@/components/AssetLogo";
+import { PencilText } from "@/components/PencilText";
 
 export const dynamic = "force-dynamic";
 
@@ -72,7 +73,7 @@ export default async function AnalysisPage() {
   return (
     <div className="space-y-6 md:space-y-8">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">{t(locale, "analysis.title")}</h1>
+        <PencilText as="h1" className="text-2xl md:text-3xl font-bold">{t(locale, "analysis.title")}</PencilText>
         <p className="text-sm md:text-base text-muted-foreground">
           {t(locale, "analysis.subtitle")}
         </p>

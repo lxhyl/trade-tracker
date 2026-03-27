@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Sparkles, TrendingUp, Coins, BarChart3, PiggyBank } from "lucide-react";
 import { getDisplayLanguage } from "@/actions/settings";
 import { t } from "@/lib/i18n";
+import { PencilText } from "@/components/PencilText";
 
 export const dynamic = "force-dynamic";
 
@@ -42,9 +43,9 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          <PencilText as="h1" className="text-2xl md:text-3xl font-bold text-foreground">
             {t(locale, "dashboard.title")}
-          </h1>
+          </PencilText>
           <p className="text-sm md:text-base text-muted-foreground mt-1">
             {t(locale, "dashboard.subtitle")}
           </p>

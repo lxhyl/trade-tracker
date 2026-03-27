@@ -5,6 +5,7 @@ import { getExchangeRates } from "@/lib/exchange-rates";
 import { calculateHoldings } from "@/lib/calculations";
 import { TransactionList } from "@/components/TransactionList";
 import { t } from "@/lib/i18n";
+import { PencilText } from "@/components/PencilText";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function TransactionsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">{t(locale, "transactions.title")}</h1>
+        <PencilText as="h1" className="text-3xl font-bold">{t(locale, "transactions.title")}</PencilText>
         <p className="text-muted-foreground">
           {t(locale, "transactions.subtitle")}
         </p>

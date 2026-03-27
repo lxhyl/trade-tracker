@@ -416,9 +416,22 @@
   ) !important;
 }
 
-/* ─ Heatmap cells: wobbly fun shapes ─ */
+/* ─ Heatmap cells: wobbly shapes + thick pencil border (like pie chart strokes) ─ */
 .sketchy .grid-cols-7 > div {
   border-radius: 12px 4px 16px 6px / 6px 14px 4px 12px !important;
+  border: 2px solid hsl(25 30% 18% / 0.25) !important;
+}
+
+/* ─ Pencil writing animation ─ */
+@keyframes pencil-char {
+  from {
+    opacity: 0;
+    transform: translateY(6px) rotate(var(--char-rot, -2deg)) scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
 }
 
 /* ─ Calendar gain/loss cells: muted colored-pencil tones ─ */

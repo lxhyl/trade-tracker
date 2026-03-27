@@ -8,6 +8,7 @@ import { AccountSection } from "@/components/AccountSection";
 import { LanguageSettings } from "@/components/LanguageSettings";
 import { Card, CardContent } from "@/components/ui/card";
 import { t } from "@/lib/i18n";
+import { PencilText } from "@/components/PencilText";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +23,9 @@ export default async function SettingsPage() {
     <div className="space-y-6 md:space-y-8 max-w-2xl mx-auto">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">
+        <PencilText as="h1" className="text-2xl md:text-3xl font-bold">
           {t(locale, "settings.title")}
-        </h1>
+        </PencilText>
         <p className="text-sm md:text-base text-muted-foreground mt-1">
           {t(locale, "settings.subtitle")}
         </p>
