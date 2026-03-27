@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, JetBrains_Mono, Caveat, Patrick_Hand } from "next/font/google";
 import "./globals.css";
+import { SessionProvider } from "next-auth/react";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { SplashScreen } from "@/components/SplashScreen";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -138,6 +139,7 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${dmSans.variable} ${jetbrainsMono.variable} ${caveat.variable} ${patrickHand.variable} font-sans`}>
+        <SessionProvider>
         <ThemeProvider>
           <StyleThemeProvider>
           <I18nProvider locale={locale}>
@@ -163,6 +165,7 @@ export default async function RootLayout({
           </I18nProvider>
           </StyleThemeProvider>
         </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );
