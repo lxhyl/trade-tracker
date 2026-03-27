@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Eraser } from "lucide-react";
 import { useStyleTheme } from "@/components/StyleThemeProvider";
 
 type Point = {
@@ -11,6 +12,7 @@ type Point = {
 const START_DISTANCE_THRESHOLD = 6;
 const POINT_DISTANCE_THRESHOLD = 1.5;
 const MAX_STROKES = 120;
+const ERASE_THRESHOLD = 40;
 
 function distanceBetween(a: Point, b: Point) {
   return Math.hypot(a.x - b.x, a.y - b.y);
@@ -26,7 +28,7 @@ function isEditableTarget(target: EventTarget | null) {
   );
 }
 
-function getPagePoint(event: PointerEvent): Point {
+function getPagePoint(event: PointerEvent | MouseEvent): Point {
   return {
     x: event.clientX + window.scrollX,
     y: event.clientY + window.scrollY,
@@ -41,6 +43,7 @@ export function SketchyDrawingLayer() {
   const pendingPointRef = useRef<Point | null>(null);
   const pointerIdRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
+  const [hasStrokes, setHasStrokes] = useState(false);
 
   useEffect(() => {
     if (canvasRef.current === null) return;
@@ -130,6 +133,7 @@ export function SketchyDrawingLayer() {
       pendingPointRef.current = null;
       pointerIdRef.current = null;
       document.documentElement.classList.remove("sketchy-drawing-active");
+      setHasStrokes(strokesRef.current.length > 0);
     }
 
     function handlePointerDown(event: PointerEvent) {
@@ -192,8 +196,48 @@ export function SketchyDrawingLayer() {
       finishStroke();
     }
 
+    // Cmd/Ctrl+Z — undo last stroke
+    function handleKeyDown(e: KeyboardEvent) {
+      if (styleTheme !== "sketchy") return;
+      if ((e.metaKey || e.ctrlKey) && e.key === "z") {
+        if (strokesRef.current.length === 0) return;
+        e.preventDefault();
+        strokesRef.current.pop();
+        setHasStrokes(strokesRef.current.length > 0);
+        scheduleRedraw();
+      }
+    }
+
+    // Right-click — erase nearest stroke within threshold
+    function handleContextMenu(e: MouseEvent) {
+      if (styleTheme !== "sketchy") return;
+      if (strokesRef.current.length === 0) return;
+      e.preventDefault();
+
+      const point = getPagePoint(e);
+      let nearestIdx = -1;
+      let minDist = Infinity;
+
+      strokesRef.current.forEach((stroke, i) => {
+        for (const p of stroke) {
+          const d = distanceBetween(p, point);
+          if (d < minDist) {
+            minDist = d;
+            nearestIdx = i;
+          }
+        }
+      });
+
+      if (nearestIdx >= 0 && minDist < ERASE_THRESHOLD) {
+        strokesRef.current.splice(nearestIdx, 1);
+        setHasStrokes(strokesRef.current.length > 0);
+        scheduleRedraw();
+      }
+    }
+
     if (styleTheme !== "sketchy") {
       strokesRef.current = [];
+      setHasStrokes(false);
       finishStroke();
     }
 
@@ -206,6 +250,8 @@ export function SketchyDrawingLayer() {
     window.addEventListener("resize", scheduleRedraw);
     window.addEventListener("scroll", scheduleRedraw, true);
     window.addEventListener("blur", handleWindowBlur);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("contextmenu", handleContextMenu, true);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
@@ -223,16 +269,39 @@ export function SketchyDrawingLayer() {
       window.removeEventListener("resize", scheduleRedraw);
       window.removeEventListener("scroll", scheduleRedraw, true);
       window.removeEventListener("blur", handleWindowBlur);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("contextmenu", handleContextMenu, true);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [styleTheme]);
 
+  function clearAll() {
+    strokesRef.current = [];
+    setHasStrokes(false);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[9998]"
-      style={{ display: styleTheme === "sketchy" ? "block" : "none" }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-[9998]"
+        style={{ display: styleTheme === "sketchy" ? "block" : "none" }}
+      />
+      {hasStrokes && styleTheme === "sketchy" && (
+        <button
+          onClick={clearAll}
+          title="清除涂鸦"
+          className="fixed bottom-6 right-6 z-[9999] flex items-center gap-1.5 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2 text-xs text-[hsl(var(--muted-foreground))] shadow-[3px_3px_0_hsl(var(--border))] transition-all hover:shadow-[1px_1px_0_hsl(var(--border))] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
+        >
+          <Eraser size={14} />
+          清除涂鸦
+        </button>
+      )}
+    </>
   );
 }
