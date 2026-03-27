@@ -9,8 +9,10 @@ import {
   FONT_SANS,
   FONT_NUM,
   FONT_SKETCHY,
+  FONT_SKETCHY_HEADING,
   CARD_W,
   getCardBase,
+  SquiggleLine,
   Footer,
   LogoCircle,
 } from "@/components/ShareCard";
@@ -44,9 +46,14 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
   function TransactionShareCard({ tx, currency, rates, colorScheme, isSketch, locale, logoDataUrl }, ref) {
     const fc = createCurrencyFormatter(currency, rates);
     const isBuy = tx.tradeType === "buy";
-    const sf = isSketch ? FONT_SKETCHY : FONT_SANS;
-    const nf = isSketch ? FONT_SKETCHY : FONT_NUM;
-    const divider = isSketch ? "1px solid rgba(194, 181, 163, 0.5)" : "1px solid #f1f5f9";
+    const sk = !!isSketch;
+    const f = sk ? FONT_SKETCHY : FONT_SANS;
+    const nf = sk ? FONT_SKETCHY : FONT_NUM;
+    const ink = sk ? "#3b2f1e" : "#0f172a";
+    const muted = sk ? "#8b7e6a" : "#94a3b8";
+    const mutedDark = sk ? "#5c4f3a" : "#64748b";
+    const detailText = sk ? "#4a3d2a" : "#334155";
+    const rowBorder = sk ? "1px solid rgba(200, 184, 148, 0.45)" : "1px solid #f8fafc";
 
     const gainColor = colorScheme === "cn" ? "#e53e3e" : "#059669";
     const lossColor = colorScheme === "cn" ? "#059669" : "#e53e3e";
@@ -65,19 +72,16 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
       ? (locale === "zh" ? "买入" : "BUY")
       : (locale === "zh" ? "卖出" : "SELL");
 
-    // For buy: show unrealized P&L if current price is available
     const hasCurrentPrice = isBuy && tx.currentPrice != null && tx.currentPrice > 0;
     const unrealizedPnl = hasCurrentPrice ? (tx.currentPrice! - priceUsd) * qty : 0;
     const unrealizedPct = hasCurrentPrice && priceUsd > 0
       ? ((tx.currentPrice! - priceUsd) / priceUsd) * 100 : 0;
 
-    // For sell: realized P&L
     const hasRealizedPnl = !isBuy && tx.realizedPnl != null;
     const realizedPnlUsd = hasRealizedPnl ? toUsd(parseFloat(tx.realizedPnl!), tx.currency, rates) : 0;
     const costBasis = totalUsd - realizedPnlUsd;
     const realizedPct = costBasis !== 0 ? (realizedPnlUsd / Math.abs(costBasis)) * 100 : 0;
 
-    // Labels
     const L = {
       price: locale === "zh" ? "成交价" : "Price",
       qty: locale === "zh" ? "数量" : "Quantity",
@@ -89,7 +93,6 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
       realizedPnl: locale === "zh" ? "已实现盈亏" : "Realized P&L",
     };
 
-    // Decide which P&L to show
     const showPnl = isBuy ? hasCurrentPrice : hasRealizedPnl;
     const pnlValue = isBuy ? unrealizedPnl : realizedPnlUsd;
     const pnlPct = isBuy ? unrealizedPct : realizedPct;
@@ -100,54 +103,56 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
     return (
       <div ref={ref} style={getCardBase(isSketch)}>
         {/* ── Header: Logo + Symbol + Action badge ── */}
-        <div style={{ padding: "24px 28px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ padding: "24px 28px 16px", display: "flex", alignItems: "center", gap: 14 }}>
           <LogoCircle symbol={tx.symbol} assetType={tx.assetType} size={48} dataUrl={logoDataUrl} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ color: "#0f172a", fontSize: 20, fontWeight: 700, fontFamily: sf, letterSpacing: "-0.3px" }}>
+              <span style={{ color: ink, fontSize: sk ? 22 : 20, fontWeight: 700, fontFamily: sk ? FONT_SKETCHY_HEADING : f, letterSpacing: "-0.3px" }}>
                 {tx.symbol}
               </span>
               <span style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
                 background: `${actionColor}12`, border: `1px solid ${actionColor}25`,
                 borderRadius: 6, padding: "2px 10px",
-                color: actionColor, fontSize: 11, fontWeight: 700, fontFamily: sf,
-                letterSpacing: isSketch ? "0.01em" : "0.05em",
+                color: actionColor, fontSize: 11, fontWeight: 700, fontFamily: f,
+                letterSpacing: sk ? "0.01em" : "0.05em",
               }}>
                 <span style={{ width: 5, height: 5, borderRadius: 3, background: actionColor }} />
                 {actionLabel}
               </span>
             </div>
             {tx.name && (
-              <div style={{ color: "#94a3b8", fontSize: 12, fontFamily: sf, marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ color: muted, fontSize: 12, fontFamily: f, marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {tx.name}
               </div>
             )}
           </div>
         </div>
 
+        {sk ? <SquiggleLine /> : null}
+
         {/* ── Main price display ── */}
-        <div style={{ padding: "0 28px 20px" }}>
-          <div style={{ color: "#64748b", fontSize: 11, fontWeight: 600, letterSpacing: isSketch ? "0.01em" : "0.08em", textTransform: isSketch ? "none" : "uppercase", fontFamily: sf, marginBottom: 6 }}>
+        <div style={{ padding: sk ? "8px 28px 20px" : "0 28px 20px" }}>
+          <div style={{ color: mutedDark, fontSize: sk ? 13 : 11, fontWeight: 600, letterSpacing: sk ? "0.01em" : "0.08em", textTransform: sk ? "none" : "uppercase", fontFamily: f, marginBottom: 6 }}>
             {L.price}
           </div>
-          <div style={{ color: "#0f172a", fontSize: 36, fontWeight: 700, fontFamily: nf, letterSpacing: "-1px", lineHeight: 1.1 }}>
+          <div style={{ color: ink, fontSize: 36, fontWeight: 700, fontFamily: nf, letterSpacing: "-1px", lineHeight: 1.1 }}>
             {fc(priceUsd)}
           </div>
-          <div style={{ color: "#94a3b8", fontSize: 12, fontFamily: sf, marginTop: 6 }}>
+          <div style={{ color: muted, fontSize: 12, fontFamily: f, marginTop: 6 }}>
             {dateStr}
           </div>
         </div>
 
         {/* ── Detail rows ── */}
-        <div style={{ margin: "0 28px", borderTop: divider }}>
-          <DetailRow label={L.qty} value={formatNumber(qty, 8)} isSketch={isSketch} />
-          <DetailRow label={L.total} value={fc(totalUsd)} isSketch={isSketch} />
+        <div style={{ margin: "0 28px", borderTop: sk ? `1px solid rgba(200, 184, 148, 0.5)` : "1px solid #f1f5f9" }}>
+          <DetailRow label={L.qty} value={formatNumber(qty, 8)} ink={detailText} muted={muted} font={f} numFont={nf} rowBorder={rowBorder} />
+          <DetailRow label={L.total} value={fc(totalUsd)} ink={detailText} muted={muted} font={f} numFont={nf} rowBorder={rowBorder} />
           {isBuy && hasCurrentPrice && (
-            <DetailRow label={L.current} value={fc(tx.currentPrice!)} isSketch={isSketch} />
+            <DetailRow label={L.current} value={fc(tx.currentPrice!)} ink={detailText} muted={muted} font={f} numFont={nf} rowBorder={rowBorder} />
           )}
           {!isBuy && tx.avgCost != null && tx.avgCost > 0 && (
-            <DetailRow label={L.avgCost} value={fc(tx.avgCost)} isSketch={isSketch} />
+            <DetailRow label={L.avgCost} value={fc(tx.avgCost)} ink={detailText} muted={muted} font={f} numFont={nf} rowBorder={rowBorder} />
           )}
         </div>
 
@@ -161,7 +166,7 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
               padding: "16px 20px",
               display: "flex", alignItems: "center", justifyContent: "space-between",
             }}>
-              <span style={{ color: "#64748b", fontSize: 12, fontWeight: 600, fontFamily: sf }}>
+              <span style={{ color: mutedDark, fontSize: 12, fontWeight: 600, fontFamily: f }}>
                 {pnlLabel}
               </span>
               <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
@@ -176,22 +181,23 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
           </div>
         )}
 
-        {/* ── Footer ── */}
         <Footer isSketch={isSketch} />
       </div>
     );
   }
 );
 
-function DetailRow({ label, value, isSketch }: { label: string; value: string; isSketch?: boolean }) {
+function DetailRow({ label, value, ink, muted, font, numFont, rowBorder }: {
+  label: string; value: string; ink: string; muted: string; font: string; numFont: string; rowBorder: string;
+}) {
   return (
     <div style={{
       display: "flex", justifyContent: "space-between", alignItems: "center",
       padding: "11px 0",
-      borderBottom: isSketch ? "1px solid rgba(194, 181, 163, 0.38)" : "1px solid #f8fafc",
+      borderBottom: rowBorder,
     }}>
-      <span style={{ color: "#94a3b8", fontSize: 13, fontFamily: isSketch ? FONT_SKETCHY : FONT_SANS }}>{label}</span>
-      <span style={{ color: "#334155", fontSize: 14, fontWeight: 600, fontFamily: isSketch ? FONT_SKETCHY : FONT_NUM, letterSpacing: "-0.2px" }}>{value}</span>
+      <span style={{ color: muted, fontSize: 13, fontFamily: font }}>{label}</span>
+      <span style={{ color: ink, fontSize: 14, fontWeight: 600, fontFamily: numFont, letterSpacing: "-0.2px" }}>{value}</span>
     </div>
   );
 }
