@@ -145,7 +145,7 @@ export function ShareDialog({
     setCapturing(true);
     try {
       const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: isSketch ? SKETCH_PAPER : "#ffffff", skipFonts: true });
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: isSketch ? SKETCH_PAPER : "#ffffff" });
       const filename = `portfolio-${today}.png`;
 
       // Web Share API (iOS 15+, Android) — opens native share sheet → Save to Photos
