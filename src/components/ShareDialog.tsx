@@ -6,6 +6,7 @@ import { SupportedCurrency, ExchangeRates } from "@/lib/currency";
 import { ColorScheme } from "@/actions/settings";
 import { Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/I18nProvider";
+import { useStyleTheme } from "@/components/StyleThemeProvider";
 import { ShareCard, PricePoint, CARD_W } from "@/components/ShareCard";
 import { toUsd } from "@/lib/currency";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,8 @@ export function ShareDialog({
   initialSymbol,
 }: ShareDialogProps) {
   const { t } = useI18n();
+  const { styleTheme } = useStyleTheme();
+  const isSketch = styleTheme === "sketchy";
   const isSingleMode = !!initialSymbol;
 
   const [step, setStep] = useState<"select" | "preview">("select");
@@ -142,7 +145,7 @@ export function ShareDialog({
     setCapturing(true);
     try {
       const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: "#ffffff", skipFonts: true });
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: isSketch ? "#f7f2e3" : "#ffffff", skipFonts: true });
       const filename = `portfolio-${today}.png`;
 
       // Web Share API (iOS 15+, Android) — opens native share sheet → Save to Photos
@@ -183,6 +186,7 @@ export function ShareDialog({
             currency={currency}
             rates={rates}
             colorScheme={colorScheme}
+            isSketch={isSketch}
             date={today}
             locale={locale}
             logoDataUrls={logoDataUrls}

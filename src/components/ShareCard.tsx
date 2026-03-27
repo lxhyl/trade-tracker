@@ -13,6 +13,37 @@ export const SITE_HOST = "tt.ozlab.xyz";
 export const SITE_NAME = "TradeTracker";
 export const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
 export const FONT_NUM = "'JetBrains Mono', 'Fira Mono', monospace";
+export const FONT_SKETCHY = "'Patrick Hand', cursive";
+
+// Notebook paper palette (matches .sketchy CSS theme)
+const SKETCH_PAPER = "#f7f2e3";
+const SKETCH_LINE = "rgba(194, 181, 163, 0.45)";
+const SKETCH_MARGIN = "rgba(210, 110, 110, 0.35)";
+const SKETCH_DIVIDER = "rgba(194, 181, 163, 0.55)";
+const SKETCH_ROW_BORDER = "rgba(194, 181, 163, 0.38)";
+
+export function getCardBase(isSketch?: boolean): React.CSSProperties {
+  if (isSketch) {
+    return {
+      width: CARD_W,
+      fontFamily: FONT_SKETCHY,
+      overflow: "hidden",
+      backgroundColor: SKETCH_PAPER,
+      backgroundImage: [
+        `linear-gradient(90deg, transparent 39px, ${SKETCH_MARGIN} 39px, ${SKETCH_MARGIN} 40.5px, transparent 40.5px)`,
+        `repeating-linear-gradient(transparent 0px, transparent 27px, ${SKETCH_LINE} 27px, ${SKETCH_LINE} 28px)`,
+      ].join(", "),
+      boxShadow: "0 4px 20px rgba(100,80,40,0.18)",
+    };
+  }
+  return {
+    width: CARD_W,
+    fontFamily: FONT_SANS,
+    background: "#ffffff",
+    overflow: "hidden",
+    boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
+  };
+}
 
 export const CARD_W = 480;
 const CHART_H = 200;
@@ -26,6 +57,7 @@ interface ShareCardProps {
   currency: SupportedCurrency;
   rates: ExchangeRates;
   colorScheme: ColorScheme;
+  isSketch?: boolean;
   // legacy props kept for multi-asset compat
   showAvgCost?: boolean;
   showQuantity?: boolean;
@@ -39,7 +71,7 @@ interface ShareCardProps {
 }
 
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function ShareCard(
-  { holdings, summary, currency, rates, colorScheme, locale, logoDataUrls = {}, priceHistory = [], loading = false },
+  { holdings, summary, currency, rates, colorScheme, isSketch, locale, logoDataUrls = {}, priceHistory = [], loading = false },
   ref
 ) {
   const fc = createCurrencyFormatter(currency, rates);
@@ -54,6 +86,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         fc={fc}
         gainColor={gainColor}
         lossColor={lossColor}
+        isSketch={isSketch}
         locale={locale}
         logoDataUrl={logoDataUrls[holdings[0].symbol]}
         priceHistory={priceHistory}
@@ -66,37 +99,38 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
   const isGain = summary.totalPnL >= 0;
   const returnColor = isGain ? gainColor : lossColor;
   const totalReturnLabel = locale === "zh" ? "总收益" : "Total Return";
+  const numFont = isSketch ? FONT_SKETCHY : FONT_NUM;
 
   return (
-    <div ref={ref} style={cardBase}>
+    <div ref={ref} style={getCardBase(isSketch)}>
       <div style={{ padding: "20px 24px 16px" }}>
-        <div style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 8 }}>
+        <div style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: isSketch ? "none" : "uppercase", fontFamily: isSketch ? FONT_SKETCHY : FONT_SANS, marginBottom: 8 }}>
           {totalReturnLabel}
         </div>
-        <div style={{ color: returnColor, fontSize: 48, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-1px" }}>
+        <div style={{ color: returnColor, fontSize: 48, fontWeight: 700, lineHeight: 1, fontFamily: numFont, letterSpacing: "-1px" }}>
           {isGain ? "+" : ""}{formatPercent(summary.totalPnLPercent)}
         </div>
       </div>
-      <div style={{ height: 1, background: "#f1f5f9", margin: "0 24px" }} />
+      <div style={{ height: 1, background: isSketch ? SKETCH_DIVIDER : "#f1f5f9", margin: "0 24px" }} />
       <div>
         {holdings.map((h, i) => {
           const hGain = h.unrealizedPnL >= 0;
           const hColor = hGain ? gainColor : lossColor;
           return (
-            <div key={h.symbol} style={{ padding: "12px 24px", borderBottom: i < holdings.length - 1 ? "1px solid #f8fafc" : "none", display: "flex", alignItems: "center", gap: 10 }}>
+            <div key={h.symbol} style={{ padding: "12px 24px", borderBottom: i < holdings.length - 1 ? `1px solid ${isSketch ? SKETCH_ROW_BORDER : "#f8fafc"}` : "none", display: "flex", alignItems: "center", gap: 10 }}>
               <LogoCircle symbol={h.symbol} assetType={h.assetType} size={32} dataUrl={logoDataUrls[h.symbol]} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", fontFamily: FONT_SANS }}>{h.symbol}</div>
-                {h.name && <div style={{ fontSize: 11, color: "#94a3b8", fontFamily: FONT_SANS, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</div>}
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", fontFamily: isSketch ? FONT_SKETCHY : FONT_SANS }}>{h.symbol}</div>
+                {h.name && <div style={{ fontSize: 11, color: "#94a3b8", fontFamily: isSketch ? FONT_SKETCHY : FONT_SANS, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</div>}
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ color: hColor, fontSize: 17, fontWeight: 700, fontFamily: FONT_NUM }}>{hGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}</div>
+                <div style={{ color: hColor, fontSize: 17, fontWeight: 700, fontFamily: numFont }}>{hGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}</div>
               </div>
             </div>
           );
         })}
       </div>
-      <Footer />
+      <Footer isSketch={isSketch} />
     </div>
   );
 });
@@ -108,6 +142,7 @@ interface SingleAssetCardProps {
   fc: (v: number) => string;
   gainColor: string;
   lossColor: string;
+  isSketch?: boolean;
   locale: Locale;
   logoDataUrl?: string;
   priceHistory: PricePoint[];
@@ -115,27 +150,32 @@ interface SingleAssetCardProps {
 }
 
 const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(function SingleAssetCard(
-  { holding: h, fc, gainColor, lossColor, locale, logoDataUrl, priceHistory, loading = false },
+  { holding: h, fc, gainColor, lossColor, isSketch, locale, logoDataUrl, priceHistory, loading = false },
   ref
 ) {
   const isGain = h.unrealizedPnL >= 0;
   const color = isGain ? gainColor : lossColor;
+  const numFont = isSketch ? FONT_SKETCHY : FONT_NUM;
+  const chartOverlayBg = isSketch
+    ? "linear-gradient(to top, rgba(247,242,227,0.72) 20%, transparent 100%)"
+    : "linear-gradient(to top, rgba(250,250,250,0.72) 20%, transparent 100%)";
+  const loadingOverlayBg = isSketch ? "rgba(247,242,227,0.85)" : "rgba(250,250,250,0.82)";
 
   return (
-    <div ref={ref} style={cardBase}>
+    <div ref={ref} style={getCardBase(isSketch)}>
       {/* Asset identity */}
-      <div style={{ padding: "20px 24px 16px", display: "flex", alignItems: "center", gap: 14, background: "#ffffff" }}>
+      <div style={{ padding: "20px 24px 16px", display: "flex", alignItems: "center", gap: 14, background: "transparent" }}>
         <LogoCircle symbol={h.symbol} assetType={h.assetType} size={44} dataUrl={logoDataUrl} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ color: "#0f172a", fontSize: 17, fontWeight: 700, fontFamily: FONT_SANS, letterSpacing: "-0.2px" }}>{h.symbol}</div>
-          {h.name && <div style={{ color: "#94a3b8", fontSize: 12, fontFamily: FONT_SANS, marginTop: 3 }}>{h.name}</div>}
+          <div style={{ color: "#0f172a", fontSize: 17, fontWeight: 700, fontFamily: isSketch ? FONT_SKETCHY : FONT_SANS, letterSpacing: "-0.2px" }}>{h.symbol}</div>
+          {h.name && <div style={{ color: "#94a3b8", fontSize: 12, fontFamily: isSketch ? FONT_SKETCHY : FONT_SANS, marginTop: 3 }}>{h.name}</div>}
         </div>
       </div>
 
       {/* Chart area — loading overlay sits here, P&L text floats above it */}
-      <div style={{ position: "relative", height: CHART_H, background: "#fafafa", overflow: "hidden" }}>
+      <div style={{ position: "relative", height: CHART_H, background: "transparent", overflow: "hidden" }}>
         {/* Gradient + sparkline — behind everything else */}
-        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(to top, rgba(250,250,250,0.72) 20%, transparent 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: chartOverlayBg }} />
         <Sparkline
           priceHistory={priceHistory}
           avgCost={h.avgCost}
@@ -153,7 +193,7 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
         {loading && (
           <div style={{
             position: "absolute", inset: 0, zIndex: 2,
-            background: "rgba(250,250,250,0.82)",
+            background: loadingOverlayBg,
             backdropFilter: "blur(3px)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
@@ -163,13 +203,13 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
 
         {/* P&L % — always visible, above any overlay */}
         <div style={{ position: "absolute", bottom: 18, left: 24, zIndex: 3 }}>
-          <div style={{ color, fontSize: 64, fontWeight: 700, lineHeight: 1, fontFamily: FONT_NUM, letterSpacing: "-2px" }}>
+          <div style={{ color, fontSize: 64, fontWeight: 700, lineHeight: 1, fontFamily: numFont, letterSpacing: "-2px" }}>
             {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
           </div>
         </div>
       </div>
 
-      <Footer />
+      <Footer isSketch={isSketch} />
     </div>
   );
 });
@@ -347,27 +387,21 @@ export function LogoCircle({ symbol, assetType, size, dataUrl }: {
   );
 }
 
-export function Footer() {
+export function Footer({ isSketch }: { isSketch?: boolean }) {
   return (
-    <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #f1f5f9", background: "#ffffff" }}>
-      <div style={{ background: "#ffffff", padding: 3, borderRadius: 4, border: "1px solid #e2e8f0", lineHeight: 0, flexShrink: 0 }}>
+    <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: `1px solid ${isSketch ? SKETCH_DIVIDER : "#f1f5f9"}`, background: "transparent" }}>
+      <div style={{ background: isSketch ? SKETCH_PAPER : "#ffffff", padding: 3, borderRadius: 4, border: `1px solid ${isSketch ? SKETCH_DIVIDER : "#e2e8f0"}`, lineHeight: 0, flexShrink: 0 }}>
         <QRCodeSVG value={SITE_URL} size={40} marginSize={0} fgColor="#0f172a" />
       </div>
       <div style={{ textAlign: "right" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", fontFamily: FONT_SANS }}>{SITE_NAME}</div>
-        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2, fontFamily: FONT_SANS }}>{SITE_HOST}</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", fontFamily: isSketch ? FONT_SKETCHY : FONT_SANS }}>{SITE_NAME}</div>
+        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2, fontFamily: isSketch ? FONT_SKETCHY : FONT_SANS }}>{SITE_HOST}</div>
       </div>
     </div>
   );
 }
 
-export const cardBase: React.CSSProperties = {
-  width: CARD_W,
-  fontFamily: FONT_SANS,
-  background: "#ffffff",
-  overflow: "hidden",
-  boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
-};
+export const cardBase: React.CSSProperties = getCardBase(false);
 
 // Inline spinner — avoids Tailwind animate-spin which doesn't apply in inline styles
 function SpinnerIcon() {

@@ -1,7 +1,6 @@
 "use client";
 
 import { forwardRef } from "react";
-import { QRCodeSVG } from "qrcode.react";
 import { SupportedCurrency, ExchangeRates, toUsd } from "@/lib/currency";
 import { ColorScheme } from "@/actions/settings";
 import { Locale } from "@/lib/i18n";
@@ -9,11 +8,10 @@ import { createCurrencyFormatter, formatNumber } from "@/lib/utils";
 import {
   FONT_SANS,
   FONT_NUM,
+  FONT_SKETCHY,
   CARD_W,
-  SITE_URL,
-  SITE_HOST,
-  SITE_NAME,
-  cardBase,
+  getCardBase,
+  Footer,
   LogoCircle,
 } from "@/components/ShareCard";
 
@@ -37,14 +35,18 @@ interface TransactionShareCardProps {
   currency: SupportedCurrency;
   rates: ExchangeRates;
   colorScheme: ColorScheme;
+  isSketch?: boolean;
   locale: Locale;
   logoDataUrl?: string;
 }
 
 export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareCardProps>(
-  function TransactionShareCard({ tx, currency, rates, colorScheme, locale, logoDataUrl }, ref) {
+  function TransactionShareCard({ tx, currency, rates, colorScheme, isSketch, locale, logoDataUrl }, ref) {
     const fc = createCurrencyFormatter(currency, rates);
     const isBuy = tx.tradeType === "buy";
+    const sf = isSketch ? FONT_SKETCHY : FONT_SANS;
+    const nf = isSketch ? FONT_SKETCHY : FONT_NUM;
+    const divider = isSketch ? "1px solid rgba(194, 181, 163, 0.5)" : "1px solid #f1f5f9";
 
     const gainColor = colorScheme === "cn" ? "#e53e3e" : "#059669";
     const lossColor = colorScheme === "cn" ? "#059669" : "#e53e3e";
@@ -96,28 +98,28 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
     const pnlSign = pnlValue >= 0 ? "+" : "";
 
     return (
-      <div ref={ref} style={cardBase}>
+      <div ref={ref} style={getCardBase(isSketch)}>
         {/* ── Header: Logo + Symbol + Action badge ── */}
         <div style={{ padding: "24px 28px 20px", display: "flex", alignItems: "center", gap: 14 }}>
           <LogoCircle symbol={tx.symbol} assetType={tx.assetType} size={48} dataUrl={logoDataUrl} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ color: "#0f172a", fontSize: 20, fontWeight: 700, fontFamily: FONT_SANS, letterSpacing: "-0.3px" }}>
+              <span style={{ color: "#0f172a", fontSize: 20, fontWeight: 700, fontFamily: sf, letterSpacing: "-0.3px" }}>
                 {tx.symbol}
               </span>
               <span style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
                 background: `${actionColor}12`, border: `1px solid ${actionColor}25`,
                 borderRadius: 6, padding: "2px 10px",
-                color: actionColor, fontSize: 11, fontWeight: 700, fontFamily: FONT_SANS,
-                letterSpacing: "0.05em",
+                color: actionColor, fontSize: 11, fontWeight: 700, fontFamily: sf,
+                letterSpacing: isSketch ? "0.01em" : "0.05em",
               }}>
                 <span style={{ width: 5, height: 5, borderRadius: 3, background: actionColor }} />
                 {actionLabel}
               </span>
             </div>
             {tx.name && (
-              <div style={{ color: "#94a3b8", fontSize: 12, fontFamily: FONT_SANS, marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ color: "#94a3b8", fontSize: 12, fontFamily: sf, marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {tx.name}
               </div>
             )}
@@ -126,26 +128,26 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
 
         {/* ── Main price display ── */}
         <div style={{ padding: "0 28px 20px" }}>
-          <div style={{ color: "#64748b", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: FONT_SANS, marginBottom: 6 }}>
+          <div style={{ color: "#64748b", fontSize: 11, fontWeight: 600, letterSpacing: isSketch ? "0.01em" : "0.08em", textTransform: isSketch ? "none" : "uppercase", fontFamily: sf, marginBottom: 6 }}>
             {L.price}
           </div>
-          <div style={{ color: "#0f172a", fontSize: 36, fontWeight: 700, fontFamily: FONT_NUM, letterSpacing: "-1px", lineHeight: 1.1 }}>
+          <div style={{ color: "#0f172a", fontSize: 36, fontWeight: 700, fontFamily: nf, letterSpacing: "-1px", lineHeight: 1.1 }}>
             {fc(priceUsd)}
           </div>
-          <div style={{ color: "#94a3b8", fontSize: 12, fontFamily: FONT_SANS, marginTop: 6 }}>
+          <div style={{ color: "#94a3b8", fontSize: 12, fontFamily: sf, marginTop: 6 }}>
             {dateStr}
           </div>
         </div>
 
         {/* ── Detail rows ── */}
-        <div style={{ margin: "0 28px", borderTop: "1px solid #f1f5f9" }}>
-          <DetailRow label={L.qty} value={formatNumber(qty, 8)} />
-          <DetailRow label={L.total} value={fc(totalUsd)} />
+        <div style={{ margin: "0 28px", borderTop: divider }}>
+          <DetailRow label={L.qty} value={formatNumber(qty, 8)} isSketch={isSketch} />
+          <DetailRow label={L.total} value={fc(totalUsd)} isSketch={isSketch} />
           {isBuy && hasCurrentPrice && (
-            <DetailRow label={L.current} value={fc(tx.currentPrice!)} />
+            <DetailRow label={L.current} value={fc(tx.currentPrice!)} isSketch={isSketch} />
           )}
           {!isBuy && tx.avgCost != null && tx.avgCost > 0 && (
-            <DetailRow label={L.avgCost} value={fc(tx.avgCost)} />
+            <DetailRow label={L.avgCost} value={fc(tx.avgCost)} isSketch={isSketch} />
           )}
         </div>
 
@@ -159,14 +161,14 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
               padding: "16px 20px",
               display: "flex", alignItems: "center", justifyContent: "space-between",
             }}>
-              <span style={{ color: "#64748b", fontSize: 12, fontWeight: 600, fontFamily: FONT_SANS }}>
+              <span style={{ color: "#64748b", fontSize: 12, fontWeight: 600, fontFamily: sf }}>
                 {pnlLabel}
               </span>
               <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <span style={{ color: pnlColor, fontSize: 22, fontWeight: 700, fontFamily: FONT_NUM, letterSpacing: "-0.5px" }}>
+                <span style={{ color: pnlColor, fontSize: 22, fontWeight: 700, fontFamily: nf, letterSpacing: "-0.5px" }}>
                   {pnlSign}{fc(Math.abs(pnlValue))}
                 </span>
-                <span style={{ color: pnlColor, fontSize: 13, fontWeight: 600, fontFamily: FONT_NUM, opacity: 0.8 }}>
+                <span style={{ color: pnlColor, fontSize: 13, fontWeight: 600, fontFamily: nf, opacity: 0.8 }}>
                   {pnlSign}{pnlPct.toFixed(2)}%
                 </span>
               </div>
@@ -175,29 +177,21 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
         )}
 
         {/* ── Footer ── */}
-        <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #f1f5f9", background: "#ffffff" }}>
-          <div style={{ background: "#ffffff", padding: 3, borderRadius: 4, border: "1px solid #e2e8f0", lineHeight: 0, flexShrink: 0 }}>
-            <QRCodeSVG value={SITE_URL} size={40} marginSize={0} fgColor="#0f172a" />
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", fontFamily: FONT_SANS }}>{SITE_NAME}</div>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2, fontFamily: FONT_SANS }}>{SITE_HOST}</div>
-          </div>
-        </div>
+        <Footer isSketch={isSketch} />
       </div>
     );
   }
 );
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function DetailRow({ label, value, isSketch }: { label: string; value: string; isSketch?: boolean }) {
   return (
     <div style={{
       display: "flex", justifyContent: "space-between", alignItems: "center",
       padding: "11px 0",
-      borderBottom: "1px solid #f8fafc",
+      borderBottom: isSketch ? "1px solid rgba(194, 181, 163, 0.38)" : "1px solid #f8fafc",
     }}>
-      <span style={{ color: "#94a3b8", fontSize: 13, fontFamily: FONT_SANS }}>{label}</span>
-      <span style={{ color: "#334155", fontSize: 14, fontWeight: 600, fontFamily: FONT_NUM, letterSpacing: "-0.2px" }}>{value}</span>
+      <span style={{ color: "#94a3b8", fontSize: 13, fontFamily: isSketch ? FONT_SKETCHY : FONT_SANS }}>{label}</span>
+      <span style={{ color: "#334155", fontSize: 14, fontWeight: 600, fontFamily: isSketch ? FONT_SKETCHY : FONT_NUM, letterSpacing: "-0.2px" }}>{value}</span>
     </div>
   );
 }

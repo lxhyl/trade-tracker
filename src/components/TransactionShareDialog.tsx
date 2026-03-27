@@ -5,6 +5,7 @@ import { SupportedCurrency, ExchangeRates } from "@/lib/currency";
 import { ColorScheme } from "@/actions/settings";
 import { Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/I18nProvider";
+import { useStyleTheme } from "@/components/StyleThemeProvider";
 import { TransactionShareCard, TxShareData } from "@/components/TransactionShareCard";
 import { CARD_W } from "@/components/ShareCard";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,8 @@ export function TransactionShareDialog({
   locale,
 }: TransactionShareDialogProps) {
   const { t } = useI18n();
+  const { styleTheme } = useStyleTheme();
+  const isSketch = styleTheme === "sketchy";
   const cardRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [capturing, setCapturing] = useState(false);
@@ -90,7 +93,7 @@ export function TransactionShareDialog({
     setCapturing(true);
     try {
       const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: "#ffffff", skipFonts: true });
+      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: isSketch ? "#f7f2e3" : "#ffffff", skipFonts: true });
       const filename = `trade-${tx.symbol}-${today}.png`;
 
       const blob = await fetch(dataUrl).then((r) => r.blob());
@@ -147,6 +150,7 @@ export function TransactionShareDialog({
                   currency={currency}
                   rates={rates}
                   colorScheme={colorScheme}
+                  isSketch={isSketch}
                   locale={locale}
                   logoDataUrl={loading ? undefined : logoDataUrl}
                 />
