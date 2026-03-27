@@ -407,11 +407,6 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
       <line x1="0" y1={buyY.toFixed(1)} x2={width} y2={buyY.toFixed(1)}
         stroke={isSketch ? SKETCH_MUTED : "#64748b"} strokeWidth="1" strokeDasharray={isSketch ? "6,5" : "5,4"} strokeOpacity="0.6" />
 
-      <line
-        x1={markerX.toFixed(1)} y1={(height - 14).toFixed(1)}
-        x2={markerX.toFixed(1)} y2={buyY.toFixed(1)}
-        stroke={isSketch ? SKETCH_MUTED : "#94a3b8"} strokeWidth="1" strokeDasharray="2,3" strokeOpacity="0.5"
-      />
       <circle cx={markerX.toFixed(1)} cy={buyY.toFixed(1)} r={isSketch ? 4 : 3} fill={isSketch ? SKETCH_MUTED : "#64748b"} fillOpacity="0.85" />
       {(() => {
         const labelW = avgText.length * 7 + 10;
@@ -430,10 +425,6 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
           </>
         );
       })()}
-      <polygon
-        points={`${markerX},${height - 20} ${markerX - 5},${height - 12} ${markerX + 5},${height - 12}`}
-        fill={isSketch ? SKETCH_MUTED : "#64748b"} fillOpacity="0.8"
-      />
 
       {curText && (
         <>
