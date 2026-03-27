@@ -105,6 +105,10 @@
   --secondary-foreground: 25 18% 35%;
   --popover: 45 55% 93%;
   --popover-foreground: 25 30% 18%;
+  /* Fountain pen ink blue — replaces modern UI primary */
+  --primary: 215 55% 28%;
+  --primary-foreground: 45 60% 97%;
+  --ring: 215 55% 28%;
 }
 
 .sketchy.dark {
@@ -119,6 +123,9 @@
   --secondary-foreground: 35 10% 70%;
   --popover: 35 18% 11%;
   --popover-foreground: 40 15% 85%;
+  --primary: 215 48% 62%;
+  --primary-foreground: 215 20% 10%;
+  --ring: 215 48% 62%;
 }
 
 /* ─ Every single element: hand-drawn font ─ */
@@ -388,6 +395,32 @@
 /* ─ Heatmap cells: wobbly fun shapes ─ */
 .sketchy .grid-cols-7 > div {
   border-radius: 12px 4px 16px 6px / 6px 14px 4px 12px !important;
+}
+
+/* ─ Calendar gain/loss cells: muted colored-pencil tones ─ */
+.sketchy .bg-emerald-500\/15,
+.sketchy .bg-emerald-500\/20 {
+  background-color: hsl(105 35% 62% / 0.38) !important;
+}
+.sketchy .bg-red-500\/15,
+.sketchy .bg-red-500\/20 {
+  background-color: hsl(5 50% 65% / 0.38) !important;
+}
+
+/* ─ Gain/loss pill backgrounds: pencil-sketch tones ─ */
+.sketchy .bg-emerald-50 {
+  background-color: hsl(105 30% 86%) !important;
+}
+.sketchy .bg-red-50 {
+  background-color: hsl(5 40% 90%) !important;
+}
+
+/* ─ Success button: muted forest green ─ */
+.sketchy .bg-emerald-600 {
+  background-color: hsl(140 38% 36%) !important;
+}
+.sketchy .hover\:bg-emerald-700:hover {
+  background-color: hsl(140 38% 30%) !important;
 }
 
 /* Force date inputs to respect container width on mobile */
