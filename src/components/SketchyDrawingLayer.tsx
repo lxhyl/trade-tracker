@@ -135,6 +135,7 @@ export function SketchyDrawingLayer() {
     function handlePointerDown(event: PointerEvent) {
       if (styleTheme !== "sketchy") return;
       if (event.button !== 0) return;
+      if (event.pointerType !== "mouse") return;
       if (isEditableTarget(event.target)) return;
 
       pointerIdRef.current = event.pointerId;
