@@ -32,7 +32,11 @@ const SCHEMES: {
   },
 ];
 
-export function ColorSchemeSettings() {
+interface ColorSchemeSettingsProps {
+  authenticated?: boolean;
+}
+
+export function ColorSchemeSettings({ authenticated = true }: ColorSchemeSettingsProps) {
   const current = useColorScheme();
   const setLocal = useSetColorScheme();
   const [isPending, startTransition] = useTransition();
@@ -42,6 +46,7 @@ export function ColorSchemeSettings() {
   function handleChange(scheme: ColorScheme) {
     if (scheme === current) return;
     setLocal?.(scheme);
+    if (!authenticated) return;
     startTransition(async () => {
       await setColorScheme(scheme);
       router.refresh();

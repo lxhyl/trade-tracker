@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
 import {
   TrendingUp,
   BarChart3,
@@ -13,16 +11,13 @@ import {
   ChevronRight,
   Zap,
   Globe,
+  Settings,
 } from "lucide-react";
 import { useI18n } from "@/components/I18nProvider";
-import { LandingLanguageToggle } from "@/components/LandingLanguageToggle";
 import { LoginModal } from "@/components/LoginModal";
 import { LandingDashboard } from "@/components/LandingDashboard";
-import { LandingStyleThemeToggle } from "@/components/LandingStyleThemeToggle";
-import { LandingColorSchemeToggle } from "@/components/LandingColorSchemeToggle";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { SettingsPanel } from "@/components/SettingsPanel";
 import { TranslationKey } from "@/lib/i18n";
-import { Settings2 } from "lucide-react";
 
 const FEATURE_ITEMS: { icon: typeof BarChart3; titleKey: TranslationKey; descKey: TranslationKey; iconColor: string }[] = [
   { icon: BarChart3,   titleKey: "landing.featureAnalyticsTitle",    descKey: "landing.featureAnalyticsDesc",    iconColor: "text-primary"              },
@@ -33,67 +28,22 @@ const FEATURE_ITEMS: { icon: typeof BarChart3; titleKey: TranslationKey; descKey
   { icon: Zap,         titleKey: "landing.featureFastTitle",         descKey: "landing.featureFastDesc",         iconColor: "text-amber-600"            },
 ];
 
-// ── Language settings block (used in the customize section) ─
-function LanguageSettingsBlock() {
-  const { locale, t } = useI18n();
-  const router = useRouter();
-
-  const LANGS = [
-    { key: "en" as const, label: "English", icon: "A" },
-    { key: "zh" as const, label: "中文", icon: "中" },
-  ];
-
-  function setLocale(lang: string) {
-    document.cookie = `locale=${lang};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
-    router.refresh();
-  }
-
-  return (
-    <div className="space-y-3">
-      <div>
-        <p className="text-sm font-medium">{t("settings.language")}</p>
-        <p className="text-xs text-muted-foreground">{t("settings.languageDesc")}</p>
-      </div>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {LANGS.map(({ key, label, icon }) => {
-          const isActive = locale === key;
-          return (
-            <button
-              key={key}
-              onClick={() => setLocale(key)}
-              className={cn(
-                "flex items-center gap-3 rounded-lg border p-3 text-left transition-all cursor-pointer",
-                isActive
-                  ? "border-primary bg-primary/5 dark:bg-primary/10"
-                  : "border-transparent hover:bg-muted/50"
-              )}
-            >
-              <div className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-sm font-bold",
-                isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-              )}>
-                {icon}
-              </div>
-              <p className="text-sm font-medium">{label}</p>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ── Landing page ───────────────────────────────────────────
 export function LandingPage() {
   const { t } = useI18n();
   const [loginOpen, setLoginOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="min-h-screen overflow-x-hidden">
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <SettingsPanel
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        authenticated={false}
+      />
 
       {/* Top nav bar */}
-      <header className="sticky top-0 z-50 border-b bg-background">
+      <header className="sticky top-0 z-40 border-b bg-background">
         <div className="container mx-auto flex h-12 items-center justify-between px-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
@@ -101,8 +51,14 @@ export function LandingPage() {
             </div>
             <span className="text-lg font-bold text-foreground">TradeTracker</span>
           </div>
-          <div className="flex items-center gap-3">
-            <LandingLanguageToggle />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
+              aria-label={t("settings.title")}
+            >
+              <Settings className="h-4 w-4" />
+            </button>
             <button
               onClick={() => setLoginOpen(true)}
               className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-95"
@@ -186,40 +142,6 @@ export function LandingPage() {
                 </div>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Customize Section ────────────────────────── */}
-      <section className="py-20 md:py-28 border-t">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-primary/10 text-primary mb-4">
-                <Settings2 className="h-6 w-6" />
-              </div>
-              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
-                {t("landing.customizeTitle")}
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                {t("landing.customizeDesc")}
-              </p>
-            </div>
-
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="rounded-xl border bg-card p-5 shadow-sm">
-                <ThemeToggle />
-              </div>
-              <div className="rounded-xl border bg-card p-5 shadow-sm">
-                <LandingStyleThemeToggle />
-              </div>
-              <div className="rounded-xl border bg-card p-5 shadow-sm">
-                <LandingColorSchemeToggle />
-              </div>
-              <div className="rounded-xl border bg-card p-5 shadow-sm">
-                <LanguageSettingsBlock />
-              </div>
-            </div>
           </div>
         </div>
       </section>

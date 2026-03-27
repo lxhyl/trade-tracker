@@ -13,7 +13,11 @@ const STYLES: { key: StyleTheme; labelKey: string; descKey: string; icon: typeof
   { key: "classic", labelKey: "settings.styleClassic", descKey: "settings.styleClassicDesc", icon: Layers },
 ];
 
-export function StyleThemeToggle() {
+interface StyleThemeToggleProps {
+  authenticated?: boolean;
+}
+
+export function StyleThemeToggle({ authenticated = true }: StyleThemeToggleProps) {
   const { styleTheme, setStyleTheme: setLocal } = useStyleTheme();
   const { t } = useI18n();
   const router = useRouter();
@@ -21,6 +25,7 @@ export function StyleThemeToggle() {
 
   function handleSelect(theme: StyleTheme) {
     setLocal(theme);
+    if (!authenticated) return;
     startTransition(async () => {
       await setStyleTheme(theme);
       router.refresh();
