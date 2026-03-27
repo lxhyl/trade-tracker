@@ -10,9 +10,8 @@ import {
   FONT_NUM,
   FONT_SKETCHY,
   FONT_SKETCHY_HEADING,
-  CARD_W,
-  getCardBase,
-  SquiggleLine,
+  cardBase,
+  NoteCardWrapper,
   Footer,
   LogoCircle,
 } from "@/components/ShareCard";
@@ -28,8 +27,8 @@ export interface TxShareData {
   currency: string;
   date: Date;
   realizedPnl: string | null;
-  currentPrice?: number;   // market price for buy txns
-  avgCost?: number;         // avg cost basis for sell txns
+  currentPrice?: number;
+  avgCost?: number;
 }
 
 interface TransactionShareCardProps {
@@ -53,7 +52,9 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
     const muted = sk ? "#8b7e6a" : "#94a3b8";
     const mutedDark = sk ? "#5c4f3a" : "#64748b";
     const detailText = sk ? "#4a3d2a" : "#334155";
-    const rowBorder = sk ? "1px solid rgba(200, 184, 148, 0.45)" : "1px solid #f8fafc";
+    const rowBorder = sk ? "1px solid rgba(200, 184, 148, 0.35)" : "1px solid #f8fafc";
+    const sectionBorder = sk ? "1px solid rgba(200, 184, 148, 0.4)" : "1px solid #f1f5f9";
+    const pad = sk ? 18 : 28;
 
     const gainColor = colorScheme === "cn" ? "#e53e3e" : "#059669";
     const lossColor = colorScheme === "cn" ? "#059669" : "#e53e3e";
@@ -86,7 +87,6 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
       price: locale === "zh" ? "成交价" : "Price",
       qty: locale === "zh" ? "数量" : "Quantity",
       total: locale === "zh" ? "成交额" : "Total",
-      date: locale === "zh" ? "日期" : "Date",
       current: locale === "zh" ? "现价" : "Current",
       avgCost: locale === "zh" ? "成本价" : "Avg Cost",
       unrealizedPnl: locale === "zh" ? "浮动盈亏" : "Unrealized P&L",
@@ -100,10 +100,10 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
     const pnlColor = pnlValue >= 0 ? gainColor : lossColor;
     const pnlSign = pnlValue >= 0 ? "+" : "";
 
-    return (
-      <div ref={ref} style={getCardBase(isSketch)}>
-        {/* ── Header: Logo + Symbol + Action badge ── */}
-        <div style={{ padding: "24px 28px 16px", display: "flex", alignItems: "center", gap: 14 }}>
+    const content = (
+      <>
+        {/* Header */}
+        <div style={{ padding: `${sk ? 16 : 24}px ${pad}px ${sk ? 14 : 20}px`, display: "flex", alignItems: "center", gap: 14 }}>
           <LogoCircle symbol={tx.symbol} assetType={tx.assetType} size={48} dataUrl={logoDataUrl} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -129,10 +129,8 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
           </div>
         </div>
 
-        {sk ? <SquiggleLine /> : null}
-
-        {/* ── Main price display ── */}
-        <div style={{ padding: sk ? "8px 28px 20px" : "0 28px 20px" }}>
+        {/* Price */}
+        <div style={{ padding: `0 ${pad}px ${sk ? 16 : 20}px` }}>
           <div style={{ color: mutedDark, fontSize: sk ? 13 : 11, fontWeight: 600, letterSpacing: sk ? "0.01em" : "0.08em", textTransform: sk ? "none" : "uppercase", fontFamily: f, marginBottom: 6 }}>
             {L.price}
           </div>
@@ -144,26 +142,26 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
           </div>
         </div>
 
-        {/* ── Detail rows ── */}
-        <div style={{ margin: "0 28px", borderTop: sk ? `1px solid rgba(200, 184, 148, 0.5)` : "1px solid #f1f5f9" }}>
-          <DetailRow label={L.qty} value={formatNumber(qty, 8)} ink={detailText} muted={muted} font={f} numFont={nf} rowBorder={rowBorder} />
-          <DetailRow label={L.total} value={fc(totalUsd)} ink={detailText} muted={muted} font={f} numFont={nf} rowBorder={rowBorder} />
+        {/* Detail rows */}
+        <div style={{ margin: `0 ${pad}px`, borderTop: sectionBorder }}>
+          <DetailRow label={L.qty} value={formatNumber(qty, 8)} ink={detailText} muted={muted} font={f} numFont={nf} border={rowBorder} />
+          <DetailRow label={L.total} value={fc(totalUsd)} ink={detailText} muted={muted} font={f} numFont={nf} border={rowBorder} />
           {isBuy && hasCurrentPrice && (
-            <DetailRow label={L.current} value={fc(tx.currentPrice!)} ink={detailText} muted={muted} font={f} numFont={nf} rowBorder={rowBorder} />
+            <DetailRow label={L.current} value={fc(tx.currentPrice!)} ink={detailText} muted={muted} font={f} numFont={nf} border={rowBorder} />
           )}
           {!isBuy && tx.avgCost != null && tx.avgCost > 0 && (
-            <DetailRow label={L.avgCost} value={fc(tx.avgCost)} ink={detailText} muted={muted} font={f} numFont={nf} rowBorder={rowBorder} />
+            <DetailRow label={L.avgCost} value={fc(tx.avgCost)} ink={detailText} muted={muted} font={f} numFont={nf} border={rowBorder} />
           )}
         </div>
 
-        {/* ── P&L block ── */}
+        {/* P&L */}
         {showPnl && (
-          <div style={{ padding: "16px 28px 20px" }}>
+          <div style={{ padding: `16px ${pad}px ${sk ? 16 : 20}px` }}>
             <div style={{
               background: `${pnlColor}08`,
               border: `1px solid ${pnlColor}18`,
               borderRadius: 12,
-              padding: "16px 20px",
+              padding: `${sk ? 14 : 16}px ${sk ? 16 : 20}px`,
               display: "flex", alignItems: "center", justifyContent: "space-between",
             }}>
               <span style={{ color: mutedDark, fontSize: 12, fontWeight: 600, fontFamily: f }}>
@@ -182,19 +180,24 @@ export const TransactionShareCard = forwardRef<HTMLDivElement, TransactionShareC
         )}
 
         <Footer isSketch={isSketch} />
-      </div>
+      </>
     );
+
+    if (sk) {
+      return <NoteCardWrapper ref={ref}>{content}</NoteCardWrapper>;
+    }
+    return <div ref={ref} style={cardBase}>{content}</div>;
   }
 );
 
-function DetailRow({ label, value, ink, muted, font, numFont, rowBorder }: {
-  label: string; value: string; ink: string; muted: string; font: string; numFont: string; rowBorder: string;
+function DetailRow({ label, value, ink, muted, font, numFont, border }: {
+  label: string; value: string; ink: string; muted: string; font: string; numFont: string; border: string;
 }) {
   return (
     <div style={{
       display: "flex", justifyContent: "space-between", alignItems: "center",
       padding: "11px 0",
-      borderBottom: rowBorder,
+      borderBottom: border,
     }}>
       <span style={{ color: muted, fontSize: 13, fontFamily: font }}>{label}</span>
       <span style={{ color: ink, fontSize: 14, fontWeight: 600, fontFamily: numFont, letterSpacing: "-0.2px" }}>{value}</span>

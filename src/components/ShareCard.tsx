@@ -16,41 +16,93 @@ export const FONT_NUM = "'JetBrains Mono', 'Fira Mono', monospace";
 export const FONT_SKETCHY = "'Patrick Hand', cursive";
 export const FONT_SKETCHY_HEADING = "'Caveat', cursive";
 
-// ── Sketch palette ────────────────────────────────────────────
-export const SKETCH_PAPER = "#faf6ed";
-const SKETCH_BORDER = "#c8b894";
-const SKETCH_INK = "#3b2f1e";
-const SKETCH_MUTED = "#8b7e6a";
-const SKETCH_CHART_BG = "#f4ede0";
-const SKETCH_DIVIDER_COLOR = "rgba(200, 184, 148, 0.6)";
-const SKETCH_ROW_BORDER = "rgba(200, 184, 148, 0.45)";
-
 export const CARD_W = 480;
 const CHART_H = 200;
 const φ = 0.618; // golden ratio
 
+// ── Sketch palette ────────────────────────────────────────
+export const SKETCH_PAPER = "#f0e8d4";   // notebook page
+const SKETCH_NOTE_BG = "#fffdf7";        // sticky note
+const SKETCH_INK = "#3b2f1e";
+const SKETCH_MUTED = "#8b7e6a";
+const SKETCH_CHART_BG = "#f9f5ed";
+const SKETCH_NOTE_BORDER = "rgba(200, 184, 148, 0.3)";
+const SKETCH_ROW_BORDER = "rgba(200, 184, 148, 0.35)";
+const SKETCH_NOTE_W = CARD_W - 40;       // sticky note width
+
+// ── Classic card base ─────────────────────────────────────
+export const cardBase: React.CSSProperties = {
+  width: CARD_W,
+  fontFamily: FONT_SANS,
+  background: "#ffffff",
+  overflow: "hidden",
+  boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
+};
+
+// backward compat
 export function getCardBase(isSketch?: boolean): React.CSSProperties {
-  if (isSketch) {
-    return {
-      width: CARD_W,
-      fontFamily: FONT_SKETCHY,
-      overflow: "hidden",
-      backgroundColor: SKETCH_PAPER,
-      border: `2.5px solid ${SKETCH_BORDER}`,
-      borderRadius: "4px 12px 8px 14px",
-      boxShadow: `3px 4px 0 #d4c9ad`,
-    };
-  }
-  return {
-    width: CARD_W,
-    fontFamily: FONT_SANS,
-    background: "#ffffff",
-    overflow: "hidden",
-    boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
-  };
+  return cardBase;
 }
 
 export interface PricePoint { t: number; p: number }
+
+// ── Sketch wrapper: notebook page + taped sticky note ─────
+
+export const NoteCardWrapper = forwardRef<HTMLDivElement, { children: React.ReactNode }>(
+  function NoteCardWrapper({ children }, ref) {
+    return (
+      <div ref={ref} style={{
+        width: CARD_W,
+        fontFamily: FONT_SKETCHY,
+        backgroundColor: SKETCH_PAPER,
+        backgroundImage: [
+          // red margin line
+          `linear-gradient(90deg, transparent 35px, rgba(200,120,120,0.2) 35px, rgba(200,120,120,0.2) 36px, transparent 36px)`,
+          // ruled lines
+          `repeating-linear-gradient(transparent 0px, transparent 27px, rgba(170,158,138,0.28) 27px, rgba(170,158,138,0.28) 28px)`,
+        ].join(", "),
+        overflow: "hidden",
+      }}>
+        <div style={{ position: "relative", padding: "36px 20px 22px" }}>
+          {/* Tape strips */}
+          <TapeStrip side="left" />
+          <TapeStrip side="right" />
+          {/* Sticky note */}
+          <div style={{
+            background: SKETCH_NOTE_BG,
+            borderRadius: "1px 2px 3px 1px",
+            boxShadow: "0 2px 8px rgba(50,35,10,0.1), 0 6px 20px rgba(50,35,10,0.06)",
+            transform: "rotate(-0.7deg)",
+            overflow: "hidden",
+            border: `1px solid ${SKETCH_NOTE_BORDER}`,
+          }}>
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  }
+);
+
+function TapeStrip({ side }: { side: "left" | "right" }) {
+  const isLeft = side === "left";
+  return (
+    <div style={{
+      position: "absolute",
+      top: 18,
+      ...(isLeft ? { left: 28 } : { right: 28 }),
+      width: 68,
+      height: 22,
+      background: "linear-gradient(160deg, rgba(220,218,214,0.75) 0%, rgba(205,203,198,0.5) 40%, rgba(215,213,208,0.65) 60%, rgba(205,203,198,0.55) 100%)",
+      borderRadius: 1,
+      transform: `rotate(${isLeft ? -42 : 42}deg)`,
+      boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
+      zIndex: 10,
+    }} />
+  );
+}
+
+// ── Share Card ────────────────────────────────────────────
 
 interface ShareCardProps {
   holdings: Holding[];
@@ -59,7 +111,6 @@ interface ShareCardProps {
   rates: ExchangeRates;
   colorScheme: ColorScheme;
   isSketch?: boolean;
-  // legacy props kept for multi-asset compat
   showAvgCost?: boolean;
   showQuantity?: boolean;
   showPnlAmount?: boolean;
@@ -67,7 +118,7 @@ interface ShareCardProps {
   date: string;
   locale: Locale;
   logoDataUrls?: Record<string, string>;
-  priceHistory?: PricePoint[];  // for single-asset chart
+  priceHistory?: PricePoint[];
   loading?: boolean;
 }
 
@@ -104,23 +155,26 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
   const f = sk ? FONT_SKETCHY : FONT_SANS;
   const nf = sk ? FONT_SKETCHY : FONT_NUM;
 
-  return (
-    <div ref={ref} style={getCardBase(isSketch)}>
-      <div style={{ padding: "20px 24px 16px" }}>
+  const content = (
+    <>
+      <div style={{ padding: sk ? "16px 18px 12px" : "20px 24px 16px" }}>
         <div style={{ color: sk ? SKETCH_MUTED : "#94a3b8", fontSize: sk ? 14 : 11, fontWeight: 600, letterSpacing: sk ? "0.01em" : "0.1em", textTransform: sk ? "none" : "uppercase", fontFamily: sk ? FONT_SKETCHY_HEADING : FONT_SANS, marginBottom: 8 }}>
           {totalReturnLabel}
         </div>
-        <div style={{ color: returnColor, fontSize: 48, fontWeight: 700, lineHeight: 1, fontFamily: nf, letterSpacing: "-1px" }}>
+        <div style={{ color: returnColor, fontSize: sk ? 44 : 48, fontWeight: 700, lineHeight: 1, fontFamily: nf, letterSpacing: "-1px" }}>
           {isGain ? "+" : ""}{formatPercent(summary.totalPnLPercent)}
         </div>
       </div>
-      {sk ? <SquiggleLine /> : <div style={{ height: 1, background: "#f1f5f9", margin: "0 24px" }} />}
+      {sk
+        ? <div style={{ margin: "0 18px", borderTop: `1.5px dashed ${SKETCH_ROW_BORDER}` }} />
+        : <div style={{ height: 1, background: "#f1f5f9", margin: "0 24px" }} />
+      }
       <div>
         {holdings.map((h, i) => {
           const hGain = h.unrealizedPnL >= 0;
           const hColor = hGain ? gainColor : lossColor;
           return (
-            <div key={h.symbol} style={{ padding: "12px 24px", borderBottom: i < holdings.length - 1 ? `1px solid ${sk ? SKETCH_ROW_BORDER : "#f8fafc"}` : "none", display: "flex", alignItems: "center", gap: 10 }}>
+            <div key={h.symbol} style={{ padding: sk ? "10px 18px" : "12px 24px", borderBottom: i < holdings.length - 1 ? `1px solid ${sk ? SKETCH_ROW_BORDER : "#f8fafc"}` : "none", display: "flex", alignItems: "center", gap: 10 }}>
               <LogoCircle symbol={h.symbol} assetType={h.assetType} size={32} dataUrl={logoDataUrls[h.symbol]} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: sk ? SKETCH_INK : "#0f172a", fontFamily: f }}>{h.symbol}</div>
@@ -134,8 +188,13 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         })}
       </div>
       <Footer isSketch={isSketch} />
-    </div>
+    </>
   );
+
+  if (sk) {
+    return <NoteCardWrapper ref={ref}>{content}</NoteCardWrapper>;
+  }
+  return <div ref={ref} style={cardBase}>{content}</div>;
 });
 
 // ── Single asset card ────────────────────────────────────────
@@ -161,13 +220,13 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
   const sk = !!isSketch;
   const f = sk ? FONT_SKETCHY : FONT_SANS;
   const nf = sk ? FONT_SKETCHY : FONT_NUM;
-  const chartBg = sk ? SKETCH_CHART_BG : "#fafafa";
-  const overlayRgba = sk ? "250,246,237" : "250,250,250";
+  const chartW = sk ? SKETCH_NOTE_W : CARD_W;
+  const overlayRgba = sk ? "255,253,247" : "250,250,250";
 
-  return (
-    <div ref={ref} style={getCardBase(isSketch)}>
+  const content = (
+    <>
       {/* Asset identity */}
-      <div style={{ padding: "20px 24px 12px", display: "flex", alignItems: "center", gap: 14 }}>
+      <div style={{ padding: sk ? "16px 18px 10px" : "20px 24px 16px", display: "flex", alignItems: "center", gap: 14 }}>
         <LogoCircle symbol={h.symbol} assetType={h.assetType} size={44} dataUrl={logoDataUrl} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ color: sk ? SKETCH_INK : "#0f172a", fontSize: sk ? 20 : 17, fontWeight: 700, fontFamily: sk ? FONT_SKETCHY_HEADING : FONT_SANS, letterSpacing: "-0.2px" }}>{h.symbol}</div>
@@ -175,10 +234,8 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
         </div>
       </div>
 
-      {sk && <SquiggleLine />}
-
       {/* Chart area */}
-      <div style={{ position: "relative", height: CHART_H, background: chartBg, overflow: "hidden", ...(sk ? { margin: "0 16px", borderRadius: 6, border: `1.5px solid ${SKETCH_ROW_BORDER}` } : {}) }}>
+      <div style={{ position: "relative", height: CHART_H, background: sk ? SKETCH_CHART_BG : "#fafafa", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, zIndex: 1, background: `linear-gradient(to top, rgba(${overlayRgba},0.72) 20%, transparent 100%)` }} />
         <Sparkline
           priceHistory={priceHistory}
@@ -187,7 +244,7 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
           currentPrice={h.currentPrice}
           fc={fc}
           color={color}
-          width={sk ? CARD_W - 35 : CARD_W}
+          width={chartW}
           height={CHART_H}
           symbol={h.symbol}
           locale={locale}
@@ -206,17 +263,21 @@ const SingleAssetCard = forwardRef<HTMLDivElement, SingleAssetCardProps>(functio
         )}
 
         {/* P&L % */}
-        <div style={{ position: "absolute", bottom: 18, left: sk ? 16 : 24, zIndex: 3 }}>
-          <div style={{ color, fontSize: sk ? 56 : 64, fontWeight: 700, lineHeight: 1, fontFamily: sk ? FONT_SKETCHY_HEADING : nf, letterSpacing: "-2px" }}>
+        <div style={{ position: "absolute", bottom: sk ? 14 : 18, left: sk ? 18 : 24, zIndex: 3 }}>
+          <div style={{ color, fontSize: sk ? 52 : 64, fontWeight: 700, lineHeight: 1, fontFamily: sk ? FONT_SKETCHY_HEADING : nf, letterSpacing: "-2px" }}>
             {isGain ? "+" : ""}{formatPercent(h.unrealizedPnLPercent)}
           </div>
         </div>
       </div>
 
-      <div style={{ height: sk ? 8 : 0 }} />
       <Footer isSketch={isSketch} />
-    </div>
+    </>
   );
+
+  if (sk) {
+    return <NoteCardWrapper ref={ref}>{content}</NoteCardWrapper>;
+  }
+  return <div ref={ref} style={cardBase}>{content}</div>;
 });
 
 // ── Sparkline ────────────────────────────────────────────────
@@ -294,7 +355,7 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
   const curText = lastPrice > 0 ? fc(lastPrice) : null;
   const fs = 11;
   const labelFont = isSketch ? FONT_SKETCHY : FONT_NUM;
-  const labelBg = isSketch ? SKETCH_CHART_BG : "white";
+  const labelBg = isSketch ? SKETCH_NOTE_BG : "white";
   const strokeW = isSketch ? 2.5 : 1.5;
 
   const curLabelX = lastX + 8;
@@ -305,19 +366,16 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity={isSketch ? 0.15 : 0.25} />
-          <stop offset="100%" stopColor={color} stopOpacity={isSketch ? 0.08 : 0.18} />
+          <stop offset="100%" stopColor={color} stopOpacity={isSketch ? 0.06 : 0.18} />
         </linearGradient>
       </defs>
 
-      {/* Area + line */}
       <path d={areaPath} fill={`url(#${gradId})`} />
       <path d={linePath} fill="none" stroke={color} strokeWidth={strokeW} strokeLinejoin="round" strokeLinecap="round" />
 
-      {/* Avg cost dashed horizontal line */}
       <line x1="0" y1={buyY.toFixed(1)} x2={width} y2={buyY.toFixed(1)}
         stroke={isSketch ? SKETCH_MUTED : "#64748b"} strokeWidth="1" strokeDasharray={isSketch ? "6,5" : "5,4"} strokeOpacity="0.6" />
 
-      {/* Buy marker */}
       <line
         x1={markerX.toFixed(1)} y1={(height - 14).toFixed(1)}
         x2={markerX.toFixed(1)} y2={buyY.toFixed(1)}
@@ -332,7 +390,7 @@ function Sparkline({ priceHistory, avgCost, firstBuyDate, currentPrice, fc, colo
         return (
           <>
             <rect x={lx.toFixed(1)} y={ly.toFixed(1)} width={labelW} height={15}
-              rx="3" fill={labelBg} fillOpacity="0.88" />
+              rx="3" fill={labelBg} fillOpacity="0.92" />
             <text
               x={(lx + labelW / 2).toFixed(1)} y={(ly + 11).toFixed(1)}
               textAnchor="middle" dominantBaseline="auto"
@@ -385,10 +443,8 @@ export function LogoCircle({ symbol, assetType, size, dataUrl }: {
   );
 }
 
-// ── Squiggly hand-drawn divider ───────────────────────────────
-
-export function SquiggleLine({ color = SKETCH_BORDER, pad = 24, width: w }: { color?: string; pad?: number; width?: number }) {
-  const inner = (w ?? CARD_W) - pad * 2;
+export function SquiggleLine({ color = "#c8b894", pad = 18, width: w }: { color?: string; pad?: number; width?: number }) {
+  const inner = (w ?? SKETCH_NOTE_W) - pad * 2;
   const step = 20;
   const segs = Math.ceil(inner / step);
   let d = "M 0 4";
@@ -410,9 +466,9 @@ export function SquiggleLine({ color = SKETCH_BORDER, pad = 24, width: w }: { co
 export function Footer({ isSketch }: { isSketch?: boolean }) {
   const sk = !!isSketch;
   return (
-    <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: sk ? `2px dashed ${SKETCH_BORDER}` : "1px solid #f1f5f9", background: "transparent" }}>
-      <div style={{ background: sk ? SKETCH_PAPER : "#ffffff", padding: 3, borderRadius: 4, border: `1px solid ${sk ? SKETCH_BORDER : "#e2e8f0"}`, lineHeight: 0, flexShrink: 0 }}>
-        <QRCodeSVG value={SITE_URL} size={40} marginSize={0} fgColor={sk ? SKETCH_INK : "#0f172a"} />
+    <div style={{ padding: sk ? "10px 16px" : "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: sk ? `1.5px dashed rgba(200,184,148,0.5)` : "1px solid #f1f5f9", background: "transparent" }}>
+      <div style={{ background: sk ? SKETCH_NOTE_BG : "#ffffff", padding: 3, borderRadius: 4, border: `1px solid ${sk ? "rgba(200,184,148,0.4)" : "#e2e8f0"}`, lineHeight: 0, flexShrink: 0 }}>
+        <QRCodeSVG value={SITE_URL} size={36} marginSize={0} fgColor={sk ? SKETCH_INK : "#0f172a"} />
       </div>
       <div style={{ textAlign: "right" }}>
         <div style={{ fontSize: sk ? 15 : 13, fontWeight: 700, color: sk ? SKETCH_INK : "#0f172a", fontFamily: sk ? FONT_SKETCHY_HEADING : FONT_SANS }}>{SITE_NAME}</div>
@@ -422,9 +478,6 @@ export function Footer({ isSketch }: { isSketch?: boolean }) {
   );
 }
 
-export const cardBase: React.CSSProperties = getCardBase(false);
-
-// Inline spinner
 function SpinnerIcon() {
   return (
     <>
