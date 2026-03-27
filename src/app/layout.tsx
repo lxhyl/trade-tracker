@@ -44,7 +44,12 @@ export const metadata: Metadata = {
     title: "TradeTracker",
   },
   icons: {
+    icon: [
+      { url: "/icons/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
     apple: "/icons/icon-192.png",
+    shortcut: "/icons/icon-192.png",
   },
 };
 
