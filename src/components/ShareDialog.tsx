@@ -8,9 +8,11 @@ import { Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/I18nProvider";
 import { useStyleTheme } from "@/components/StyleThemeProvider";
 import { ShareCard, PricePoint, CARD_W, SKETCH_PAPER } from "@/components/ShareCard";
+import { useToast } from "@/components/Toast";
 import { toUsd } from "@/lib/currency";
+import { exportElementAsPng, isShareCancelledError, supportsNativeImageShare } from "@/lib/share-image";
 import { Button } from "@/components/ui/button";
-import { X, Download, ArrowLeft, Image } from "lucide-react";
+import { X, Download, ArrowLeft, Image as ImageIcon } from "lucide-react";
 
 interface ShareDialogProps {
   open: boolean;
@@ -36,6 +38,7 @@ export function ShareDialog({
 }: ShareDialogProps) {
   const { t } = useI18n();
   const { styleTheme } = useStyleTheme();
+  const { toast } = useToast();
   const isSketch = styleTheme === "sketchy";
   const isSingleMode = !!initialSymbol;
 
@@ -51,6 +54,7 @@ export function ShareDialog({
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [cardScale, setCardScale] = useState(1);
   const [cardNaturalH, setCardNaturalH] = useState(0);
+  const nativeShareSupported = supportsNativeImageShare();
 
   // Pre-fetch logos + price history when dialog opens
   useEffect(() => {
@@ -144,26 +148,20 @@ export function ShareDialog({
     if (!cardRef.current) return;
     setCapturing(true);
     try {
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: isSketch ? SKETCH_PAPER : "#ffffff" });
       const filename = `portfolio-${today}.png`;
-
-      // Web Share API (iOS 15+, Android) — opens native share sheet → Save to Photos
-      const blob = await fetch(dataUrl).then((r) => r.blob());
-      const file = new File([blob], filename, { type: "image/png" });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        return;
-      }
-
-      // Desktop fallback
-      const a = document.createElement("a");
-      a.download = filename;
-      a.href = dataUrl;
-      a.click();
+      const result = await exportElementAsPng({
+        element: cardRef.current,
+        filename,
+        backgroundColor: isSketch ? SKETCH_PAPER : "#ffffff",
+      });
+      toast(t(result === "shared" ? "share.completed" : "share.downloadStarted"), "success");
     } catch (err) {
-      // AbortError = user dismissed share sheet, not a real error
-      if ((err as Error)?.name !== "AbortError") console.error(err);
+      if (isShareCancelledError(err)) {
+        toast(t("share.cancelled"), "info");
+      } else {
+        console.error(err);
+        toast(t("share.exportFailed"), "error");
+      }
     } finally {
       setCapturing(false);
     }
@@ -199,10 +197,17 @@ export function ShareDialog({
   );
 
   const saveBtn = (
-    <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing || loading}>
-      <Download className="h-4 w-4" />
-      {capturing ? t("share.generating") : t("share.downloadPng")}
-    </Button>
+    <div>
+      <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing || loading}>
+        <Download className="h-4 w-4" />
+        {capturing ? t("share.generating") : t("share.downloadPng")}
+      </Button>
+      {nativeShareSupported && (
+        <p className="mt-2 text-xs text-muted-foreground text-center">
+          {t("share.nativeHint")}
+        </p>
+      )}
+    </div>
   );
 
   return (
@@ -269,7 +274,7 @@ export function ShareDialog({
             </div>
             <div className="px-5 py-4 border-t shrink-0">
               <Button className="w-full gap-2" disabled={selectedSymbols.size === 0} onClick={() => setStep("preview")}>
-                <Image className="h-4 w-4" />
+                <ImageIcon className="h-4 w-4" />
                 {t("share.preview")}
               </Button>
             </div>

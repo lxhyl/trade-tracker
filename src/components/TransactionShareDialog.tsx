@@ -7,7 +7,9 @@ import { Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/I18nProvider";
 import { useStyleTheme } from "@/components/StyleThemeProvider";
 import { TransactionShareCard, TxShareData } from "@/components/TransactionShareCard";
+import { useToast } from "@/components/Toast";
 import { CARD_W, SKETCH_PAPER } from "@/components/ShareCard";
+import { exportElementAsPng, isShareCancelledError, supportsNativeImageShare } from "@/lib/share-image";
 import { Button } from "@/components/ui/button";
 import { X, Download } from "lucide-react";
 
@@ -32,6 +34,7 @@ export function TransactionShareDialog({
 }: TransactionShareDialogProps) {
   const { t } = useI18n();
   const { styleTheme } = useStyleTheme();
+  const { toast } = useToast();
   const isSketch = styleTheme === "sketchy";
   const cardRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
@@ -40,6 +43,7 @@ export function TransactionShareDialog({
   const [loading, setLoading] = useState(false);
   const [cardScale, setCardScale] = useState(1);
   const [cardNaturalH, setCardNaturalH] = useState(0);
+  const nativeShareSupported = supportsNativeImageShare();
 
   // Fetch logo when dialog opens
   useEffect(() => {
@@ -92,23 +96,21 @@ export function TransactionShareDialog({
     if (!cardRef.current) return;
     setCapturing(true);
     try {
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: isSketch ? SKETCH_PAPER : "#ffffff", skipFonts: true });
       const filename = `trade-${tx.symbol}-${today}.png`;
-
-      const blob = await fetch(dataUrl).then((r) => r.blob());
-      const file = new File([blob], filename, { type: "image/png" });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        return;
-      }
-
-      const a = document.createElement("a");
-      a.download = filename;
-      a.href = dataUrl;
-      a.click();
+      const result = await exportElementAsPng({
+        element: cardRef.current,
+        filename,
+        backgroundColor: isSketch ? SKETCH_PAPER : "#ffffff",
+        skipFonts: true,
+      });
+      toast(t(result === "shared" ? "share.completed" : "share.downloadStarted"), "success");
     } catch (err) {
-      if ((err as Error)?.name !== "AbortError") console.error(err);
+      if (isShareCancelledError(err)) {
+        toast(t("share.cancelled"), "info");
+      } else {
+        console.error(err);
+        toast(t("share.exportFailed"), "error");
+      }
     } finally {
       setCapturing(false);
     }
@@ -161,10 +163,17 @@ export function TransactionShareDialog({
 
         {/* Save button */}
         <div className="px-5 py-4 border-t shrink-0">
-          <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing || loading}>
-            <Download className="h-4 w-4" />
-            {capturing ? t("share.generating") : t("share.downloadPng")}
-          </Button>
+          <div>
+            <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing || loading}>
+              <Download className="h-4 w-4" />
+              {capturing ? t("share.generating") : t("share.downloadPng")}
+            </Button>
+            {nativeShareSupported && (
+              <p className="mt-2 text-xs text-muted-foreground text-center">
+                {t("share.nativeHint")}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
