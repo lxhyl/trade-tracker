@@ -9,7 +9,7 @@ import { useStyleTheme } from "@/components/StyleThemeProvider";
 import { TransactionShareCard, TxShareData } from "@/components/TransactionShareCard";
 import { useToast } from "@/components/Toast";
 import { CARD_W, SKETCH_PAPER } from "@/components/ShareCard";
-import { exportElementAsPng, isShareCancelledError, supportsNativeImageShare } from "@/lib/share-image";
+import { exportElementAsPng, isShareCancelledError } from "@/lib/share-image";
 import { Button } from "@/components/ui/button";
 import { X, Download } from "lucide-react";
 
@@ -43,7 +43,6 @@ export function TransactionShareDialog({
   const [loading, setLoading] = useState(false);
   const [cardScale, setCardScale] = useState(1);
   const [cardNaturalH, setCardNaturalH] = useState(0);
-  const nativeShareSupported = supportsNativeImageShare();
 
   // Fetch logo when dialog opens
   useEffect(() => {
@@ -103,13 +102,13 @@ export function TransactionShareDialog({
         backgroundColor: isSketch ? SKETCH_PAPER : "#ffffff",
         skipFonts: true,
       });
-      toast(t(result === "shared" ? "share.completed" : "share.downloadStarted"), "success");
+      toast(t(result === "shared" ? "share.completed" : "share.downloadStarted"), "success", { position: "top" });
     } catch (err) {
       if (isShareCancelledError(err)) {
-        toast(t("share.cancelled"), "info");
+        return;
       } else {
         console.error(err);
-        toast(t("share.exportFailed"), "error");
+        toast(t("share.exportFailed"), "error", { position: "top" });
       }
     } finally {
       setCapturing(false);
@@ -163,17 +162,10 @@ export function TransactionShareDialog({
 
         {/* Save button */}
         <div className="px-5 py-4 border-t shrink-0">
-          <div>
-            <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing || loading}>
-              <Download className="h-4 w-4" />
-              {capturing ? t("share.generating") : t("share.downloadPng")}
-            </Button>
-            {nativeShareSupported && (
-              <p className="mt-2 text-xs text-muted-foreground text-center">
-                {t("share.nativeHint")}
-              </p>
-            )}
-          </div>
+          <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing || loading}>
+            <Download className="h-4 w-4" />
+            {capturing ? t("share.generating") : t("share.downloadPng")}
+          </Button>
         </div>
       </div>
     </div>

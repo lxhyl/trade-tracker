@@ -10,7 +10,7 @@ import { useStyleTheme } from "@/components/StyleThemeProvider";
 import { ShareCard, PricePoint, CARD_W, SKETCH_PAPER } from "@/components/ShareCard";
 import { useToast } from "@/components/Toast";
 import { toUsd } from "@/lib/currency";
-import { exportElementAsPng, isShareCancelledError, supportsNativeImageShare } from "@/lib/share-image";
+import { exportElementAsPng, isShareCancelledError } from "@/lib/share-image";
 import { Button } from "@/components/ui/button";
 import { X, Download, ArrowLeft, Image as ImageIcon } from "lucide-react";
 
@@ -54,7 +54,6 @@ export function ShareDialog({
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [cardScale, setCardScale] = useState(1);
   const [cardNaturalH, setCardNaturalH] = useState(0);
-  const nativeShareSupported = supportsNativeImageShare();
 
   // Pre-fetch logos + price history when dialog opens
   useEffect(() => {
@@ -154,13 +153,13 @@ export function ShareDialog({
         filename,
         backgroundColor: isSketch ? SKETCH_PAPER : "#ffffff",
       });
-      toast(t(result === "shared" ? "share.completed" : "share.downloadStarted"), "success");
+      toast(t(result === "shared" ? "share.completed" : "share.downloadStarted"), "success", { position: "top" });
     } catch (err) {
       if (isShareCancelledError(err)) {
-        toast(t("share.cancelled"), "info");
+        return;
       } else {
         console.error(err);
-        toast(t("share.exportFailed"), "error");
+        toast(t("share.exportFailed"), "error", { position: "top" });
       }
     } finally {
       setCapturing(false);
@@ -197,17 +196,10 @@ export function ShareDialog({
   );
 
   const saveBtn = (
-    <div>
-      <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing || loading}>
-        <Download className="h-4 w-4" />
-        {capturing ? t("share.generating") : t("share.downloadPng")}
-      </Button>
-      {nativeShareSupported && (
-        <p className="mt-2 text-xs text-muted-foreground text-center">
-          {t("share.nativeHint")}
-        </p>
-      )}
-    </div>
+    <Button className="w-full gap-2" onClick={handleDownload} disabled={capturing || loading}>
+      <Download className="h-4 w-4" />
+      {capturing ? t("share.generating") : t("share.downloadPng")}
+    </Button>
   );
 
   return (
