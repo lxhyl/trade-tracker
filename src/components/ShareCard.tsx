@@ -98,13 +98,13 @@ function TapeStrip({ side }: { side: "left" | "right" }) {
   return (
     <div style={{
       position: "absolute",
-      top: 18,
-      ...(isLeft ? { left: 28 } : { right: 28 }),
-      width: 68,
-      height: 22,
+      top: 26,
+      ...(isLeft ? { left: 24 } : { right: 24 }),
+      width: 78,
+      height: 24,
       background: "linear-gradient(160deg, rgba(220,218,214,0.75) 0%, rgba(205,203,198,0.5) 40%, rgba(215,213,208,0.65) 60%, rgba(205,203,198,0.55) 100%)",
       borderRadius: 1,
-      transform: `rotate(${isLeft ? -42 : 42}deg)`,
+      transform: `rotate(${isLeft ? -34 : 34}deg)`,
       boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
       zIndex: 10,
     }} />
