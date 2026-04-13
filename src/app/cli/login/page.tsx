@@ -17,11 +17,12 @@ function LoginFlow() {
     if (status === "loading") return;
 
     if (status === "unauthenticated") {
-      // Store callback_port before redirecting to OAuth
-      if (callbackPort) {
-        sessionStorage.setItem("cli_callback_port", callbackPort);
-      }
-      signIn(undefined, { callbackUrl: "/cli/login" });
+      // Redirect directly to Google OAuth, passing callback_port through the callbackUrl
+      // so it survives the OAuth redirect without relying on sessionStorage
+      const callbackUrl = callbackPort
+        ? `/cli/login?callback_port=${callbackPort}`
+        : "/cli/login";
+      signIn("google", { callbackUrl });
       return;
     }
 
@@ -29,14 +30,13 @@ function LoginFlow() {
     if (status === "authenticated" && !redirected.current) {
       redirected.current = true;
 
-      const port = callbackPort || sessionStorage.getItem("cli_callback_port");
-      if (!port) {
+      if (!callbackPort) {
         setError("Missing callback port. Please run the CLI login command again.");
         return;
       }
 
       // Validate port is a number
-      const portNum = parseInt(port, 10);
+      const portNum = parseInt(callbackPort, 10);
       if (isNaN(portNum) || portNum < 1024 || portNum > 65535) {
         setError("Invalid callback port.");
         return;
@@ -49,7 +49,6 @@ function LoginFlow() {
           return res.json();
         })
         .then((data) => {
-          sessionStorage.removeItem("cli_callback_port");
           // Redirect to CLI's local callback server
           window.location.href = `http://127.0.0.1:${portNum}/callback?token=${encodeURIComponent(data.token)}`;
           setDone(true);
