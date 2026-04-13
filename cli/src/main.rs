@@ -17,8 +17,8 @@ struct Cli {
 enum Commands {
     /// Authenticate via browser OAuth
     Login {
-        /// Server URL (default: from TT_SERVER_URL env or http://localhost:3000)
-        #[arg(long, env = "TT_SERVER_URL", default_value = "http://localhost:3000")]
+        /// Server URL (override with --server or TT_SERVER_URL env)
+        #[arg(long, env = "TT_SERVER_URL", default_value = "https://tt.ozlab.xyz")]
         server: String,
     },
     /// Clear stored authentication token
