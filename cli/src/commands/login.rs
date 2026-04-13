@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{Context, Result};
 use axum::{extract::Query, response::Html, routing::get, Router};
 use std::collections::HashMap;
 use std::net::TcpListener;
@@ -40,27 +40,21 @@ pub async fn run(server_url: &str) -> Result<()> {
         eprintln!("Failed to open browser: {}. Please open the URL manually.", e);
     }
 
-    // Start axum server with the existing TcpListener
+    // Start axum server in a background task so the handler runs independently
     let tokio_listener = tokio::net::TcpListener::from_std(listener)?;
-    let server = axum::serve(tokio_listener, app);
+    let server_handle = tokio::spawn(async move {
+        let _ = axum::serve(tokio_listener, app).await;
+    });
 
-    // Wait for token or timeout (120 seconds)
-    let token = tokio::select! {
-        result = rx => {
-            match result {
-                Ok(token) => token,
-                Err(_) => bail!("Login flow was interrupted"),
-            }
-        }
-        _ = async {
-            let _ = server.await;
-        } => {
-            bail!("Server shut down unexpectedly");
-        }
-        _ = tokio::time::sleep(std::time::Duration::from_secs(120)) => {
-            bail!("Login timed out after 120 seconds");
-        }
-    };
+    // Wait for the token from the callback handler (timeout 120s)
+    let token = tokio::time::timeout(std::time::Duration::from_secs(120), rx)
+        .await
+        .context("Login timed out after 120 seconds. Please try again.")?
+        .context("Login flow was interrupted")?;
+
+    // Give the server a moment to finish sending the response, then shut down
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+    server_handle.abort();
 
     // Save the config
     let config = Config {
