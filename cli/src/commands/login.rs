@@ -52,10 +52,6 @@ pub async fn run(server_url: &str) -> Result<()> {
         .context("Login timed out after 120 seconds. Please try again.")?
         .context("Login flow was interrupted")?;
 
-    // Give the server a moment to finish sending the response, then shut down
-    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-    server_handle.abort();
-
     // Save the config
     let config = Config {
         token,
@@ -64,5 +60,8 @@ pub async fn run(server_url: &str) -> Result<()> {
     save_config(&config)?;
 
     println!("Login successful! Token saved.");
-    Ok(())
+
+    // Exit immediately — the spawned server task holds a TCP listener
+    // that prevents the tokio runtime from shutting down cleanly.
+    std::process::exit(0);
 }
