@@ -1,7 +1,7 @@
 use colored::Colorize;
 use tabled::{Table, Tabled, settings::Style};
 
-use crate::models::{Deposit, Holding, PortfolioSummary, SearchResult, Transaction};
+use crate::models::{Deposit, PortfolioSummary, SearchResult, Transaction};
 
 #[derive(Tabled)]
 struct TransactionRow {

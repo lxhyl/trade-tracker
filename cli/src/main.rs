@@ -7,7 +7,7 @@ mod models;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "tt", about = "TradeTracker CLI - manage your portfolio from the terminal")]
+#[command(name = "tradetracker", about = "TradeTracker CLI - manage your portfolio from the terminal")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,

@@ -42,7 +42,7 @@ pub async fn run(server_url: &str) -> Result<()> {
 
     // Start axum server in a background task so the handler runs independently
     let tokio_listener = tokio::net::TcpListener::from_std(listener)?;
-    let server_handle = tokio::spawn(async move {
+    let _server_handle = tokio::spawn(async move {
         let _ = axum::serve(tokio_listener, app).await;
     });
 

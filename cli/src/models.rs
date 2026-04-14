@@ -81,6 +81,7 @@ pub struct WithdrawRequest {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub struct Holding {
     pub symbol: String,
     pub name: Option<String>,
@@ -154,6 +155,7 @@ pub struct Settings {
 // ── Generic ─────────────────────────────────────────────────
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct SuccessResponse {
     pub success: bool,
 }
