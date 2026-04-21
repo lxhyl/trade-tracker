@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, JetBrains_Mono, Caveat, Patrick_Hand } from "next/font/google";
+import { DM_Sans, JetBrains_Mono, Caveat, Patrick_Hand, Ma_Shan_Zheng, Long_Cang } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
@@ -32,6 +32,22 @@ const patrickHand = Patrick_Hand({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-sketchy-body",
+});
+
+const maShanZheng = Ma_Shan_Zheng({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-sketchy-heading-cjk",
+  preload: false,
+  display: "swap",
+});
+
+const longCang = Long_Cang({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-sketchy-body-cjk",
+  preload: false,
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -142,7 +158,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={`${dmSans.variable} ${jetbrainsMono.variable} ${caveat.variable} ${patrickHand.variable} font-sans`}>
+      <body className={`${dmSans.variable} ${jetbrainsMono.variable} ${caveat.variable} ${patrickHand.variable} ${maShanZheng.variable} ${longCang.variable} font-sans`}>
         <SessionProvider>
         <ThemeProvider>
           <StyleThemeProvider>

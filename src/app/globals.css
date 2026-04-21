@@ -133,8 +133,8 @@
 .sketchy *,
 .sketchy *::before,
 .sketchy *::after {
-  --font-sans: var(--font-sketchy-body), "Patrick Hand", cursive !important;
-  font-family: var(--font-sketchy-body), "Patrick Hand", cursive !important;
+  --font-sans: var(--font-sketchy-body), var(--font-sketchy-body-cjk), "Patrick Hand", "Long Cang", cursive !important;
+  font-family: var(--font-sketchy-body), var(--font-sketchy-body-cjk), "Patrick Hand", "Long Cang", cursive !important;
 }
 
 .sketchy {
@@ -156,9 +156,9 @@
   ) !important;
 }
 
-/* Headings — big, bouncy Caveat */
+/* Headings — big, bouncy Caveat (Latin) + Ma Shan Zheng brush (CJK) */
 .sketchy h1, .sketchy h2, .sketchy h3, .sketchy h4 {
-  font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
+  font-family: var(--font-sketchy-heading), var(--font-sketchy-heading-cjk), "Caveat", "Ma Shan Zheng", cursive !important;
   letter-spacing: 0.02em;
   font-weight: 700;
 }
@@ -174,14 +174,14 @@
 
 /* Numbers — hand-drawn too */
 .sketchy .font-num {
-  font-family: var(--font-sketchy-body), "Patrick Hand", cursive !important;
+  font-family: var(--font-sketchy-body), var(--font-sketchy-body-cjk), "Patrick Hand", "Long Cang", cursive !important;
   font-variant-numeric: normal !important;
 }
 
 /* label-caps → Caveat, not uppercase */
 .sketchy .label-caps {
   text-transform: none !important;
-  font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
+  font-family: var(--font-sketchy-heading), var(--font-sketchy-heading-cjk), "Caveat", "Ma Shan Zheng", cursive !important;
   font-size: 1rem !important;
   letter-spacing: 0.01em !important;
   font-weight: 600 !important;
@@ -258,7 +258,7 @@
 }
 
 .sketchy th {
-  font-family: var(--font-sketchy-heading), "Caveat", cursive !important;
+  font-family: var(--font-sketchy-heading), var(--font-sketchy-heading-cjk), "Caveat", "Ma Shan Zheng", cursive !important;
   font-size: 1.2rem !important;
   font-weight: 700 !important;
   text-transform: none !important;

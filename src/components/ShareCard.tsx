@@ -13,8 +13,8 @@ export const SITE_HOST = "tt.ozlab.xyz";
 export const SITE_NAME = "TradeTracker";
 export const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
 export const FONT_NUM = "'JetBrains Mono', 'Fira Mono', monospace";
-export const FONT_SKETCHY = "'Patrick Hand', cursive";
-export const FONT_SKETCHY_HEADING = "'Caveat', cursive";
+export const FONT_SKETCHY = "'Patrick Hand', 'Long Cang', cursive";
+export const FONT_SKETCHY_HEADING = "'Caveat', 'Ma Shan Zheng', cursive";
 
 export const CARD_W = 480;
 const CHART_H = 200;
